@@ -1,0 +1,103 @@
+package com.dairy.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dairy.model.RouteStock;
+import com.dairy.repository.RouteStockRepository;
+
+@CrossOrigin(allowedHeaders = "*")
+@RestController
+@RequestMapping("/api")
+public class RouteStockController {
+
+	@Autowired
+	RouteStockRepository repository;
+
+	@GetMapping("/routeStocks")
+	public ResponseEntity<List<RouteStock>> getAllRouteStocks(@ModelAttribute RouteStock param) {
+		try {
+			List<RouteStock> responseList = new ArrayList<RouteStock>();
+			
+			if(null != param) {
+				repository.findAll(Example.of(param)).forEach(responseList::add);
+			}else {
+				repository.findAll().forEach(responseList::add);
+			}
+			if (responseList.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			return new ResponseEntity<>(responseList, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/routeStocks/{id}")
+	public ResponseEntity<RouteStock> getById(@PathVariable("id") long id) {
+		Optional<RouteStock> idData = repository.findById(id);
+
+		if (idData.isPresent()) {
+			return new ResponseEntity<>(idData.get(), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@PostMapping("/routeStocks")
+	public ResponseEntity<RouteStock> create(@RequestBody RouteStock createData) {
+		try {
+			RouteStock createdData = repository.save(createData);
+			return new ResponseEntity<>(createdData, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@PutMapping("/routeStocks/{id}")
+	public ResponseEntity<RouteStock> update(@PathVariable("id") long id, @RequestBody RouteStock updateData) {
+		try {
+			RouteStock updatedData = repository.save(updateData);
+			return new ResponseEntity<>(updatedData, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/routeStocks/{id}")
+	public ResponseEntity<HttpStatus> delete(@PathVariable("id") long id) {
+		try {
+			repository.deleteById(id);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@DeleteMapping("/routeStocks")
+	public ResponseEntity<HttpStatus> deleteAll() {
+		try {
+			repository.deleteAll();
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+}
