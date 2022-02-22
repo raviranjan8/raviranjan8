@@ -1,0 +1,62 @@
+.list {
+  text-align: left;
+  max-width: 750px;
+  margin: auto;
+}
+
+.submit-form {
+  max-width: 800px;
+  margin: auto;
+}
+
+.edit-form {
+  max-width: 800px;
+  margin: auto;
+}
+
+.rdg{
+  height: 100%;
+  width:100%;
+}
+
+.noBorder {
+    border: 0px;
+    padding:0; 
+    margin:0;
+    border-collapse: collapse;
+}
+
+.rootClassname {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    gap: 10px;
+}
+.rootClassname > .rdg {
+  flex: 1;
+}
+
+.toolbarClassname {
+  text-align: end;
+}
+
+.filterContainerClassname .filter-cell {
+    line-height: 20px;
+    padding: 0;
+}
+
+.filterContainerClassname .filter-cell>div{
+  padding-block: 0;
+  padding-inline: 4px;
+}
+
+.filterContainerClassname .filter-cell > div:first-child {
+  border-block-end: 1px solid var(--rdg-border-color);
+}
+
+.filterClassname {
+  inline-size: 100%;
+  padding: 1px;
+  font-size: 14px;
+  height: 20px;
+}

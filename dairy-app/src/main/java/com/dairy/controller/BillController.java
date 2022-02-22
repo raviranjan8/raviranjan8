@@ -1,5 +1,8 @@
 package com.dairy.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +23,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dairy.model.Bill;
+import com.dairy.model.DailyBill;
+import com.dairy.model.Payment;
+import com.dairy.model.Rate;
 import com.dairy.repository.BillRepository;
+import com.dairy.repository.DailyBillRepository;
+import com.dairy.repository.PartyRepository;
+import com.dairy.repository.PaymentRepository;
+import com.dairy.repository.RateRepository;
 
 @CrossOrigin(allowedHeaders = "*")
 @RestController
@@ -29,6 +39,178 @@ public class BillController {
 
 	@Autowired
 	BillRepository repository;
+	
+	@Autowired
+	RateRepository rateRepository;
+	
+	@Autowired
+	DailyBillRepository customerDeliveryRepository;
+	
+	@Autowired
+	PartyRepository customerRepository;
+	
+	@Autowired
+	PaymentRepository paymentRepository;
+	
+	DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
+	DateTimeFormatter formatMonth = DateTimeFormatter.ofPattern("MMM-yyyy");
+	
+	final BigDecimal zero = new BigDecimal(0);
+	
+	/**
+	 * 1. Takes active Customer list
+	 * 2. Takes entire delivery data for the month
+	 * 3. Takes the bill data for the month
+	 * 4. Takes the bill data for previous month
+	 * 5. Create new bill object for the distinct customer which were delivered from #1 step
+	 * 6. Sum quantity from delivery data from step #2 and create bill with rate multiply
+	 * 7. Extract and sum all the payments made in the month for Dues calculation from bills of steps #3 
+	 * 				and set the bill data to be marked as inactive and keep payment data as is
+	 * 8. Prepare due amount from previous month bills data from step #4 by using previous bills & dues and payment of this month
+	 * 9. Saves the inactive marked bill as inactive
+	 * 10. saves the new bill
+	 * @param param
+	 * @return
+	 */
+	@GetMapping("/generateBills")
+	public ResponseEntity<List<Bill>> generateBills(@ModelAttribute Bill param) {
+		param.setActive(true);
+		//get active customer
+		List<Long> customerIdList = customerRepository.findDistinctIdByActive(true);
+		
+		DailyBill paramDelivery= new DailyBill();
+		paramDelivery.setMonth(param.getMonth());
+		paramDelivery.setType(param.getType());	
+		//get all deliveries for all customers for the month
+		List<DailyBill> customerDeliveryList = customerDeliveryRepository.findAll(Example.of(paramDelivery));
+		
+		Rate paramRate = new Rate();
+		paramRate.setActive(true);
+		List<Rate> rate = rateRepository.findAll(Example.of(paramRate));
+		
+		//last month bill - it will be used to calculate dues
+		List<Bill> previousBills = new ArrayList<Bill>();
+		
+		Bill paramPrevMonth = new Bill();
+		LocalDate paramDate = LocalDate.parse("01-"+param.getMonth(),format);
+		paramPrevMonth.setMonth(paramDate.minusMonths(1).format(formatMonth));
+		paramPrevMonth.setActive(true);
+		paramPrevMonth.setType(param.getType());
+		repository.findAll(Example.of(paramPrevMonth)).forEach(previousBills::add);
+		
+		//this month bill to de-active
+		List<Bill> existingBills = new ArrayList<Bill>();		
+		repository.findAll(Example.of(param)).forEach(existingBills::add);
+		
+		//this month bill to see payments
+		Payment paymentParam=new Payment();
+		paymentParam.setActive(true);
+		paymentParam.setMonth(param.getMonth());
+		paymentParam.setType(param.getType());
+		List<Payment> payments = new ArrayList<Payment>();		
+		paymentRepository.findAll(Example.of(paymentParam)).forEach(payments::add);
+				
+		List<Bill> billsToBeDeActivated = new ArrayList<Bill>();
+		
+		List<Bill> billsForCreation = new ArrayList<Bill>();	
+		customerIdList.stream().forEach(customerId -> {
+			Bill customerBill = new Bill();
+			customerBill.setPartyId(customerId);
+			customerBill.setMonth(param.getMonth());
+			customerBill.setRate(rate.get(0).getRate());
+			customerBill.setActive(true);
+			customerBill.setType(param.getType());
+			
+			customerBill.setDaysCount(0L);
+			customerBill.setQuantity(new BigDecimal(0));
+			customerBill.setDues(new BigDecimal(0));
+			customerBill.setPayment(new BigDecimal(0));
+			customerBill.setBill(new BigDecimal(0));
+			customerDeliveryList.stream().
+				filter(c -> c.getPartyId().equals(customerId)).forEach(customerDelivery  ->{
+					if(null != customerDelivery.getQuantity()) {
+						customerBill.setQuantity(customerBill.getQuantity().add(customerDelivery.getQuantity()));
+					}
+					//for expense, sum of amount is the billed amount
+					if(null != customerDelivery.getAmount()) {
+						customerBill.setBill(customerBill.getBill().add(customerDelivery.getAmount()));
+					}
+					customerBill.setDaysCount(customerBill.getDaysCount()+1);
+				});
+			
+			if(param.getType().equals("income")) {
+				//for income, rate * quantity is the billed amount
+				customerBill.setBill(customerBill.getQuantity().multiply(customerBill.getRate()));
+			}
+			
+			existingBills.stream().
+				filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+					//all previous bill be deactivated for the month except payment One
+					bill.setActive(false);
+					billsToBeDeActivated.add(bill);
+				});
+			
+			payments.stream().
+				filter(c -> c.getPartyId().equals(customerId)).forEach(payment ->{
+						//and all paid amount for the month will be used to calculate dues against previous month bill
+						customerBill.setPayment(customerBill.getPayment().add(payment.getPayment()));
+						//also to show total payment against last month bill
+			});
+			
+			previousBills.stream().
+				filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+					if(param.getType().equals("income")) {
+						//last month bill + last month dues = last  month total bill
+						BigDecimal previousMonthTotal = new BigDecimal(0);
+						if(null != bill.getBill()) {
+							previousMonthTotal = previousMonthTotal.add(bill.getBill());
+						}
+						if(null != bill.getDues()) {
+							previousMonthTotal = previousMonthTotal.add(bill.getDues());
+						}
+						customerBill.setDues(customerBill.getDues().add(previousMonthTotal));
+					}else {			
+						//last month bill - last month payment = dues 
+						BigDecimal previousMonthDue = new BigDecimal(0);
+						if(null != bill.getBill()) {
+							previousMonthDue = previousMonthDue.add(bill.getBill());
+						}
+						if(null != bill.getPayment()) {
+							previousMonthDue = previousMonthDue.subtract(bill.getPayment());
+						}
+						customerBill.setDues(customerBill.getDues().add(previousMonthDue));
+					}
+				});
+			
+			if(param.getType().equals("income")) {
+				//last month total bill - this month payment = dues
+				//negative due means Advance
+				customerBill.setDues(customerBill.getDues().subtract(customerBill.getPayment()));
+			}
+			
+			//generate bill only if any delivery was done or any due is there or any payment made
+			if(customerBill.getQuantity().compareTo(zero)>0 || customerBill.getDues().compareTo(zero)>0 || customerBill.getPayment().compareTo(zero)>0) {
+				billsForCreation.add(customerBill);
+			}
+		});
+		repository.saveAll(billsToBeDeActivated);
+		//send the latest bill generated to UI
+		List<Bill> responseList = repository.saveAll(billsForCreation);		
+		if (responseList.isEmpty()) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+		return new ResponseEntity<>(responseList, HttpStatus.OK);
+	}
+	
+	@GetMapping("/generateBills/{month}/{type}")
+	public ResponseEntity<Bill>  validateBillGeneration(@PathVariable("month") String month, @PathVariable("type") String type) {
+		List<Bill> billList = repository.findActiveBillForTheMonth(month, type);
+		if (null != billList && billList.size()>0) {
+			return new ResponseEntity<>(billList.get(0), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 
 	@GetMapping("/bills")
 	public ResponseEntity<List<Bill>> getAllBills(@ModelAttribute Bill param) {
@@ -61,7 +243,7 @@ public class BillController {
 	}
 
 	@PostMapping("/bills")
-	public ResponseEntity<Bill> createl(@RequestBody Bill createData) {
+	public ResponseEntity<Bill> create(@RequestBody Bill createData) {
 		try {
 			Bill createdData = repository.save(createData);
 			return new ResponseEntity<>(createdData, HttpStatus.CREATED);

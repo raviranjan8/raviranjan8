@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -17,8 +19,8 @@ public class Bill {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
-	@Column(name = "CUSTOMER_ID")
-	private Long customerId;
+	@Column(name = "PARTY_ID")
+	private Long partyId;
 	
 	@Column(name = "MONTH")
 	private String month;
@@ -37,9 +39,19 @@ public class Bill {
 	
 	@Column(name = "DUES")
 	private BigDecimal dues;
+	
+	@Column(name = "DAYS_COUNT")
+	private Long daysCount;
 
 	@Column(name = "ACTIVE")
 	private Boolean active;
+	
+	@Column(name = "TYPE")
+	private String type;
+	
+	@ManyToOne
+	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
+	private Party customer;
 
 	public Long getId() {
 		return id;
@@ -49,12 +61,12 @@ public class Bill {
 		this.id = id;
 	}
 
-	public Long getCustomerId() {
-		return customerId;
+	public Long getPartyId() {
+		return partyId;
 	}
 
-	public void setCustomerId(Long customerId) {
-		this.customerId = customerId;
+	public void setPartyId(Long partyId) {
+		this.partyId = partyId;
 	}
 
 	public BigDecimal getQuantity() {
@@ -113,13 +125,41 @@ public class Bill {
 		this.active = active;
 	}
 
+	public Long getDaysCount() {
+		return daysCount;
+	}
+
+	public void setDaysCount(Long daysCount) {
+		this.daysCount = daysCount;
+	}
+
+	public Boolean getActive() {
+		return active;
+	}
+	
+	public Party getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Party customer) {
+		this.customer = customer;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (active ? 1231 : 1237);
 		result = prime * result + ((bill == null) ? 0 : bill.hashCode());
-		result = prime * result + (int) (customerId ^ (customerId >>> 32));
+		result = prime * result + (int) (partyId ^ (partyId >>> 32));
 		result = prime * result + ((dues == null) ? 0 : dues.hashCode());
 		result = prime * result + (int) (id ^ (id >>> 32));
 		result = prime * result + ((month == null) ? 0 : month.hashCode());
@@ -145,7 +185,7 @@ public class Bill {
 				return false;
 		} else if (!bill.equals(other.bill))
 			return false;
-		if (customerId != other.customerId)
+		if (partyId != other.partyId)
 			return false;
 		if (dues == null) {
 			if (other.dues != null)
@@ -179,7 +219,7 @@ public class Bill {
 
 	@Override
 	public String toString() {
-		return "Bill [id=" + id + ", customerId=" + customerId + ", quantity=" + quantity + ", rate=" + rate + ", bill="
+		return "Bill [id=" + id + ", partyId=" + partyId + ", quantity=" + quantity + ", rate=" + rate + ", bill="
 				+ bill + ", payment=" + payment + ", dues=" + dues + ", month=" + month + ", active=" + active + "]";
 	}
 }
