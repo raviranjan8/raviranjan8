@@ -89,6 +89,17 @@ public class PartyController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	@PutMapping("/partys/{id}/{mobNo}")
+	public ResponseEntity<Integer> updateMobileNo(@PathVariable("id") long id, @PathVariable("mobNo") long mobileNo, @RequestBody Party updateData) {
+		try {
+			repository.updateMobile(mobileNo, id);
+			return new ResponseEntity<>(1, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@DeleteMapping("/partys/{id}")
 	public ResponseEntity<HttpStatus> delete(@PathVariable("id") long id) {

@@ -3,7 +3,9 @@ package com.dairy.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.dairy.model.Party;
 
@@ -19,4 +21,9 @@ public interface PartyRepository extends JpaRepository<Party, Long> {
 
 	@Query("SELECT p FROM Party p where p.active=true and p.type not in ('customer') ")
 	List<Party> findNonCustomerParties();
+	
+	@Transactional
+	@Modifying
+	@Query("update Party p set p.mobNo= ?1 where p.id= ?2")
+	int updateMobile(Long mobileNo, Long id);
 }

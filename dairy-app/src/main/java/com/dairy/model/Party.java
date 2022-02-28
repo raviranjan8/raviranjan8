@@ -27,6 +27,9 @@ public class Party {
 
 	@Column(name = "ADDRESS")
 	private String address;
+	
+	@Column(name = "MOB_NO")
+	private Long mobNo;
 
 	@JsonFormat(pattern = "dd-MMM-yyyy")
 	@Column(name = "START_DATE")
@@ -76,6 +79,15 @@ public class Party {
 	public String getAddress() {
 		return address;
 	}
+	
+	public Long getMobNo() {
+		return mobNo;
+	}
+
+	public void setMobNo(Long mobNo) {
+		this.mobNo = mobNo;
+	}
+
 
 	public void setAddress(String address) {
 		this.address = address;
