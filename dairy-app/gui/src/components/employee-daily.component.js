@@ -1,7 +1,7 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 import DataGrid,  {HeaderRendererProps} from 'react-data-grid';
 
-import NumericEditor from "../components/editor/numericeditor.component";
+import NumericEditor from "./editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import CustomerService from "../services/customer.service";
 import BillService from "../services/bill.service";
@@ -38,7 +38,7 @@ function getComparator(sortColumn) {
   }
 }
 
-const CustomerDaily = props => {
+const EmployeeDaily = props => {
 
   const [filters, setFilters] = useState({
     name: '',
@@ -306,8 +306,7 @@ const CustomerDaily = props => {
       </div>
     );
   };
-export default CustomerDaily;
-
+export default EmployeeDaily;
 
 function FilterRenderer({isCellSelected,column,children}) {
   const filters = useContext(FilterContext);

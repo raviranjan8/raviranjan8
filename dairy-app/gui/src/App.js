@@ -10,6 +10,8 @@ import AddRoute from "./components/add-route.component";
 import RoutesList from "./components/routes-list.component";
 import CustomerCalendar from "./components/customer-calendar.component";
 import CustomerDaily from "./components/customer-daily.component";
+import EmployeeDaily from "./components/customer-daily.component";
+import CollectionDaily from "./components/collection-daily.component";
 import CustomerList from "./components/customer-list.component";
 import Bills from "./components/bills.component";
 import ExpenseBills from "./components/expense-bills.component";
@@ -17,6 +19,7 @@ import ExpenseList from "./components/expense-list.component";
 import AddExpense from "./components/add-expense.component";
 import Login from "./components/login.component";
 import AuthService from "./services/auth.service";
+
 
 class App extends Component {
   constructor(props) {
@@ -83,6 +86,21 @@ class App extends Component {
                 </Link>
               </li>
 			)}
+      {showModeratorBoard && (
+			  <li className="nav-item">
+                <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
+                  Collection
+                </Link>
+              </li>
+			)}
+  {showModeratorBoard && (
+			  <li className="nav-item">
+                <Link to={"/gui/employeeDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
+                  Employee
+                </Link>
+              </li>
+			)}
+
             </div>
           </nav>
 
@@ -103,6 +121,8 @@ class App extends Component {
 			        <Route exact path="/gui/expense/:month" component={ExpenseList} />
 			        <Route exact path="/gui/addExpense" component={AddExpense} />
 			        <Route exact path="/gui/login" component={Login} />
+              <Route exact path="/gui/collectionDaily/:date" component={CollectionDaily} />
+              <Route exact path="/gui/employeeDaily/:date" component={EmployeeDaily} />
             </Switch>
           </div>
         </div>

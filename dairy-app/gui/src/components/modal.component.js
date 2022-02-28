@@ -22,13 +22,16 @@ import Grid from '@mui/material/Grid';
 
 import BillService from "../services/bill.service";
 import PaymentService from "../services/payment.service";
+import CustomerService from "../services/customer.service";
 
 export default class Modal extends React.Component {
     constructor(props) {
       super(props);
       this.getCustomerBill = this.getCustomerBill.bind(this);
       this.savePayment = this.savePayment.bind(this);
+      this.saveMobNo = this.saveMobNo.bind(this);
       this.onChangePayment = this.onChangePayment.bind(this);
+      this.onChangeMobNo = this.onChangeMobNo.bind(this);
       this.handleClickOpen = this.handleClickOpen.bind(this);
       this.handleClose = this.handleClose.bind(this);
       this.getPayment = this.getPayment.bind(this);
@@ -38,7 +41,8 @@ export default class Modal extends React.Component {
         payment: null,
         prevBill: {},
         currentBill: {},
-        open: false
+        open: false,
+        mobNo: null
       };
       this.getCustomerBill(props);
     }
@@ -48,8 +52,31 @@ export default class Modal extends React.Component {
         payment: +e.target.value
       });
     }
+
+    onChangeMobNo(e){
+      if (e.target.value.length<11 ){
+        this.setState({
+          mobNo: +e.target.value
+        });
+      }
+    }
+    saveMobNo(e){
+      e.target.disabled=true;
+      if(this.state.mobNo){
+        var data = {id: this.props.partyId};
+             CustomerService.updateMobNo(this.props.partyId, this.state.mobNo, data)
+              .then(response => {
+                console.log(response.data);
+                e.target.disabled=false;
+              })
+              .catch(e => {
+                console.log(e);
+              }); 
+      }
+    }
+
     savePayment(e){
-	  e.target.disabled=true;
+	    e.target.disabled=true;
       if(this.state.payment){
         var data = {
           partyId: this.props.partyId,
@@ -72,7 +99,7 @@ export default class Modal extends React.Component {
               }
             });
             console.log(response.data);
-			e.target.disabled=false;
+			      e.target.disabled=false;
             this.handleClickOpen();
             this.state.payment="";
           })
@@ -166,7 +193,7 @@ export default class Modal extends React.Component {
                         className="form-control"
                         id="date"
                         required
-						readOnly ="readOnly"
+						            readOnly ="readOnly"
                         value={this.props.date}
                         onChange={this.props.onDate}
                         name="date"
@@ -263,17 +290,30 @@ export default class Modal extends React.Component {
                 <div className="form-group">
                       <label htmlFor="payment">Payment</label>
                       <input
-                        type="text"
                         className="form-control"
                         id="payment"
                         required
                         value={this.state.payment}
                         onChange={this.onChangePayment}
                         name="payment"
-						type="number"
+						            type="number"
                       />
                 </div>
-                <button className="btn btn-success" onClick={this.savePayment}>Payment Received</button>   
+                <button className="btn btn-success" onClick={this.savePayment}>Payment Received</button>
+
+                <div className="form-group">
+                      <label htmlFor="mobNo">MobileNo</label>
+                      <input
+                        className="form-control"
+                        id="mobNo"
+                        required
+                        value={this.state.mobNo}
+                        onChange={this.onChangeMobNo}
+                        name="mobNo"
+						            type="number"
+                      />
+                </div>
+                <button className="btn btn-success" onClick={this.saveMobNo}>Set Mob No</button>  
           </Grid>
         </Grid>
   

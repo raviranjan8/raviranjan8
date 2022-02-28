@@ -8,6 +8,7 @@ export default class AddCustomer extends Component {
     super(props);
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeAddress = this.onChangeAddress.bind(this);
+    this.onChangeMobNo = this.onChangeMobNo.bind(this);
     this.onChangeStartDate = this.onChangeStartDate.bind(this);
     this.onChangeActive = this.onChangeActive.bind(this);
     this.onChangeRoute = this.onChangeRoute.bind(this);
@@ -25,6 +26,7 @@ export default class AddCustomer extends Component {
       id: null,
       name: "",
       address: "", 
+      mobNo: "",
 	  type:"",
       active: true,
       startDate: today.format("DD-MMM-YYYY"),
@@ -51,6 +53,13 @@ export default class AddCustomer extends Component {
     this.setState({
       address: e.target.value
     });
+  }
+  onChangeMobNo(e) {
+    if (e.target.value.length<11 ){
+    this.setState({
+    mobNo: e.target.value  
+    });
+  }
   }
 
   onChangeRouteSeq(e) {
@@ -88,6 +97,7 @@ export default class AddCustomer extends Component {
     var data = {
       name: this.state.name,
       address: this.state.address,
+      mobNo: this.state.mobNo,
       startDate: this.state.startDate,
       active: this.state.active,
       routeId: this.myRef.current.value,
@@ -95,13 +105,15 @@ export default class AddCustomer extends Component {
       defaultQuantity: this.state.defaultQuantity,
       routeSeq: this.state.routeSeq
     };
-
+console.log(data);
+this.setState({submitted: true});
     CustomerService.create(data)
       .then(response => {
         this.setState({
           id: response.data.id,
           name: response.data.name,
           address: response.data.address,
+          mobNo: Response.data.mobNo,
           active: response.data.active,
           startDate: response.data.startDate,
           routeId: response.data.routeId,
@@ -123,6 +135,7 @@ export default class AddCustomer extends Component {
       id: null,
       name: "",
       address: "",
+      mobNo: "",
       startDate: moment().format("DD-MMM-YYYY"),
       active: true,
       routeId: "",
@@ -133,6 +146,7 @@ export default class AddCustomer extends Component {
     });
   }
 
+  //
   componentDidMount() {
     this.getRoute();
   }
@@ -186,6 +200,18 @@ export default class AddCustomer extends Component {
                 value={this.state.address}
                 onChange={this.onChangeAddress}
                 name="address"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="mobNo">MobNo</label>
+              <input
+                type="number"
+                className="form-control phone validate"
+                id="mobNo"
+                required
+                value={this.state.mobNo}
+                onChange={this.onChangeMobNo}
+                name="mobNo"
               />
             </div>
 
@@ -242,13 +268,14 @@ export default class AddCustomer extends Component {
                     <select className="form-control" value={this.state.type} 
 						onChange={this.onChangeType} ref={this.myRefType} name="type">
                         <option value="customer">Customer</option>
-						<option value="staff">Staff</option>
-						<option value="vendor">Vendor</option>
-						<option value="vendor">Chicken</option>
-						<option value="vendor">Car</option>
-						<option value="vendor">Ace</option>
-						<option value="vendor">Vegetable</option>
-						<option value="vendor">Grains</option>
+                        <option value="staff">Staff</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="chicken">Chicken</option>
+                        <option value="car">Car</option>
+                        <option value="ace">Ace</option>
+                        <option value="vegetable">Vegetable</option>
+                        <option value="grains">Grains</option>
+                        <option value="fuel">Fuel</option>
                     </select>
                   </div>
             </div>

@@ -149,8 +149,8 @@ export default class ProjectData extends Component {
       date: dateObj.format("DD"),
       month: dateObj.format("MMM-YYYY"),
       quantity: quantity,
-	  amount: amount,
-	  type: "income"
+      amount: amount,
+      type: "income"
     };
     
     const params =  { "partyId" : id , 
@@ -158,14 +158,14 @@ export default class ProjectData extends Component {
                       "month": data.month, 
 					  type: "income"
                    };
-				   
+				   //checking if already delivered for the day
     DeliveryService.getAll(params).then(response => {
         if(response.data && response.data.length > 0){
           data["id"]=response.data[0].id;
           DeliveryService.update(data["id"], data).then(response1 => {
             console.log(response1.data);
-			 e.target.disabled=false;
-			this.handleNextProject();
+              e.target.disabled=false;
+              this.handleNextProject();
           })
           .catch(e => {
             console.log(e);
@@ -173,8 +173,8 @@ export default class ProjectData extends Component {
         } else {
           DeliveryService.create(data).then(response1 => {
             console.log(response1.data);
-			e.target.disabled=false;
-			this.handleNextProject();
+            e.target.disabled=false;
+            this.handleNextProject();
           })
           .catch(e => {
             console.log(e);

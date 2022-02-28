@@ -75,6 +75,7 @@ const CustomerList = props => {
     },
     { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'address', name: 'Address' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'mobNo', name: 'MobNo' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'startDate', name: 'StartDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'endDate', name: 'EndDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'defaultQuantity', name: 'Quantity' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
@@ -115,6 +116,7 @@ const CustomerList = props => {
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
           initialRows[index]["address"]=customer.address;
+          initialRows[index]["mobNo"]=customer.mobNo;
           initialRows[index]["startDate"]=customer.startDate;
           initialRows[index]["endDate"]=customer.endDate;
           initialRows[index]["defaultQuantity"]=customer.defaultQuantity;
@@ -148,6 +150,7 @@ const CustomerList = props => {
         id: row.id,
         name: row.name,
         address: row.address,
+        mobNo: row.mobNo,
         startDate: row.startDate,
         endDate: row.endDate,
         active: row.active,
@@ -156,14 +159,15 @@ const CustomerList = props => {
         routeSeq: row.routeSeq,
 		type: row.type
       };
+      console.log(data);
       
-          CustomerService.update(row.id, data)
+           CustomerService.update(row.id, data)
             .then(response => {
               console.log(response.data);
             })
             .catch(e => {
               console.log(e);
-            });
+            }); 
     }
 
 	  const filteredRows = useMemo( () => {

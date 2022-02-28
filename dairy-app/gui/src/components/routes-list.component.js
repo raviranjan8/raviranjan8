@@ -61,7 +61,7 @@ export default class RoutesList extends Component {
     this.retrieveRoutes();
   }
   retrieveRoutes() {
-    var currentDate = moment();
+  var currentDate = moment();
     var initialRows = null;
     RouteService.getAll().then(response => {
         var routes = response.data;

@@ -17,6 +17,10 @@ class CustomerService {
     return http.put(`/partys/${id}`, data);
   }
 
+  updateMobNo(id, mobNo, data) {
+    return http.put(`/partys/${id}/${mobNo}`, data);
+  }
+
   delete(id) {
     return http.delete(`/partys/${id}`);
   }

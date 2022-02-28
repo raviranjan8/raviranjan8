@@ -1,7 +1,7 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 import DataGrid,  {HeaderRendererProps} from 'react-data-grid';
 
-import NumericEditor from "../components/editor/numericeditor.component";
+import NumericEditor from "./editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import CustomerService from "../services/customer.service";
 import BillService from "../services/bill.service";
@@ -11,6 +11,7 @@ import Grid from '@mui/material/Grid';
 
 import { CSVLink } from 'react-csv';
 import Button from '@mui/material/Button';
+import { collapseClasses } from "@mui/material";
 
 const rootClassname = 'rootClassname';
 const filterColumnClassName = 'filter-cell';
@@ -38,7 +39,7 @@ function getComparator(sortColumn) {
   }
 }
 
-const CustomerDaily = props => {
+const CollectionDaily = props => {
 
   const [filters, setFilters] = useState({
     name: '',
@@ -78,11 +79,13 @@ const CustomerDaily = props => {
       },
       { key: 'name', name: 'Name' , width: 200, resizable: true},
       { key: 'today', name: 'Today Quantity' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:80, resizable: true },
-      { key: 'dailyQuantity', name: 'Daily Quantity' , minWidth:80 , resizable: true },
       { key: 'route', name: 'Route' , minWidth:100 , resizable: true },
-      { key: 'qty', name: 'Qty' , minWidth:40 , resizable: true },
-      { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true },
+      { key: 'fat', name: 'Fat' , minWidth:40 , resizable: true , editor: NumericEditor, editorOptions: {editOnClick: true} },
+      { key: 'snf', name: 'Snf' , minWidth:40 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
+      { key: 'water', name: 'Water' , minWidth:40 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
+      { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true ,editor: NumericEditor, editorOptions: {editOnClick: true}},
       { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
+      { key: 'qty', name: 'Qty' , minWidth:40 , resizable: true },
       { key: 'dues', name: 'Dues' , minWidth:40 , resizable: true },
       { key: 'totalBill', name: 'Total' , minWidth:60 , resizable: true },
       { key: 'prevBill', name: 'P-Bill' , minWidth:75 , resizable: true },
@@ -92,10 +95,10 @@ const CustomerDaily = props => {
     
     
     useEffect(() => {
-      var calendar={currentDate: moment(props.match.params.date,'DD-MMM-YYYY')};
+      var calendar={currentDate:moment(props.match.params.date,'DD-MMM-YYYY')};
       setCalendar(calendar);
       var initialRows = null;
-      const paramCustomer = { active: true, type: "customer"};
+      const paramCustomer = { active: true, type: "farmer"};
 
       CustomerService.getAll(paramCustomer).then((response) => {
         var customers = response.data;
@@ -104,8 +107,7 @@ const CustomerDaily = props => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
-          initialRows[index]["dailyQuantity"]=customer.defaultQuantity;
-          initialRows[index]["route"]=customer.route.name;
+
         });
         getPayment(calendar, initialRows);
         deliveryService(calendar, initialRows);
@@ -127,6 +129,10 @@ const CustomerDaily = props => {
             if(initialRow.id == delivery.partyId){
               initialRow["today"] = delivery.quantity;
               initialRow["idtoday"]=delivery.id;
+              initialRow["fat"]=delivery.fat;
+              initialRow["snf"]=delivery.snf;
+              initialRow["water"]=delivery.water;
+              initialRow["rate"]=delivery.rate;
               break;
             }
           };
@@ -210,21 +216,28 @@ const CustomerDaily = props => {
     }
 
     function constructDeliveryUpdateData(row, col){
-      var columnVal = row[col.indexes][col.column.key]; 
-      var columnId = row[col.indexes]["idtoday"];
-      console.log(row[col.indexes].id+ " - "+columnVal + " - " +columnId+" - " + col.column.key);
-      saveDelivery(row[col.indexes].id, calendar.currentDate, calendar.currentDate , columnVal, columnId, row[col.indexes]);
+      var rowData = row[col.indexes];
+      var columnVal = rowData[col.column.key]; 
+      var columnId = rowData["idtoday"];
+      console.log(rowData.id+ " - "+columnVal + " - " +columnId+" - " + col.column.key);
+      saveDelivery(rowData.id, calendar.currentDate, calendar.currentDate , rowData.today, 
+        columnId, rowData, rowData.fat, rowData.snf, rowData.water, rowData.rate);
     }
 
-    function saveDelivery (cutomerId, date, month, quantity, id, rowData) {
+    function saveDelivery (cutomerId, date, month, quantity, id, rowData, fat, snf, water, rate) {
       var data = {
         id: id,
         partyId: cutomerId,
         date: date.format("DD"),
         month: month.format("MMM-YYYY"),
+        fat: fat,
+        snf: snf,
+        water: water,
         quantity: quantity,
+        rate: rate,
 		    type: "income"
       };
+      console.log(data);
       if(id){
           DeliveryService.update(id, data)
             .then(response => {
@@ -306,7 +319,7 @@ const CustomerDaily = props => {
       </div>
     );
   };
-export default CustomerDaily;
+export default CollectionDaily;
 
 
 function FilterRenderer({isCellSelected,column,children}) {
