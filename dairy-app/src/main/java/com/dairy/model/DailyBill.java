@@ -1,6 +1,7 @@
 package com.dairy.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,10 +14,13 @@ import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "DAILY_BILL")
-public class DailyBill {
+public class DailyBill extends Base {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,14 +35,34 @@ public class DailyBill {
 	@Column(name = "MONTH")
 	private String month;
 	
+	@Column(name = "DELIVERY_DATE")
+	@JsonFormat(pattern = "dd-MMM-yyyy")
+	@DateTimeFormat(pattern = "dd-MMM-yyyy")
+	private LocalDate deliveryDate;
+	
 	@Column(name = "QUANTITY")
 	private BigDecimal quantity;
 	
 	@Column(name = "AMOUNT")
 	private BigDecimal amount;
 	
+	@Column(name = "fat")
+	private BigDecimal fat;
+	
+	@Column(name = "snf")
+	private BigDecimal snf;
+	
+	@Column(name = "water")
+	private BigDecimal water;
+	
+	@Column(name = "rate")
+	private BigDecimal rate;
+	
 	@Column(name = "TYPE")
 	private String type;
+	
+	@Column(name = "Category")
+	private String category;
 	
 	@ManyToOne
 	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
@@ -77,6 +101,14 @@ public class DailyBill {
 		this.month = month;
 	}
 
+	public LocalDate getDeliveryDate() {
+		return deliveryDate;
+	}
+
+	public void setDeliveryDate(LocalDate deliveryDate) {
+		this.deliveryDate = deliveryDate;
+	}
+
 	public BigDecimal getQuantity() {
 		return quantity;
 	}
@@ -101,12 +133,53 @@ public class DailyBill {
 		this.type = type;
 	}
 	
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 	public Party getParty() {
 		return party;
 	}
 
 	public void setParty(Party party) {
 		this.party = party;
+	}
+
+	public BigDecimal getFat() {
+		return fat;
+	}
+
+	public void setFat(BigDecimal fat) {
+		this.fat = fat;
+	}
+
+	public BigDecimal getSnf() {
+		return snf;
+	}
+
+	public void setSnf(BigDecimal snf) {
+		this.snf = snf;
+	}
+
+	public BigDecimal getWater() {
+		return water;
+	}
+
+	public void setWater(BigDecimal water) {
+		this.water = water;
+	}
+
+	public BigDecimal getRate() {
+		return rate;
+	}
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
 	}
 
 	@Override

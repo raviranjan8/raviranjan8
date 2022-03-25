@@ -1,6 +1,7 @@
 package com.dairy.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,9 +12,13 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Entity
 @Table(name = "BILL")
-public class Bill {
+public class Bill extends Base{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,6 +42,12 @@ public class Bill {
 	@Column(name = "PAYMENT")
 	private BigDecimal payment;
 	
+	@Column(name = "LAST_BILL_TOTAL")
+	private BigDecimal lastBillTotal;
+	
+	@Column(name = "DISCOUNT")
+	private BigDecimal discount;
+	
 	@Column(name = "DUES")
 	private BigDecimal dues;
 	
@@ -49,9 +60,22 @@ public class Bill {
 	@Column(name = "TYPE")
 	private String type;
 	
+	@Column(name = "CATEGORY")
+	private String category;
+	
 	@ManyToOne
 	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
 	private Party customer;
+	
+	@JsonFormat(pattern = "yyyy-MMM-dd")
+	@Column(name = "FROM_DATE")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate from;
+	
+	@JsonFormat(pattern = "yyyy-MMM-dd" )
+	@Column(name = "TO_DATE")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private LocalDate to;
 
 	public Long getId() {
 		return id;
@@ -99,6 +123,22 @@ public class Bill {
 
 	public void setPayment(BigDecimal payment) {
 		this.payment = payment;
+	}
+
+	public BigDecimal getLastBillTotal() {
+		return lastBillTotal;
+	}
+
+	public void setLastBillTotal(BigDecimal lastBillTotal) {
+		this.lastBillTotal = lastBillTotal;
+	}
+
+	public BigDecimal getDiscount() {
+		return discount;
+	}
+
+	public void setDiscount(BigDecimal discount) {
+		this.discount = discount;
 	}
 
 	public BigDecimal getDues() {
@@ -151,6 +191,30 @@ public class Bill {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public LocalDate getFrom() {
+		return from;
+	}
+
+	public void setFrom(LocalDate from) {
+		this.from = from;
+	}
+
+	public LocalDate getTo() {
+		return to;
+	}
+
+	public void setTo(LocalDate to) {
+		this.to = to;
 	}
 
 	@Override

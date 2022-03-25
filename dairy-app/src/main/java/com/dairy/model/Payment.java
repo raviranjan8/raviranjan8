@@ -16,7 +16,7 @@ import org.hibernate.annotations.FetchMode;
 
 @Entity
 @Table(name = "PAYMENT")
-public class Payment {
+public class Payment extends Base{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,6 +33,9 @@ public class Payment {
 
 	@Column(name = "TYPE")
 	private String type;
+	
+	@Column(name = "Category")
+	private String category;
 	
 	@Column(name = "PAYMENT")
 	private BigDecimal payment;
@@ -75,6 +78,15 @@ public class Payment {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
 	}
 
 	public BigDecimal getPayment() {

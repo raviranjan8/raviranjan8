@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
 @Table(name = "PARTY")
-public class Party {
+public class Party extends Base {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

@@ -11,7 +11,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "ROUTE_STOCK")
-public class RouteStock {
+public class RouteStock extends Base {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

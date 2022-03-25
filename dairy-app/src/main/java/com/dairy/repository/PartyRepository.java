@@ -11,15 +11,18 @@ import com.dairy.model.Party;
 
 public interface PartyRepository extends JpaRepository<Party, Long> {
 	
-	@Query("SELECT ti.id FROM Party ti where active= ?1")
+	@Query("SELECT p.id FROM Party p where active= ?1 and p.type not in ( 'farmer') ")
 	List<Long> findDistinctIdByActive(boolean active);
+	
+	@Query("SELECT p.id FROM Party p where active= ?1 and p.type in ( 'farmer') ")
+	List<Long> findDistinctFarmersIdByActive(boolean active);
 	
 	@Query("SELECT p FROM Party p where p.active=true and p.routeId= ?1 and p.id not in (select partyId from DailyBill d "
 			+ "where type='income' and d.month= ?2 and d.date= ?3 ) order by routeSeq")
 	List<Party> findPendingCustomer(Long routeId, String month, String date);
 	
 
-	@Query("SELECT p FROM Party p where p.active=true and p.type not in ('customer') ")
+	@Query("SELECT p FROM Party p where p.active=true and p.type not in ('customer', 'farmer') ")
 	List<Party> findNonCustomerParties();
 	
 	@Transactional
