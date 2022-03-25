@@ -28,7 +28,7 @@ export default class ProjectData extends Component {
       modalTitle: '',
       partyId: null,
       quantity: null,
-	  amount: null,
+	    amount: null,
       date: moment().format("DD-MMM-YYYY")
     }
    
@@ -72,7 +72,7 @@ export default class ProjectData extends Component {
       activeProject: idx,
       modalTitle: this.state.projects[idx].name,
       quantity: this.state.projects[idx].defaultQuantity,
-	  amount: this.state.projects[idx].amount,
+	    amount: this.state.projects[idx].amount,
       date: this.state.date,
       partyId: this.state.projects[idx].id
     });  
@@ -94,7 +94,7 @@ export default class ProjectData extends Component {
       activeProject: idx,
       modalTitle: this.state.projects[idx].name,
       quantity: this.state.projects[idx].defaultQuantity,
-	  amount: this.state.projects[idx].amount,
+	    amount: this.state.projects[idx].amount,
       date: this.state.date,
       partyId: this.state.projects[idx].id
     }); 
@@ -232,7 +232,7 @@ export default class ProjectData extends Component {
           <Modal 
             name={this.state.modalTitle}
             defaultQuantity={this.state.quantity}
-			amount={this.state.amount}
+			      amount={this.state.amount}
             date={this.state.date}
             partyId={this.state.partyId}
             previousTitle={prevTitle(this.state.activeProject, projects)}
@@ -242,7 +242,7 @@ export default class ProjectData extends Component {
             onPrev={this.handlePrevProject}
             onDate={this.onChangeDate}
             onQuantity={this.onChangeDefaultQuantity}
-			onAmount={this.onChangeAmount}
+			      onAmount={this.onChangeAmount}
             onUpdate={this.handleModalUpdate}
           />
         </div>

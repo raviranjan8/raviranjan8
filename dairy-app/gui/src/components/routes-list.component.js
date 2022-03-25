@@ -15,7 +15,7 @@ const columns = [
             formatter(props) {
               return <>
                 <Link disable="true"
-                to={props.row.quantity ? ("/gui/dailyDelivery/" + props.row.id ): ""}
+                to={props.row.quantity ? ("/gui/dailyDelivery/" + props.row.id ) : ""}
                 className="badge badge-warning">
                 Start
                 </Link>

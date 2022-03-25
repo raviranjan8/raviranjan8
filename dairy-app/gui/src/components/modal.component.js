@@ -38,15 +38,20 @@ export default class Modal extends React.Component {
       this.getBill = this.getBill.bind(this);
   
       this.state = {
+        partyId: props.partyId,
         payment: null,
         prevBill: {},
         currentBill: {},
         open: false,
         mobNo: null
-      };
-      this.getCustomerBill(props);
+      }; 
     }
   
+    componentDidMount() {
+      this.getCustomerBill(this.props);
+    }
+
+    
     onChangePayment(e){
       this.setState({
         payment: +e.target.value
@@ -166,11 +171,15 @@ export default class Modal extends React.Component {
         var bills = response.data;
         if(bills){
           bills.map((bill) => {
+            if(bill.category == 'discount'){
+              prevBill["discount"]=bill.payment;
+            } else{
               if(prevBill["payment"]){
                 prevBill["payment"]=prevBill["payment"]+bill.payment;
               }else{
                 prevBill["payment"]=+bill.payment
               }
+            }
           });
         }
       })
@@ -181,6 +190,12 @@ export default class Modal extends React.Component {
   
     render() {
       const {prevBill, currentBill} = this.state;
+      if(this.props.partyId != this.state.partyId){
+        this.getCustomerBill(this.props);
+        this.setState({
+          partyId: this.props.partyId
+        });
+      }
       return (
         <div>
           <h1 align="center">{this.props.name}</h1>

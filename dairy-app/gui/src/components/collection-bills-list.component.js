@@ -1,6 +1,6 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 import DataGrid,  {HeaderRendererProps} from 'react-data-grid';
-import { Link } from "react-router-dom";
+
 import NumericEditor from "./editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import CustomerService from "../services/customer.service";
@@ -8,10 +8,15 @@ import BillService from "../services/bill.service";
 import PaymentService from "../services/payment.service";
 import moment from 'moment';
 import Grid from '@mui/material/Grid';
-
+import { Link } from "react-router-dom";
 import { CSVLink } from 'react-csv';
+
 import Button from '@mui/material/Button';
-import { collapseClasses } from "@mui/material";
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
 const rootClassname = 'rootClassname';
 const filterColumnClassName = 'filter-cell';
@@ -39,10 +44,9 @@ function getComparator(sortColumn) {
   }
 }
 
-const CollectionDaily = props => {
+const CollectionBillsList = props => {
 
   const [filters, setFilters] = useState({
-    name: '',
     enabled: true
   });
 
@@ -51,17 +55,29 @@ const CollectionDaily = props => {
   };
   
     const [rows, setRows] = useState([]);  
-	  const [message, setMessage] = useState();
-	  const [rate, setRate] = useState({});
-	  const [open, setOpen] = useState(false);
-	  const [confirm, setConfirm] = useState(false);
     const [calendar, setCalendar] = useState(initialCalendar);
     const [sortColumns, setSortColumns] = useState([]);  
-    const [from, setFrom] = useState();
-    const [to, setTo] = useState();
- 
+    const [from, setFrom] = useState(); 
+    const [to, setTo] = useState();   
+    const [confirm, setConfirm] = useState(false);
+    const [open, setOpen] = useState(false); 
+    const [message, setMessage] = useState();
+
     const columns = [
-      { key: 'id', name: 'ID' , minWidth: 40 , resizable: true ,
+
+      { key: 'print', name: 'PRINT' , width: 70, resizable: true,
+      formatter(props) {
+        return <>
+          <Link disable="true"
+          to={ ("/gui/collectionBills/"+moment(props.row.from,'YYYY-MMM-DD').format("YYYY-MM-DD")+"/"+moment(props.row.to,'YYYY-MMM-DD').format("YYYY-MM-DD")+"/"+(props.row.partyId)) }
+          className="badge badge-warning">
+          Print
+          </Link>
+        </>;
+      }
+    },
+
+      { key: 'id', name: 'ID' ,width:50, resizable: true ,
       headerCellClass: filterColumnClassName,
       headerRenderer: (p) => (
         <FilterRenderer {...p}>
@@ -82,135 +98,55 @@ const CollectionDaily = props => {
         </FilterRenderer>
       )
       },
-      { key: 'name', name: 'Name' , width: 200, resizable: true},
-      { key: 'today', name: 'Quantity' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:80, resizable: true },
-      { key: 'fat', name: 'Fat' , minWidth:20 , resizable: true , editor: NumericEditor, editorOptions: {editOnClick: true} },
-      { key: 'snf', name: 'Snf' , minWidth:20 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
-      { key: 'water', name: 'Water' , minWidth:40 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
-      { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true ,editor: NumericEditor, editorOptions: {editOnClick: true}},
-      { key: 'route', name: 'Route' , minWidth:40, resizable: true },
-      { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
-      { key: 'qty', name: 'Bill Qty' , minWidth:70 , resizable: true },
-      { key: 'paid', name: 'Paid' , minWidth:60 , resizable: true }
+      { key: 'name', name: 'Name' ,  resizable: true},
+      { key: 'from', name: 'FROM' ,  resizable: true},
+      { key: 'to', name: 'TO' ,  resizable: true},
+      { key: 'qty', name: 'Quantity' , resizable: true},
+      { key: 'bill', name: 'Total' ,   resizable: true },
     ];
     
     
     useEffect(() => {
-      var calendar={currentDate:moment(props.match.params.date,'DD-MMM-YYYY')};
-      setCalendar(calendar);
-      var initialRows = null;
-      const paramCustomer = { active: true, type: "farmer"};
-
-      CustomerService.getAll(paramCustomer).then((response) => {
-        var customers = response.data;
-        initialRows = new Array(customers.length);
-        customers.map((customer, index) => {
-          initialRows[index]={};
-          initialRows[index]["id"]=customer.id;
-          initialRows[index]["name"]=customer.name;
-
-        });
-        getPayment(calendar, initialRows);
-        deliveryService(calendar, initialRows);
-        billService(calendar, initialRows);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-	  
+      getBills();
     }, [props.match.params.date]);
 
-    function deliveryService(calendar, initialRows){
-      const params ={ "date": calendar.currentDate.format("DD"), 
-                      "month" : calendar.currentDate.format("MMM-YYYY"), type: "expense"};
-      DeliveryService.getAll(params).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              initialRow["today"] = delivery.quantity;
-              initialRow["idtoday"]=delivery.id;
-              initialRow["fat"]=delivery.fat;
-              initialRow["snf"]=delivery.snf;
-              initialRow["water"]=delivery.water;
-              initialRow["rate"]=delivery.rate;
-              break;
-            }
-          };
+
+
+    function getBills(){
+      var calendar={currentDate: moment(props.match.params.date,'DD-MMM-YYYY')};
+      setCalendar(calendar);
+      var initialRows = null;
+     const paramsBill={active:true, type:"expense", category: "collection"};
+     BillService.getAll(paramsBill).then((response) => {
+       var deliverys = response.data;
+       console.log(deliverys);
+       initialRows=new Array (deliverys.length);
+        deliverys && deliverys.map((bill, index)=>{
+          initialRows[index]={};
+          initialRows[index]["id"]=bill.id;
+          initialRows[index]["name"]=bill.customer.name;
+            initialRows[index]["qty"]=bill.quantity;
+          initialRows[index]["rate"]=bill.rate;
+          initialRows[index]["from"]=bill.from;
+          initialRows[index]["to"]=bill.to;
+          initialRows[index]["bill"]=bill.bill;
+          initialRows[index]["partyId"]=bill.partyId;
         });
-        console.log(initialRows);
-        setRows(initialRows);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+        billService(calendar, initialRows);
+        })
+        .catch((e) => {
+          console.log(e);
+        });    
+      
     }
 
-    function billService(calendar, initialRows){
-      const paramsBill ={ month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "expense"};
-      BillService.getAll(paramsBill).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["qty"] = delivery.quantity;
-                initialRow["rate"]=delivery.rate;
-                initialRow["bill"]=delivery.bill;
-                initialRow["dues"]=delivery.dues;
-                initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
-              }
-              break;
-            }
-          };
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-	  
-      //previous month bill and due amount
-	  const paramsBillPrev ={ month :  calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY'), active: true, type: "expense"};
-	  BillService.getAll(paramsBillPrev).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["prevBill"]=delivery.bill;
-                initialRow["prevDues"]=delivery.dues;
-              }
-              break;
-            }
-          };
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    function onChangeFrom(e){
+      setFrom(e.target.value);
     }
 
-    function getPayment(calendar, initialRows){
-      var params ={ "month": calendar.currentDate.format("MMM-YYYY"), "active": true, type: "expense"};
-      PaymentService.getAll(params).then(response => {
-        var bills = response.data;
-        initialRows && initialRows.map((initialRow) => {
-          bills && bills.map((bill) => {
-              if(bill.partyId == initialRow.id){
-                if(initialRow["paid"]){
-                  initialRow["paid"]=initialRow["paid"]+bill.payment;
-                }else{
-                  initialRow["paid"]=+bill.payment
-                }
-              }
-            });
-        });
-      })
-      .catch(e => {
-        console.log(e);
-      });
+    function onChangeTo(e){
+      setTo(e.target.value);
     }
-   
 
     function handleClickOpen () {
       setOpen(true);
@@ -227,80 +163,66 @@ const CollectionDaily = props => {
         setOpen(false);
       }
 
+
+
+    function deliveryService(calendar, initialRows){
+      const params ={ "date": calendar.currentDate.format("DD"),  type: "expence"};
+      DeliveryService.getAll(params).then((response) => {
+        var deliverys = response.data;
+        deliverys && deliverys.map((delivery) => {
+          for(var initialRow of initialRows){
+            if(initialRow.id == delivery.partyId){
+              initialRow["today"] = delivery.quantity;
+              initialRow["idtoday"]=delivery.id;
+              break;
+            }
+          };
+        });
+        console.log(initialRows);
+        setRows(initialRows);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+    }
+
+    function billService(calendar, initialRows){
+      const paramsBill ={ active: true, type: "expense", category: "collection"};
+      BillService.getAll(paramsBill).then((response) => {
+        var deliverys = response.data;
+        console.log(deliverys);
+        deliverys && deliverys.map((delivery) => {
+          for(var initialRow of initialRows){
+            if(initialRow.id == delivery.partyId){
+              if(delivery.from){
+                initialRow["qty"] = delivery.quantity;
+                initialRow["rate"]=delivery.rate;
+                initialRow["bill"]=delivery.bill;
+                initialRow["from"]=delivery.from;
+                initialRow["to"]=delivery.to;
+              }
+              break;
+            }
+          };
+        });
+        deliveryService(calendar, initialRows);
+      })
+      .catch((e) => {
+        console.log(e);
+      });    
+    }
+
     function rowChange(row, col) {
       constructDeliveryUpdateData(row,col);
-      setRows (row);
     }
 
-    function constructDeliveryUpdateData(row, col){
-      var rowData = row[col.indexes];
-      var columnVal = rowData[col.column.key]; 
-      var columnId = rowData["idtoday"];
-      console.log(rowData.id+ " - "+columnVal + " - " +columnId+" - " + col.column.key);
-      saveDelivery(rowData.id, calendar.currentDate, calendar.currentDate , rowData.today, 
-        columnId, rowData, rowData.fat, rowData.snf, rowData.water, rowData.rate);
-    }
-
-    function saveDelivery (cutomerId, date, month, quantity, id, rowData, fat, snf, water, rate) {
-      var amount = 0;
-      var tempRate = 0;
-      var tempQantity = 0;
-      if(rate){
-        if(rate<30){
-          tempRate = 30;
-        }else {
-          tempRate = rate;
-        }
-      }
-      if(quantity){
-        tempQantity = quantity;
-      }
-
-      amount = rate * tempQantity;
-
-      var data = {
-        id: id,
-        partyId: cutomerId,
-        date: date.format("DD"),
-        deliveryDate: date.format("DD-MMM-YYYY"),
-        month: month.format("MMM-YYYY"),
-        fat: fat,
-        snf: snf,
-        water: water,
-        quantity: quantity,
-        rate: rate,
-		    type: "expense",   
-        amount: amount,
-        category: "collection"      
-      };
-      console.log(data);
-      if(id){
-          DeliveryService.update(id, data)
-            .then(response => {
-              console.log(response.data);
-            })
-            .catch(e => {
-              console.log(e);
-            });
-      } else {
-        DeliveryService.create(data)
-            .then(response => {
-              rowData["idtoday"]=response.data.id;
-              console.log(rowData);
-            })
-            .catch(e => {
-              console.log(e);
-            });
-        }
-      }
-
-      function generateBillCollection(){
+     function generateBillCollection(){
         const paramsFrom ={ "type": "expense","from":from, "to":to };
         BillService.validateCollectionBillsGeneration("expense",paramsFrom).then((response) => {
           console.log(response.data);
           var bill = response.data;
           //bill object has bill, means the bill was generated
-          if(bill.rate){
+          if(bill.from){
             setConfirm(true);
             setMessage("Bill already generated for the period. Do you want to continue? Please confirm to proceed.");
             handleClickOpen();
@@ -331,16 +253,60 @@ const CollectionDaily = props => {
                 }
               };
             });
-        setMessage("Bill generated for the period .");
-        handleClickOpen();
-        console.log(rows);
-        setRows(rows);
+            //call getBills
+             getBills();
+            setMessage("Bill generated for the period .");
+            handleClickOpen();
+            console.log(rows);
+            setRows(rows);
           })
           .catch((e) => {
-            console.log(e);
+            if(e.response.status == 404){
+              setMessage("Bill could not be generated for the period as there are overlapping bills.");
+              setConfirm(false);
+              handleClickOpen();
+            }
           });
       }
       
+    function constructDeliveryUpdateData(row, col){
+      var columnVal = row[col.indexes][col.column.key]; 
+      var columnId = row[col.indexes]["idtoday"];
+      console.log(row[col.indexes].id+ " - "+columnVal + " - " +columnId+" - " + col.column.key);
+      saveDelivery(row[col.indexes].id, calendar.currentDate, calendar.currentDate , columnVal, columnId, row[col.indexes]);
+      rows[col.indexes] = row[col.indexes];
+      //row gives filtered rows, so putting updated data into rows
+      setRows (rows.slice());
+    }
+
+    function saveDelivery (cutomerId, date, month, quantity, id, rowData) {
+      var data = {
+        id: id,
+        partyId: cutomerId,
+        date: date.format("DD"),
+        month: month.format("MMM-YYYY"),
+        quantity: quantity,
+		    type: "expence"
+      };
+      if(id){
+          DeliveryService.update(id, data)
+            .then(response => {
+              console.log(response.data);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+      } else {
+        DeliveryService.create(data)
+            .then(response => {
+              rowData["idtoday"]=response.data.id;
+              console.log(rowData);
+            })
+            .catch(e => {
+              console.log(e);
+            });
+        }
+      }
 
   const filteredRows = useMemo( () => {
     function filter(){
@@ -370,32 +336,51 @@ const CollectionDaily = props => {
       <div >
         {calendar ? (
         <div >
-         
-            <Grid container spacing={{ xs: 1}} >
-          <Grid item xs={6} sm={3}> 
-            <Link
-                to={"/gui/collectionDaily/"+calendar.currentDate.clone().subtract(1, 'days').format('DD-MMM-YYYY')}
-                className="badge badge-warning">
-                Prev
-              </Link>
-              {calendar.currentDate.format("DD-MMM-YYYY")}
-              <Link
-                to={"/gui/collectionDaily/"+calendar.currentDate.clone().add(1, 'days').format('DD-MMM-YYYY')}
-                className="badge badge-warning">
-                Next
-              </Link>
-            </Grid>
-           
+          <Grid container spacing={{ xs: 1}} >
             <Grid item xs={3} sm={1}>
                 &nbsp;
                 <Button variant="warning" className="badge">
-                      <CSVLink 
-                      data={filteredRows} filename={'dailyCollectionExpense.txt'}>Export
-                      </CSVLink>
+                      <CSVLink data={filteredRows} filename={'dailyIncome.txt'}>Export</CSVLink>
                 </Button>
               </Grid> 
-          </Grid>  
-          
+          <Grid item xs={3} sm={2}> 
+              <Link
+                to={(from && to) ? ("/gui/collectionBills/"+from+"/"+to) : ""}
+                hidden={(from && to) ? false : true}
+                className="badge">
+                 Print Collection
+              </Link>
+          </Grid> 
+
+          <Grid item xs={6} sm={3}> 
+              <Link
+                onClick={ (from && to) ? (() => generateBillCollection(calendar.currentDate.format("DD-MM-YYYY"))): ""}
+                className="badge">
+                 Generate Collection Bill
+              </Link>    
+          </Grid> 
+          <Grid item xs={6} sm={3}> 
+			<input
+                type="date"
+                id="from"
+                required
+                onChange={onChangeFrom}
+                name="from"
+				        style={{ width:150, height:20 }}
+                placeholder="From"
+              />
+              <input
+                type="date"
+                id="to"
+                required
+                onChange={onChangeTo}
+                name="to"
+				        style={{ width:150, height:20 }}
+                placeholder="To"
+              />
+			  
+          </Grid> 
+          </Grid>
         </div>     
          ) : (
           <div>
@@ -418,10 +403,31 @@ const CollectionDaily = props => {
               />
             </FilterContext.Provider>
           </div>
+
+          <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description">
+              <DialogTitle id="alert-dialog-title">
+                {"Bills"}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                {message}
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                  {confirm ? (
+                    <Button onClick={handleConfirm}>Confirm</Button>
+                    ) : ""}
+                <Button onClick={handleClose}>Close</Button>
+              </DialogActions>
+            </Dialog>
       </div>
     );
   };
-export default CollectionDaily;
+export default CollectionBillsList;
 
 
 function FilterRenderer({isCellSelected,column,children}) {

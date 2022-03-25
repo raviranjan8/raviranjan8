@@ -4,7 +4,15 @@ class BillService {
   getAll(params) {
     return http.get("/bills", { params });
   }
+
+  generateBillsCollection(params) {
+    return http.get("/generateBillsCollection",{params});
+  }
   
+  validateCollectionBillsGeneration(type,params) {
+    return http.get(`/generateBillsCollection/${type}`,{params});
+}
+
   generateBills(params) {
     return http.get("/generateBills", { params });
   }

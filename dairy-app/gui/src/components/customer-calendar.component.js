@@ -120,12 +120,13 @@ const CustomerCalendar = props => {
       { key: '31', name: '31' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true },
       { key: 'qty', name: 'Qty' , minWidth:40 , resizable: true },
       { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true },
-      { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
+      { key: 'bill', name: 'Bill' , minWidth:60 , resizable: true },
       { key: 'dues', name: 'Dues' , minWidth:40 , resizable: true },
       { key: 'totalBill', name: 'Total' , minWidth:60 , resizable: true },
       { key: 'prevBill', name: 'P-Bill' , minWidth:75 , resizable: true },
-      { key: 'prevDues', name: 'P-Dues' , minWidth:70 , resizable: true },
-      { key: 'paid', name: 'Paid' , minWidth:60 , resizable: true }
+      { key: 'paid', name: 'Paid' , minWidth:60 , resizable: true },
+      { key: 'currentDue', name: 'C-Due' , minWidth:60 , resizable: true },
+      { key: 'discount', name: 'Discount' , width:80 , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true }
     ];
 
     useEffect(() => {
@@ -159,14 +160,40 @@ const CustomerCalendar = props => {
           initialRows[index]["name"]=customer.name;
         });
         getPayment(calendar, initialRows);
-        deliveryService(calendar, initialRows);
-        billService(calendar, initialRows);
       })
       .catch((e) => {
         console.log(e);
       });
 	  
     }, [props.match.params.date]);
+
+    function getPayment(calendar, initialRows){
+      var params ={ "month": calendar.currentDate.format("MMM-YYYY"), "active": true, type: "income"};
+      PaymentService.getAll(params).then(response => {
+        var bills = response.data;
+        initialRows && initialRows.map((initialRow) => {
+          bills && bills.map((bill) => {
+              if(bill.partyId == initialRow.id){
+                if(bill.category == 'discount'){
+                  initialRow["discount"]=bill.payment;
+                  initialRow["iddiscount"]=bill.id;
+                } else{
+                  if(initialRow["paid"]){
+                    initialRow["paid"]=initialRow["paid"]+bill.payment;
+                  }else{
+                    initialRow["paid"]=+bill.payment;
+                  }
+                }
+              }
+            });
+        });
+        billService(calendar, initialRows);
+        deliveryService(calendar, initialRows);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    }
 
     function deliveryService(calendar, initialRows){
       const params ={ "month" : calendar.currentDate.format("MMM-YYYY"), type: "income"};
@@ -202,17 +229,15 @@ const CustomerCalendar = props => {
                 initialRow["bill"]=delivery.bill;
                 initialRow["dues"]=delivery.dues;
                 initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
+                initialRow["prevBill"]=delivery.lastBillTotal;
+                initialRow["currentDue"]=initialRow["prevBill"]-(initialRow["paid"]? initialRow["paid"] : 0);
               }
               break;
             }
           };
         });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-	  
-      //previous month bill and due amount
+
+        //previous month bill and due amount
 	  const paramsBillPrev ={ month :  calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY'), active: true, type: "income"};
 	  BillService.getAll(paramsBillPrev).then((response) => {
         var deliverys = response.data;
@@ -220,8 +245,9 @@ const CustomerCalendar = props => {
           for(var initialRow of initialRows){
             if(initialRow.id == delivery.partyId){
               if(delivery.rate){
-                initialRow["prevBill"]=delivery.bill;
+                initialRow["prevBill"]=delivery.bill+delivery.dues;
                 initialRow["prevDues"]=delivery.dues;
+                initialRow["currentDue"]=initialRow["prevBill"]-(initialRow["paid"]? initialRow["paid"] : 0);
               }
               break;
             }
@@ -231,32 +257,15 @@ const CustomerCalendar = props => {
       .catch((e) => {
         console.log(e);
       });
-    }
 
-    function getPayment(calendar, initialRows){
-      var params ={ "month": calendar.currentDate.format("MMM-YYYY"), "active": true, type: "income"};
-      PaymentService.getAll(params).then(response => {
-        var bills = response.data;
-        initialRows && initialRows.map((initialRow) => {
-          bills && bills.map((bill) => {
-              if(bill.partyId == initialRow.id){
-                if(initialRow["paid"]){
-                  initialRow["paid"]=initialRow["paid"]+bill.payment;
-                }else{
-                  initialRow["paid"]=+bill.payment
-                }
-              }
-            });
-        });
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
     }
-
+   
     function rowChange(row, col) {
       constructDeliveryUpdateData(row,col);
-      setRows (row);
     }
 
 	function handleClickOpen () {
@@ -286,26 +295,57 @@ const CustomerCalendar = props => {
       } */
       console.log(row[col.indexes].id+ " - "+columnVal + " - " +columnId);
       saveDelivery(row[col.indexes].id, col.column.key, calendar.currentDate , columnVal, columnId, row[col.indexes]);
+      rows[col.indexes] = row[col.indexes];
+      //row gives filtered rows, so putting updated data into rows
+      setRows (rows.slice());
     }
-
-    function saveDelivery (cutomerId, date, month, quantity, id, rowData) {
+    
+    function saveDelivery (cutomerId, date, month, columnVal, id, rowData) {
       var data = {
+        id: id,
         partyId: cutomerId,
         date: date,
         month: month.format("MMM-YYYY"),
-        quantity: quantity,
-		type: "income"
+        quantity: columnVal,
+        type: "income",
+        category:null,
+        active: true,
+        payment: null
       };
-      if(id){
-          DeliveryService.update(id, data)
+      if(date != "discount"){
+          if(id){
+              DeliveryService.update(id, data)
+                .then(response => {
+                  console.log(response.data);
+                })
+                .catch(e => {
+                  console.log(e);
+                });
+          } else {
+            DeliveryService.create(data)
+                .then(response => {
+                  var idName = "id"+date;
+                  rowData[idName]=response.data.id;
+                  console.log(rowData);
+                })
+                .catch(e => {
+                  console.log(e);
+                });
+            }
+      }else{
+        data.category="discount";
+        data.payment=columnVal;
+        data.date=moment().format("DD");
+        if(id){
+          PaymentService.update(id, data)
             .then(response => {
               console.log(response.data);
             })
             .catch(e => {
               console.log(e);
             });
-      } else {
-        DeliveryService.create(data)
+        } else {
+          PaymentService.create(data)
             .then(response => {
               var idName = "id"+date;
               rowData[idName]=response.data.id;
@@ -316,6 +356,7 @@ const CustomerCalendar = props => {
             });
         }
       }
+    }
 
     function generateBill(month){
 		BillService.validateBillGeneration(month,"income").then((response) => {
@@ -351,7 +392,6 @@ const CustomerCalendar = props => {
               initialRow["bill"]=delivery.bill;
               initialRow["dues"]=delivery.dues;
               initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
-              getPayment(month,delivery.partyId, initialRow);
               break;
             }
           };

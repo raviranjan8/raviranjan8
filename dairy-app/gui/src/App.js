@@ -5,15 +5,20 @@ import "./App.css";
 import moment from 'moment';
 
 import AddCustomer from "./components/add-customer.component";
+import AddProduct from "./components/add-product.component";
+import ProductList from "./components/product-list.component";
+import SellerProduct from "./components/seller-product.component";
 import ProjectData from "./components/daily-delivery.component";
 import AddRoute from "./components/add-route.component";
 import RoutesList from "./components/routes-list.component";
 import CustomerCalendar from "./components/customer-calendar.component";
-import CustomerDaily from "./components/customer-daily.component";
-import EmployeeDaily from "./components/customer-daily.component";
+import CustomerDaily from "./components/customer-today.component";
+import CollectionBillsList from "./components/collection-bills-list.component";
+import EmployeeDaily from "./components/customer-today.component";
 import CollectionDaily from "./components/collection-daily.component";
 import CustomerList from "./components/customer-list.component";
 import Bills from "./components/bills.component";
+import CollectionBills from "./components/collection-bills.component";
 import ExpenseBills from "./components/expense-bills.component";
 import ExpenseList from "./components/expense-list.component";
 import AddExpense from "./components/add-expense.component";
@@ -64,10 +69,11 @@ class App extends Component {
               </Link>
             </li>
 			)}
+      
 			{showAdminBoard && (
               <li className="nav-item">
                 <Link to={"/gui/customerCalendar/"+moment().format("MMM-YYYY")} className="nav-link">
-                  Calendar
+                  Calendar 
                 </Link>
               </li>
 			)}
@@ -86,6 +92,28 @@ class App extends Component {
                 </Link>
               </li>
 			)}
+{showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/addProduct"} className="nav-link">
+                  Product
+                </Link>
+              </li>
+			)}
+      {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/productlist"} className="nav-link">
+                  ProductList
+                </Link>
+              </li>
+			)}
+      {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/sellerProduct"} className="nav-link">
+                  SellerProduct
+                </Link>
+              </li>
+			)}
+
       {showModeratorBoard && (
 			  <li className="nav-item">
                 <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
@@ -93,14 +121,13 @@ class App extends Component {
                 </Link>
               </li>
 			)}
-  {showModeratorBoard && (
+        {showModeratorBoard && (
 			  <li className="nav-item">
-                <Link to={"/gui/employeeDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
-                  Employee
+                <Link to={"/gui/CollectionBillsList/"+moment().format("DD-MMM-YYYY")} className="nav-link">
+                  CollectionBillsList
                 </Link>
               </li>
 			)}
-
             </div>
           </nav>
 
@@ -109,6 +136,9 @@ class App extends Component {
               <Route exact path={["/", "/gui/routes"]} component={RoutesList} />
               <Route exact path="/gui/customers" component={CustomerList} />
               <Route exact path="/gui/addCustomer" component={AddCustomer} />
+              <Route exact path="/gui/productlist" component={ProductList} />
+              <Route exact path="/gui/addProduct" component={AddProduct} />
+              <Route exact path="/gui/sellerProduct" component={SellerProduct} />
               <Route exact path="/gui/dailyDelivery/:id" component={ProjectData} />
 			        <Route exact path="/gui/dailyDelivery/:id/:pending" component={ProjectData} />
               <Route exact path="/gui/route" component={AddRoute} />
@@ -116,12 +146,15 @@ class App extends Component {
               <Route exact path="/gui/customerCalendar/:date" component={CustomerCalendar} />
               <Route exact path="/gui/customerDaily/:date" component={CustomerDaily} />
               <Route exact path="/gui/bills/:month" component={Bills} />
-			        <Route exact path="/gui/expenseBills/:month" component={ExpenseBills} />
+              <Route exact path="/gui/collectionbills/:from/:to" component={CollectionBills} />
+              <Route exact path="/gui/collectionbills/:from/:to/:partyId" component={CollectionBills} />
+              <Route exact path="/gui/expenseBills/:month" component={ExpenseBills} />
               <Route exact path="/gui/bills/:month/:partyId" component={Bills} />
 			        <Route exact path="/gui/expense/:month" component={ExpenseList} />
 			        <Route exact path="/gui/addExpense" component={AddExpense} />
 			        <Route exact path="/gui/login" component={Login} />
               <Route exact path="/gui/collectionDaily/:date" component={CollectionDaily} />
+              <Route exact path="/gui/CollectionBillsList/:date" component={CollectionBillsList} />
               <Route exact path="/gui/employeeDaily/:date" component={EmployeeDaily} />
             </Switch>
           </div>

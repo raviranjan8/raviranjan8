@@ -12,14 +12,14 @@ export default class AddCustomer extends Component {
     this.onChangeStartDate = this.onChangeStartDate.bind(this);
     this.onChangeActive = this.onChangeActive.bind(this);
     this.onChangeRoute = this.onChangeRoute.bind(this);
-	this.onChangeType = this.onChangeType.bind(this);
+  	this.onChangeType = this.onChangeType.bind(this);
     this.onChangeDefaultQuantity = this.onChangeDefaultQuantity.bind(this);
     this.onChangeRouteSeq = this.onChangeRouteSeq.bind(this);
     this.saveTutorial = this.saveTutorial.bind(this);
     this.newTutorial = this.newTutorial.bind(this);
     this.getRoute = this.getRoute.bind(this);
     this.myRef = React.createRef();
-	this.myRefType = React.createRef();
+  	this.myRefType = React.createRef();
 
     const today = moment();
     this.state = {
@@ -27,7 +27,7 @@ export default class AddCustomer extends Component {
       name: "",
       address: "", 
       mobNo: "",
-	  type:"",
+	    type:"",
       active: true,
       startDate: today.format("DD-MMM-YYYY"),
       routeId: "",
@@ -117,7 +117,7 @@ this.setState({submitted: true});
           active: response.data.active,
           startDate: response.data.startDate,
           routeId: response.data.routeId,
-		  type: response.data.type,
+		      type: response.data.type,
           defaultQuantity: response.data.defaultQuantity,
           routeSeq: response.data.routeSeq,
           submitted: true
@@ -270,6 +270,7 @@ this.setState({submitted: true});
                         <option value="customer">Customer</option>
                         <option value="staff">Staff</option>
                         <option value="vendor">Vendor</option>
+                        <option value="farmer">Farmer</option>
                         <option value="chicken">Chicken</option>
                         <option value="car">Car</option>
                         <option value="ace">Ace</option>
