@@ -1,6 +1,7 @@
 package com.dairy.model;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -21,11 +22,14 @@ public class SellerProduct extends Base {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "NAME")
-	private String name;
-
 	@Column(name = "DESCRIPTION")
 	private String description;
+	
+	@Column(name = "PHOTO")
+	private String photo;
+	
+	@Column(name = "PRODUCT_ID")
+	private Long productId;
 	
 	@Column(name = "BRAND")
 	private String brand;
@@ -66,14 +70,6 @@ public class SellerProduct extends Base {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getDescription() {
@@ -171,26 +167,27 @@ public class SellerProduct extends Base {
 	public void setDeliveryCharge(BigDecimal deliveryCharge) {
 		this.deliveryCharge = deliveryCharge;
 	}
+	
+	public String getPhoto() {
+		return photo;
+	}
+
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
+
+	public Long getProductId() {
+		return productId;
+	}
+
+	public void setProductId(Long productId) {
+		this.productId = productId;
+	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((brand == null) ? 0 : brand.hashCode());
-		result = prime * result + ((company == null) ? 0 : company.hashCode());
-		result = prime * result + ((deliveryCharge == null) ? 0 : deliveryCharge.hashCode());
-		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((discount == null) ? 0 : discount.hashCode());
-		result = prime * result + ((discountType == null) ? 0 : discountType.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((measurment == null) ? 0 : measurment.hashCode());
-		result = prime * result + ((mrp == null) ? 0 : mrp.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((quantity == null) ? 0 : quantity.hashCode());
-		result = prime * result + ((rate == null) ? 0 : rate.hashCode());
-		result = prime * result + ((unit == null) ? 0 : unit.hashCode());
-		result = prime * result + ((weight == null) ? 0 : weight.hashCode());
-		return result;
+		return Objects.hash(brand, company, deliveryCharge, description, discount, discountType, id, measurment, mrp,
+				 photo, productId, quantity, rate, unit, weight);
 	}
 
 	@Override
@@ -202,85 +199,24 @@ public class SellerProduct extends Base {
 		if (getClass() != obj.getClass())
 			return false;
 		SellerProduct other = (SellerProduct) obj;
-		if (brand == null) {
-			if (other.brand != null)
-				return false;
-		} else if (!brand.equals(other.brand))
-			return false;
-		if (company == null) {
-			if (other.company != null)
-				return false;
-		} else if (!company.equals(other.company))
-			return false;
-		if (deliveryCharge == null) {
-			if (other.deliveryCharge != null)
-				return false;
-		} else if (!deliveryCharge.equals(other.deliveryCharge))
-			return false;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (discount == null) {
-			if (other.discount != null)
-				return false;
-		} else if (!discount.equals(other.discount))
-			return false;
-		if (discountType == null) {
-			if (other.discountType != null)
-				return false;
-		} else if (!discountType.equals(other.discountType))
-			return false;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (measurment == null) {
-			if (other.measurment != null)
-				return false;
-		} else if (!measurment.equals(other.measurment))
-			return false;
-		if (mrp == null) {
-			if (other.mrp != null)
-				return false;
-		} else if (!mrp.equals(other.mrp))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (quantity == null) {
-			if (other.quantity != null)
-				return false;
-		} else if (!quantity.equals(other.quantity))
-			return false;
-		if (rate == null) {
-			if (other.rate != null)
-				return false;
-		} else if (!rate.equals(other.rate))
-			return false;
-		if (unit == null) {
-			if (other.unit != null)
-				return false;
-		} else if (!unit.equals(other.unit))
-			return false;
-		if (weight == null) {
-			if (other.weight != null)
-				return false;
-		} else if (!weight.equals(other.weight))
-			return false;
-		return true;
+		return Objects.equals(brand, other.brand) && Objects.equals(company, other.company)
+				&& Objects.equals(deliveryCharge, other.deliveryCharge)
+				&& Objects.equals(description, other.description) && Objects.equals(discount, other.discount)
+				&& Objects.equals(discountType, other.discountType) && Objects.equals(id, other.id)
+				&& Objects.equals(measurment, other.measurment) && Objects.equals(mrp, other.mrp)
+				&& Objects.equals(photo, other.photo)
+				&& Objects.equals(productId, other.productId) && Objects.equals(quantity, other.quantity)
+				&& Objects.equals(rate, other.rate) && Objects.equals(unit, other.unit)
+				&& Objects.equals(weight, other.weight);
 	}
 
 	@Override
 	public String toString() {
-		return "SellerProduct [id=" + id + ", name=" + name + ", description=" + description + ", brand=" + brand
-				+ ", company=" + company + ", mrp=" + mrp + ", unit=" + unit + ", weight=" + weight + ", measurment="
-				+ measurment + ", quantity=" + quantity + ", rate=" + rate + ", discount=" + discount
-				+ ", discountType=" + discountType + ", deliveryCharge=" + deliveryCharge + "]";
+		return "SellerProduct [id=" + id + ", description=" + description + ", photo=" + photo
+				+ ", productId=" + productId + ", brand=" + brand + ", company=" + company + ", mrp=" + mrp + ", unit="
+				+ unit + ", weight=" + weight + ", measurment=" + measurment + ", quantity=" + quantity + ", rate="
+				+ rate + ", discount=" + discount + ", discountType=" + discountType + ", deliveryCharge="
+				+ deliveryCharge + "]";
 	}
 	
 }
