@@ -359,8 +359,8 @@ const CollectionBillsList = props => {
                  Generate Collection Bill
               </Link>    
           </Grid> 
-          <Grid item xs={6} sm={3}> 
-			<input
+          <Grid item xs={6} sm={6}> 
+			      <input
                 type="date"
                 id="from"
                 required

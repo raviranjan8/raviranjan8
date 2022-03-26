@@ -49,6 +49,7 @@ const CustomerCalendar = props => {
 
   const [filters, setFilters] = useState({
     name: '',
+    route: '',
     enabled: true
   });
 
@@ -65,7 +66,7 @@ const CustomerCalendar = props => {
     const [sortColumns, setSortColumns] = useState([]);  
     
     const columns = [
-      { key: 'id', name: 'ID' , minWidth: 60 , resizable: true ,
+      { key: 'id', name: 'ID' , minWidth: 60 , resizable: true , frozen: true,
           headerCellClass: filterColumnClassName,
           headerRenderer: (p) => (
             <FilterRenderer {...p}>
@@ -86,7 +87,28 @@ const CustomerCalendar = props => {
             </FilterRenderer>
           )
       },
-      { key: 'name', name: 'Name' , width: 200, resizable: true },
+      { key: 'name', name: 'Name' , width: 200, resizable: true, frozen: true },
+      { key: 'route', name: 'Route' , minWidth:100 , resizable: true ,
+          headerCellClass: filterColumnClassName,
+          headerRenderer: (p) => (
+            <FilterRenderer {...p}>
+              {({ filters, ...rest }) => (
+                <input
+                  {...rest}
+                  className={filterClassname}
+                  value={filters.route}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      route: e.target.value
+                    })
+                  }
+                  onKeyDown={inputStopPropagation}
+                />
+              )}
+            </FilterRenderer>
+          )
+      },
       { key: '01', name: '1' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40, resizable: true },
       { key: '02', name: '2' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true },
       { key: '03', name: '3' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true },
@@ -158,6 +180,7 @@ const CustomerCalendar = props => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
+          initialRows[index]["route"]=customer.route.name;
         });
         getPayment(calendar, initialRows);
       })
@@ -453,6 +476,7 @@ const CustomerCalendar = props => {
        filteredRows = rows.filter((r) => {
         return (
           (filters.name ? r.name.includes(filters.name) : true)
+          && (filters.route ? r.route.includes(filters.route) : true)
         );
       })
       if (sortColumns.length === 0) return filteredRows;

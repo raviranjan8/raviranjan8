@@ -92,28 +92,6 @@ class App extends Component {
                 </Link>
               </li>
 			)}
-{showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/addProduct"} className="nav-link">
-                  Product
-                </Link>
-              </li>
-			)}
-      {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/productlist"} className="nav-link">
-                  ProductList
-                </Link>
-              </li>
-			)}
-      {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/sellerProduct"} className="nav-link">
-                  SellerProduct
-                </Link>
-              </li>
-			)}
-
       {showModeratorBoard && (
 			  <li className="nav-item">
                 <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
@@ -128,6 +106,21 @@ class App extends Component {
                 </Link>
               </li>
 			)}
+    {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/productlist"} className="nav-link">
+                  ProductList
+                </Link>
+              </li>
+			)}
+      {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/sellerProduct"} className="nav-link">
+                  SellerProduct
+                </Link>
+              </li>
+			)}
+
             </div>
           </nav>
 

@@ -250,7 +250,7 @@ this.setState({submitted: true});
                   <div className="select-container">
                     <select className="form-control" value={this.state.productId} 
                     onChange={this.onChangeproduct} ref={this.myRef} name="productId">
-                      {products.map((option) => (
+                      {products && products.map((option) => (
                         <option value={option.name}>{option.name}</option>
                       ))}
                     </select>

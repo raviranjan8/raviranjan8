@@ -42,6 +42,7 @@ const CustomerDaily = props => {
 
   const [filters, setFilters] = useState({
     name: '',
+    route: '',
     enabled: true
   });
 
@@ -79,7 +80,27 @@ const CustomerDaily = props => {
       { key: 'name', name: 'Name' , width: 200, resizable: true},
       { key: 'today', name: 'Today Quantity' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:80, resizable: true },
       { key: 'dailyQuantity', name: 'Daily Quantity' , minWidth:80 , resizable: true },
-      { key: 'route', name: 'Route' , minWidth:100 , resizable: true },
+      { key: 'route', name: 'Route' , minWidth:100 , resizable: true ,
+          headerCellClass: filterColumnClassName,
+          headerRenderer: (p) => (
+            <FilterRenderer {...p}>
+              {({ filters, ...rest }) => (
+                <input
+                  {...rest}
+                  className={filterClassname}
+                  value={filters.route}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      route: e.target.value
+                    })
+                  }
+                  onKeyDown={inputStopPropagation}
+                />
+              )}
+            </FilterRenderer>
+          )
+      },
       { key: 'qty', name: 'Qty' , minWidth:40 , resizable: true },
       { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true },
       { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
@@ -258,6 +279,7 @@ const CustomerDaily = props => {
        filteredRows = rows.filter((r) => {
         return (
           (filters.name ? r.name.includes(filters.name) : true)
+          && (filters.route ? r.route.includes(filters.route) : true)
         );
       })
       if (sortColumns.length === 0) return filteredRows;

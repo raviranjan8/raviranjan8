@@ -52,7 +52,7 @@ const CustomerList = props => {
   });
 
   const columns = [
-    { key: 'id', name: 'ID' , width: 40 , resizable: true,
+    { key: 'id', name: 'ID' , width: 40 , resizable: true,frozen: true,
         headerCellClass: filterColumnClassName,
         headerRenderer: (p) => (
           <FilterRenderer {...p}>
@@ -73,7 +73,7 @@ const CustomerList = props => {
           </FilterRenderer>
         )
     },
-    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,frozen: true,},
     { key: 'address', name: 'Address' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'mobNo', name: 'MobNo' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'startDate', name: 'StartDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
@@ -106,8 +106,8 @@ const CustomerList = props => {
 
     useEffect(() => {
       var initialRows = null;
-      const paramCustomer = { _sort: "routeId",
-                        _order: "asc"};
+      const paramCustomer = { _sort: "routeId", _order: "asc"};
+      console.log(paramCustomer);
       CustomerService.getAll(paramCustomer).then((response) => {
         var customers = response.data;
         initialRows = new Array(customers.length);
@@ -123,7 +123,7 @@ const CustomerList = props => {
           initialRows[index]["active"]=customer.active;
           initialRows[index]["routeId"]=customer.routeId;
           initialRows[index]["routeSeq"]=customer.routeSeq;
-		  initialRows[index]["type"]=customer.type;
+		      initialRows[index]["type"]=customer.type;
           if(customer.route){
             initialRows[index]["routeName"]=customer.route.name;
           }
