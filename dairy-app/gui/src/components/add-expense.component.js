@@ -12,7 +12,7 @@ export default class AddExpense extends Component {
 	this.onChangeAmount = this.onChangeAmount.bind(this);
 	this.onChangePayment = this.onChangePayment.bind(this);
 	this.newExpense = this.newExpense.bind(this);
-	
+	this.onChangeCategory=this.onChangeCategory.bind(this);
 	
 	this.onDate = this.onDate.bind(this);
 	
@@ -25,6 +25,7 @@ export default class AddExpense extends Component {
       date:null,
       month: null,
 	  type: "expense",
+    category:null,
 	  amount: null,
 	  payment: null,
 	  submitted: false,
@@ -57,6 +58,11 @@ export default class AddExpense extends Component {
 		});
   }
   
+  onChangeCategory(e){
+    this.setState({
+     category: e.target.value
+   });
+ }
   
   
   saveExpense(e) {
@@ -67,6 +73,7 @@ export default class AddExpense extends Component {
 		  date:moment(this.state.inputDate, "DD-MMM-YYYY").format("DD"),
 		  month: moment(this.state.inputDate, "DD-MMM-YYYY").format("MMM-YYYY"),
 		  type: "expense",
+      category: this.state.category,
 		  amount: this.state.amount,
 		  payment: this.state.payment,
 		  active: true
@@ -111,6 +118,7 @@ export default class AddExpense extends Component {
       date:null,
       month: null,
 	  type: "expense",
+    category:null,
 	  amount: null,
 	  payment: null,
 	  submitted: false,
@@ -193,6 +201,19 @@ export default class AddExpense extends Component {
                 value={this.state.payment}
                 onChange={this.onChangePayment}
                 name="payment"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="category">Category </label>
+              <input
+                type="text"
+                className="form-control"
+                id="category"
+                required
+                value={this.state.category}
+                onChange={this.onChangeCategory}
+                name="category"
               />
             </div>
 			<div className="form-group">

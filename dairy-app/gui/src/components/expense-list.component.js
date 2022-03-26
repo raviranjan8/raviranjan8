@@ -2,7 +2,7 @@ import React, { Component, useState , useMemo, useEffect } from "react";
 import RouteService from "../services/route.service";
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
-import NumericEditor from "../components/editor/numericeditor.component";
+import NumericEditor, { textEditorClassname } from "../components/editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import PaymentService from "../services/payment.service";
 import moment from 'moment';
@@ -27,6 +27,7 @@ function getComparator(sortColumn) {
     case 'name':
 	case 'date':
 	case 'month':
+	case 'category' :
       return (a, b) => {
         return a[sortColumn].localeCompare(b[sortColumn]);
       };
@@ -39,12 +40,13 @@ function getComparator(sortColumn) {
 
 const columns = [
   { key: 'id', name: 'ID' , width: 40 , resizable: true },
-  { key: 'name', name: 'Name' , resizable: true },
-  { key: 'date', name: 'Date' , editor: TextEditor ,width: 40 , resizable: true },
+  { key: 'name', name: 'Name' , width:50, resizable: true },
+  { key: 'date', name: 'Date' , editor: TextEditor ,width: 20 , resizable: true },
   { key: 'month', name: 'Month' , editor: TextEditor , width: 40 , resizable: true },
-  { key: 'quantity', name: 'Quantity' , width: 80  , editor: NumericEditor , resizable: true },
+  { key: 'payment', name: 'Payment Amount' , width: 140  ,editor: NumericEditor , resizable: true },
   { key: 'amount', name: 'Bill Amount' , width: 120  , editor: NumericEditor , resizable: true },
-  { key: 'payment', name: 'Payment Amount' , width: 180  ,editor: NumericEditor , resizable: true }
+  { key: 'quantity', name: 'Quantity' , width: 80  , editor: NumericEditor , resizable: true },
+  { key: 'category', name: 'Category', editor:  TextEditor , resizable: true}
 ];
 
 const ExpenseList = props => {  
@@ -76,6 +78,7 @@ const ExpenseList = props => {
           initialRows[index]["quantity"]=customer.quantity;
           initialRows[index]["amount"]=customer.amount;
 		  initialRows[index]["type"]=customer.type;
+		  initialRows[index]["category"]=customer.category;
           if(customer.party){
             initialRows[index]["name"]=customer.party.name;
           }
@@ -101,6 +104,7 @@ const ExpenseList = props => {
 			  initialRows[index]["month"]=customer.month;
 			  initialRows[index]["payment"]=customer.payment;
 			  initialRows[index]["type"]=customer.type;
+			  initialRows[index]["category"]=customer.category;
 			  if(customer.party){
 				initialRows[index]["name"]=customer.party.name;
 			  }
@@ -133,6 +137,7 @@ const ExpenseList = props => {
         amount: row.amount,
 		payment: row.payment,
 		type: row.type,
+		cotegory: row.category,
 		active: true
       };
 	  

@@ -22,7 +22,7 @@ export default class Bills extends Component {
         var bills = response.data;
         bills && bills.map((bill,index) => {
 			if(bill.quantity > 0 || bill.dues > 0){
-				var initialRow = {};
+				var initialRow = {};  
 				initialRow["id"]=bill.id;
 				initialRow["partyId"]=bill.partyId;
 				initialRow["month"]=month;
@@ -31,7 +31,9 @@ export default class Bills extends Component {
 				initialRow["bill"]=bill.bill;
 				initialRow["dues"]=bill.dues;
 				initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
-				initialRow["paid"]=+bill.payment
+				initialRow["paid"]=+bill.payment;
+        initialRow["discount"]=+bill.discount;
+        initialRow["lastBillTotal"]=+bill.lastBillTotal;
 				if(bill.customer){
 					initialRow["name"]=bill.customer.name;
 				}
@@ -82,15 +84,25 @@ export default class Bills extends Component {
                       <table className="table noBorder" border="1" >
                           <tr>
                              <th>Name</th>
-                             <td colspan="3"><b>{count.name ? count.name : count.id}</b></td>
+                             <td><b>{count.name ? count.name : count.id}</b></td>
                            
                              <th>Month</th>
                              <td>{count.month}</td>
                            
-                             <th >Quantity</th>
-                             <td >{count.qty + ' Ltr'}</td>
+                             <th>Last Bill</th>
+                             <td>{count.lastBillTotal}</td>
+
+                             <th>Payment</th>
+                             <td>{count.paid}</td>
+
+                             <th>Discount</th>
+                             <td>{count.discount}</td>
+                             
                            </tr>
                            <tr>
+                             <th >Quantity</th>
+                             <td >{count.qty + ' Ltr'}</td>
+
                              <th >Rate</th>
                              <td >{count.rate}</td>
                            
@@ -100,11 +112,11 @@ export default class Bills extends Component {
                              <th>Dues</th>
                              <td>{count.dues}</td>
 							 
-							 <th>Total Bill</th>
+							               <th>Total Bill</th>
                              <td>{count.totalBill} </td>
                            </tr>
                            <tr>
-                             <td style={{margin:0, padding:0}} colspan={8}>
+                             <td style={{margin:0, padding:0}} colspan={10}>
                                <table style={{margin:0, padding:0}}>
                                  <tr>
                                    <td >Day</td>
@@ -127,7 +139,7 @@ export default class Bills extends Component {
                                    <td rowSpan={2}><h1>RAMJI DAIRY</h1></td>								   
                                  </tr>
                                  <tr>
-                                          <td >Quantity</td>
+                                          <td >Quantity</td>  
                                           <td  >{count["01"]}</td>
                                           <td  >{count["02"]}</td>
                                           <td  >{count["03"]}</td>
@@ -145,12 +157,13 @@ export default class Bills extends Component {
                                           <td  >{count["15"]}</td>
                                           <td  >{count["16"]}</td>
                                  </tr>
+                                 
                                  <tr>
                                    <td >Day</td>
                                    <td >17</td>
                                    <td >18</td>
                                    <td >19</td>
-                                   <td >20</td>
+                                     <td >20</td>
                                    <td >21</td>
                                    <td >22</td>
                                    <td >23</td>
@@ -163,10 +176,10 @@ export default class Bills extends Component {
                                    <td >30</td>
                                    <td >31</td>
                                    <td >{" "}</td>
-                                   <td rowSpan={2}><h3>9860910995</h3></td>
+                                   <td rowSpan={2}><h3>9860910995,</h3></td>
                                  </tr>
                                  <tr>
-                                          <td >Quantity</td>
+                                          <td >quantity</td>
                                           <td  >{count["17"]}</td>
                                           <td  >{count["18"]}</td>
                                           <td  >{count["19"]}</td>
@@ -183,6 +196,7 @@ export default class Bills extends Component {
                                           <td  >{count["30"]}</td>
                                           <td  >{count["31"]}</td>
                                  </tr>
+                                
                                </table>
                              </td>
                            </tr>

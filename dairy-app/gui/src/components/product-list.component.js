@@ -1,14 +1,14 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
-import RouteService from "../services/route.service";
+
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
 import DeliveryService from "../services/delivery.service";
-import CustomerService from "../services/customer.service";
-import DropDownEditor, {useRoute} from "../components/editor/dropdown.component";
-import NumericEditor from "../components/editor/numericeditor.component";
+import ProductService from "../services/product.service";
+import DropDownEditor, {useRoute} from "./editor/dropdown.component";
+import NumericEditor from "./editor/numericeditor.component";
 import moment from 'moment';
 
-const rootClassname = 'rootClassname';
+//const rootClassname = 'rootClassname';
 const filterColumnClassName = 'filter-cell';
 const filterContainerClassname = 'filterContainerClassname';
 const filterClassname = 'filterClassname';
@@ -28,10 +28,8 @@ export function stopPropagation(event) {
 function getComparator(sortColumn) {
   switch (sortColumn) {
     case 'name':
-	case 'address':
-	case 'startDate':
-	case 'endDate':
-	case 'type':
+	case 'description':
+
       return (a, b) => {
         return a[sortColumn].localeCompare(b[sortColumn]);
       };
@@ -42,7 +40,7 @@ function getComparator(sortColumn) {
   }
 }
 
-const CustomerList = props => {  
+const ProductList = props => {  
 
   const [rows, setRows] = useState([]);
 	const [sortColumns, setSortColumns] = useState([]);  
@@ -52,7 +50,7 @@ const CustomerList = props => {
   });
 
   const columns = [
-    { key: 'id', name: 'ID' , width: 40 , resizable: true,frozen: true,
+    { key: 'id', name: 'ID' , width: 40 , resizable: true,
         headerCellClass: filterColumnClassName,
         headerRenderer: (p) => (
           <FilterRenderer {...p}>
@@ -73,60 +71,30 @@ const CustomerList = props => {
           </FilterRenderer>
         )
     },
-    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,frozen: true,},
-    { key: 'address', name: 'Address' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'mobNo', name: 'MobNo' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'startDate', name: 'StartDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'endDate', name: 'EndDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'defaultQuantity', name: 'Quantity' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'active', name: 'Active' , width: 40 ,
-            formatter({ row, onRowChange, isCellSelected }) {
-              return (
-                <SelectCellFormatter
-                  value={row.active}
-                  onChange={() => {
-                    onRowChange({ ...row, active: !row.active });
-                  }}
-                  onClick={stopPropagation}
-                  isCellSelected={isCellSelected}
-                />
-              );
-            } },
-    { key: 'routeId', name: 'Route' , resizable: true ,
-              formatter(props) {
-                return <>{props.row.routeName}</>;
-              },
-              editor: DropDownEditor,
-              editorOptions: {
-                editOnClick: true
-              }},
-    { key: 'routeSeq', name: 'Seq' , width: 40 , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'type', name: 'Type' , width: 80 , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true }
+    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'minRate', name: 'minRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'maxRate', name: 'maxRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'photo', name: 'Photo' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,
+           },
   ];
 
     useEffect(() => {
       var initialRows = null;
-      const paramCustomer = { _sort: "routeId", _order: "asc"};
-      console.log(paramCustomer);
-      CustomerService.getAll(paramCustomer).then((response) => {
-        var customers = response.data;
-        initialRows = new Array(customers.length);
-        customers.map((customer, index) => {
+      const paramProduct= { _sort: "routeId",
+                        _order: "asc"};
+     ProductService.getAll(paramProduct).then((response) => {
+        var products = response.data;
+        initialRows = new Array(products.length);
+        products.map((product, index) => {
           initialRows[index]={};
-          initialRows[index]["id"]=customer.id;
-          initialRows[index]["name"]=customer.name;
-          initialRows[index]["address"]=customer.address;
-          initialRows[index]["mobNo"]=customer.mobNo;
-          initialRows[index]["startDate"]=customer.startDate;
-          initialRows[index]["endDate"]=customer.endDate;
-          initialRows[index]["defaultQuantity"]=customer.defaultQuantity;
-          initialRows[index]["active"]=customer.active;
-          initialRows[index]["routeId"]=customer.routeId;
-          initialRows[index]["routeSeq"]=customer.routeSeq;
-		      initialRows[index]["type"]=customer.type;
-          if(customer.route){
-            initialRows[index]["routeName"]=customer.route.name;
-          }
+          initialRows[index]["id"]=product.id;
+          initialRows[index]["name"]=product.name;
+          initialRows[index]["minRate"]=product.minRate;
+          initialRows[index]["maxRate"]=product.maxRate;
+          initialRows[index]["photo"]=product.photo;
+          initialRows[index]["description"]=product.description;
+          
         });
         setRows(initialRows);
       })
@@ -149,19 +117,14 @@ const CustomerList = props => {
       var data = {
         id: row.id,
         name: row.name,
-        address: row.address,
-        mobNo: row.mobNo,
-        startDate: row.startDate,
-        endDate: row.endDate,
-        active: row.active,
-        routeId: row.routeId,
-        defaultQuantity: row.defaultQuantity,
-        routeSeq: row.routeSeq,
-		type: row.type
+        minRate: row.minRate,
+        maxRate: row.maxRate,
+        photo: row.photo,
+        description: row.description,
       };
       console.log(data);
       
-           CustomerService.update(row.id, data)
+           ProductService.update(row.id, data)
             .then(response => {
               console.log(response.data);
             })
@@ -196,8 +159,8 @@ const CustomerList = props => {
   
     return (
       <div >
-                <Link to={"/gui/addCustomer"} className="nav-link">
-                  Add Customer
+                <Link to={"/gui/addProduct"} className="nav-link">
+                  Add Product
                 </Link>
         <div className="rootClassname">
           <FilterContext.Provider value={filters}>
@@ -218,7 +181,7 @@ const CustomerList = props => {
     );
   };
   
-  export default CustomerList;
+  export default ProductList;
 
   
 function FilterRenderer({isCellSelected,column,children}) {
