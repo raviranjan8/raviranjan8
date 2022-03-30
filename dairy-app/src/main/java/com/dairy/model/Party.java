@@ -2,20 +2,35 @@ package com.dairy.model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedEntityGraph;
+import javax.persistence.NamedEntityGraphs;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "PARTY")
+@NamedEntityGraphs({
+    @NamedEntityGraph(name="all",includeAllAttributes = true
+    ),
+    @NamedEntityGraph(name="none", includeAllAttributes = false
+    )
+})
 public class Party extends Base {
 
 	@Id
@@ -48,9 +63,28 @@ public class Party extends Base {
 	@Column(name = "ROUTE_ID")
 	private Long routeId;
 	
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@ManyToOne
+	@Fetch(value = FetchMode.JOIN)
 	@JoinColumn(name = "ROUTE_ID", insertable = false, updatable = false)
 	private Route route;
+	
+	@OneToMany
+	@JoinColumn(name = "party_id" , insertable = false, updatable = false)
+	private Set<DailyBill> dailyBills;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "party_id" , insertable = false, updatable = false)
+	private Set<Bill> bills;
+	
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "party_id" , insertable = false, updatable = false)
+	private Set<Bill> prevBills;
+	
+	//@JsonManagedReference
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "party_id" , insertable = false, updatable = false)
+	private Set<Payment> payments;
 	
 	@Column(name = "ROUTE_SEQ")
 	private BigDecimal routeSeq;
@@ -167,6 +201,38 @@ public class Party extends Base {
 
 	public void setSearchFlag(String searchFlag) {
 		this.searchFlag = searchFlag;
+	}
+
+	public Set<DailyBill> getDailyBills() {
+		   return dailyBills;
+	}
+
+	public void setDailyBills(Set<DailyBill> dailyBills) {
+		this.dailyBills = dailyBills;
+	}
+	
+	public Set<Bill> getPrevBills() {
+		return prevBills;
+	}
+
+	public void setPrevBills(Set<Bill> prevBills) {
+		this.prevBills = prevBills;
+	}
+
+	public Set<Bill> getBills() {
+		return bills;
+	}
+
+	public void setBills(Set<Bill> bills) {
+		this.bills = bills;
+	}
+
+	public Set<Payment> getPayments() {
+		return payments;
+	}
+
+	public void setPayments(Set<Payment> payments) {
+		this.payments = payments;
 	}
 
 	@Override

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dairy.model.Route;
+import com.dairy.model.RouteExtraInfo;
 import com.dairy.repository.RouteRepository;
 
 @CrossOrigin(allowedHeaders = "*")
@@ -37,6 +38,10 @@ public class RouteController {
 			
 			if(null != param) {
 				repoRepository.findAll(Example.of(param)).forEach(responseList::add);
+				if( null != param.getDate()) {
+					List<RouteExtraInfo> extras = repoRepository.getRouteExtraInfo(param.getDate(),param.getMonth());
+					responseList.stream().forEach(c -> c.setExtraInfo(extras.stream().filter(extra -> c.getId().equals(extra.getRouteId())).findAny().orElse(null)));
+				}
 			}else {
 				repoRepository.findAll().forEach(responseList::add);
 			}

@@ -8,12 +8,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -64,10 +61,8 @@ public class DailyBill extends Base {
 	@Column(name = "Category")
 	private String category;
 	
-	@ManyToOne
-	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
-	@Fetch(FetchMode.JOIN)
-	private Party party;
+	@Formula(value="(SELECT i.name FROM Party i WHERE i.id = party_Id)")
+	private String party;
 
 	public Long getId() {
 		return id;
@@ -142,11 +137,11 @@ public class DailyBill extends Base {
 		this.category = category;
 	}
 
-	public Party getParty() {
+	public String getParty() {
 		return party;
 	}
 
-	public void setParty(Party party) {
+	public void setParty(String party) {
 		this.party = party;
 	}
 

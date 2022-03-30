@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -33,7 +36,17 @@ public class PartyController {
 	@Autowired
 	PartyRepository repository;
 	
+	@PersistenceContext EntityManager entityManager;
+	
+    public void nullify(Party u) {
+        u.setDailyBills(null);
+        u.setBills(null);
+        u.setPrevBills(null);
+        u.setPayments(null);
+    }
+	
 	DateTimeFormatter formatMonth = DateTimeFormatter.ofPattern("MMM-yyyy");
+	DateTimeFormatter formatMonthDate = DateTimeFormatter.ofPattern("dd-MMM-yyyy");
 	DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("dd");
 
 	@GetMapping("/partys")
@@ -42,12 +55,12 @@ public class PartyController {
 			List<Party> responseList = new ArrayList<Party>();
 			
 			if(null != param && null == param.getSearchFlag()) {
-				repository.findAll(Example.of(param), Sort.by("routeId","routeSeq")).forEach(responseList::add);
-			}else if(null != param && null != param.getSearchFlag() && "pending".equals(param.getSearchFlag())) {
-				repository.findPendingCustomer(param.getRouteId(),LocalDate.now().format(formatMonth),LocalDate.now().format(formatDate)).forEach(responseList::add);
-			} else if(null != param && null != param.getSearchFlag() && "non-customer".equals(param.getSearchFlag())) {
-				repository.findNonCustomerParties().forEach(responseList::add);
-			}else {
+				repository.findAll(Example.of(param), Sort.by("routeId","routeSeq")).forEach( party -> {responseList.add(party);nullify(party) ;});
+			}else if(null != param && null != param.getSearchFlag() && "non-customer".equals(param.getSearchFlag())) {
+				repository.findNonCustomerParties().forEach( party -> {responseList.add(party);nullify(party) ;});
+			} else if(null != param && null != param.getSearchFlag() && param.getSearchFlag().contains("-")){
+				repository.getPartyCalendarInfo(param.getSearchFlag(),LocalDate.parse("01-"+param.getSearchFlag(), formatMonthDate).minusMonths(1).format(formatMonth)).forEach(responseList::add);
+			} else {
 				repository.findAll().forEach(responseList::add);
 			}
 			if (responseList.isEmpty()) {

@@ -6,6 +6,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "ROUTE")
@@ -20,6 +21,32 @@ public class Route extends Base {
 
 	@Column(name = "ADDRESS")
 	private String address;
+	
+	@Transient
+	private RouteExtraInfo extraInfo;
+	
+	@Transient
+	private String date;
+	
+	@Transient
+	private String month;
+	
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getMonth() {
+		return month;
+	}
+
+	public void setMonth(String month) {
+		this.month = month;
+	}
 
 	public Long getId() {
 		return id;
@@ -43,6 +70,14 @@ public class Route extends Base {
 
 	public void setAddress(String address) {
 		this.address = address;
+	}
+
+	public RouteExtraInfo getExtraInfo() {
+		return extraInfo;
+	}
+
+	public void setExtraInfo(RouteExtraInfo extraInfo) {
+		this.extraInfo = extraInfo;
 	}
 
 	@Override

@@ -14,6 +14,7 @@ import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Entity
@@ -63,6 +64,7 @@ public class Bill extends Base{
 	@Column(name = "CATEGORY")
 	private String category;
 	
+	@JsonBackReference
 	@ManyToOne
 	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
 	private Party customer;

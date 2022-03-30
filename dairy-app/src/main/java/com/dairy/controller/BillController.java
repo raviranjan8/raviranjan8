@@ -117,7 +117,10 @@ public class BillController {
 			Bill customerBill = new Bill();
 			customerBill.setPartyId(customerId);
 			customerBill.setMonth(param.getMonth());
-			customerBill.setRate(rate.get(0).getRate());
+			if(null ==rate || rate.size()==0) {
+				customerBill.setRate(new BigDecimal(1));
+			} else customerBill.setRate(rate.get(0).getRate());
+			
 			customerBill.setActive(true);
 			customerBill.setType(param.getType());
 			
