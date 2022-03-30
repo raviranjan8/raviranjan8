@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
@@ -64,10 +65,8 @@ public class Bill extends Base{
 	@Column(name = "CATEGORY")
 	private String category;
 	
-	@JsonBackReference
-	@ManyToOne
-	@JoinColumn(name = "PARTY_ID", insertable = false, updatable = false)
-	private Party customer;
+	@Formula(value="(SELECT i.name FROM Party i WHERE i.id = party_Id)")
+	private String party;
 	
 	@JsonFormat(pattern = "yyyy-MMM-dd")
 	@Column(name = "FROM_DATE")
@@ -179,12 +178,12 @@ public class Bill extends Base{
 		return active;
 	}
 	
-	public Party getCustomer() {
-		return customer;
+	public String getParty() {
+		return party;
 	}
 
-	public void setCustomer(Party customer) {
-		this.customer = customer;
+	public void setParty(String party) {
+		this.party = party;
 	}
 
 	public String getType() {

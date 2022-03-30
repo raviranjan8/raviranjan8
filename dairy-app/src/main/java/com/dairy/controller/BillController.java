@@ -229,7 +229,9 @@ public class BillController {
 			List<Bill> responseList = new ArrayList<Bill>();
 			
 			if(null != param) {
-				repository.findAll(Example.of(param)).forEach(responseList::add);
+				if(null != param.getFrom())
+					repository.findActiveBillForThePeriod(param.getFrom(), param.getFrom(), param.getType()).forEach(responseList::add);
+				else repository.findAll(Example.of(param)).forEach(responseList::add);
 			}else {
 				repository.findAll().forEach(responseList::add);
 			}
