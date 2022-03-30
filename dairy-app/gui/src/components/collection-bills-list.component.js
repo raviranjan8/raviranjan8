@@ -102,7 +102,7 @@ const CollectionBillsList = props => {
       { key: 'from', name: 'FROM' ,  resizable: true},
       { key: 'to', name: 'TO' ,  resizable: true},
       { key: 'qty', name: 'Quantity' , resizable: true},
-      { key: 'bill', name: 'Total' ,   resizable: true },
+      { key: 'bill', name: 'Total' ,   resizable: true }
     ];
     
     
@@ -124,7 +124,7 @@ const CollectionBillsList = props => {
         deliverys && deliverys.map((bill, index)=>{
           initialRows[index]={};
           initialRows[index]["id"]=bill.id;
-          initialRows[index]["name"]=bill.customer.name;
+          initialRows[index]["name"]=bill.party;
             initialRows[index]["qty"]=bill.quantity;
           initialRows[index]["rate"]=bill.rate;
           initialRows[index]["from"]=bill.from;
@@ -353,7 +353,7 @@ const CollectionBillsList = props => {
           </Grid> 
 
           <Grid item xs={6} sm={3}> 
-              <Link
+              <Link to="#"
                 onClick={ (from && to) ? (() => generateBillCollection(calendar.currentDate.format("DD-MM-YYYY"))): ""}
                 className="badge">
                  Generate Collection Bill

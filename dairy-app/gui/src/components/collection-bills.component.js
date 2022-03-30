@@ -35,10 +35,9 @@ export default class CollectionBills extends Component {
 				initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
 				initialRow["paid"]=+bill.payment;
         initialRow["discount"]=+bill.discount;
-        initialRow["lastBillTotal"]=+bill.lastBillTotal;
-				if(bill.customer){
-					initialRow["name"]=bill.customer.name;
-				}
+        initialRow["lastBillTotal"]=+bill.lastBillTotal;				
+				initialRow["name"]=bill.party;
+				
 				initialRows[index]={};
 				initialRows[index]=initialRow;
 			}

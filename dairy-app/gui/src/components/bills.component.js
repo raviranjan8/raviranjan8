@@ -34,9 +34,9 @@ export default class Bills extends Component {
 				initialRow["paid"]=+bill.payment;
         initialRow["discount"]=+bill.discount;
         initialRow["lastBillTotal"]=+bill.lastBillTotal;
-				if(bill.customer){
-					initialRow["name"]=bill.customer.name;
-				}
+				
+				initialRow["name"]=bill.party;
+				
 				initialRows[index]={};
 				initialRows[index]=initialRow;
 			}
@@ -176,7 +176,7 @@ export default class Bills extends Component {
                                    <td >30</td>
                                    <td >31</td>
                                    <td >{" "}</td>
-                                   <td rowSpan={2}><h3>9860910995,</h3></td>
+                                   <td rowSpan={2}><h3>9860910995</h3></td>
                                  </tr>
                                  <tr>
                                           <td >quantity</td>

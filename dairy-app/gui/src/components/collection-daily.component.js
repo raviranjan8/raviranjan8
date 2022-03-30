@@ -88,6 +88,7 @@ const CollectionDaily = props => {
       { key: 'snf', name: 'Snf' , minWidth:20 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
       { key: 'water', name: 'Water' , minWidth:40 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
       { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true ,editor: NumericEditor, editorOptions: {editOnClick: true}},
+      { key: 'amount', name: 'Amount' , minWidth:40 , resizable: true },
       { key: 'route', name: 'Route' , minWidth:40, resizable: true },
       { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
       { key: 'qty', name: 'Bill Qty' , minWidth:70 , resizable: true },
@@ -108,6 +109,7 @@ const CollectionDaily = props => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
+          initialRows[index]["route"]=customer.route.name;
 
         });
         getPayment(calendar, initialRows);
@@ -134,6 +136,7 @@ const CollectionDaily = props => {
               initialRow["snf"]=delivery.snf;
               initialRow["water"]=delivery.water;
               initialRow["rate"]=delivery.rate;
+              initialRow["amount"]=delivery.amount;
               break;
             }
           };
@@ -147,18 +150,15 @@ const CollectionDaily = props => {
     }
 
     function billService(calendar, initialRows){
-      const paramsBill ={ month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "expense"};
+      const paramsBill ={ from: calendar.currentDate.format("YYYY-MM-DD"), month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "expense"};
       BillService.getAll(paramsBill).then((response) => {
-        var deliverys = response.data;
+        var deliverys = response.data;        
         deliverys && deliverys.map((delivery) => {
           for(var initialRow of initialRows){
             if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["qty"] = delivery.quantity;
-                initialRow["rate"]=delivery.rate;
-                initialRow["bill"]=delivery.bill;
-                initialRow["dues"]=delivery.dues;
-                initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
+              if(delivery.bill){
+                initialRow["qty"] = delivery.quantity;                
+                initialRow["bill"]=delivery.bill;                
               }
               break;
             }
