@@ -155,7 +155,8 @@ const CustomerCalendar = props => {
       var calendar={currentDate: moment(props.match.params.date,'MMM-YYYY')};
       setCalendar(calendar);
       var initialRows = null;
-      const paramCustomer = { active: true, type: "customer"}; 
+      const paramCustomer = { active: true, type: "customer", 
+                              searchFlag: calendar.currentDate.format("MMM-YYYY")}; 
 
       RateService.getAll(paramCustomer).then((response) => {
         var rates = response.data;
@@ -175,14 +176,55 @@ const CustomerCalendar = props => {
 
       CustomerService.getAll(paramCustomer).then((response) => {
         var customers = response.data;
+        console.log(customers);
         initialRows = new Array(customers.length);
         customers.map((customer, index) => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
           initialRows[index]["route"]=customer.route.name;
+
+          customer.payments && customer.payments.map((bill) => {
+              if(bill.category == 'discount'){
+                initialRows[index]["discount"]=bill.payment;
+                initialRows[index]["iddiscount"]=bill.id;
+              } else{
+                if(initialRows[index]["paid"]){
+                  initialRows[index]["paid"]=initialRows[index]["paid"]+bill.payment;
+                }else{
+                  initialRows[index]["paid"]=+bill.payment;
+                }
+              }
+          });
+
+          customer.bills && customer.bills.map((delivery) => {
+                if(delivery.rate){
+                  initialRows[index]["qty"] = delivery.quantity;
+                  initialRows[index]["rate"]=delivery.rate;
+                  initialRows[index]["bill"]=delivery.bill;
+                  initialRows[index]["dues"]=delivery.dues;
+                  initialRows[index]["totalBill"]=initialRows[index]["bill"]+(initialRows[index]["dues"]? initialRows[index]["dues"] : 0);
+                  initialRows[index]["prevBill"]=delivery.lastBillTotal;
+                  initialRows[index]["currentDue"]=initialRows[index]["prevBill"]-(initialRows[index]["paid"]? initialRows[index]["paid"] : 0);
+                }              
+          });
+
+          customer.prevBills && customer.prevBills.map((delivery) => {
+                if(delivery.rate){
+                  initialRows[index]["prevBill"]=delivery.bill+delivery.dues;
+                  initialRows[index]["prevDues"]=delivery.dues;
+                  initialRows[index]["currentDue"]=initialRows[index]["prevBill"]-(initialRows[index]["paid"]? initialRows[index]["paid"] : 0);
+                }
+          });
+
+          customer.dailyBills && customer.dailyBills.map((delivery) => {
+                initialRows[index][delivery.date] = delivery.quantity;
+                initialRows[index]["id"+delivery.date]=delivery.id;
+          });
+
         });
-        getPayment(calendar, initialRows);
+        setRows(initialRows);
+        
       })
       .catch((e) => {
         console.log(e);
@@ -190,103 +232,6 @@ const CustomerCalendar = props => {
 	  
     }, [props.match.params.date]);
 
-    function getPayment(calendar, initialRows){
-      var params ={ "month": calendar.currentDate.format("MMM-YYYY"), "active": true, type: "income"};
-      PaymentService.getAll(params).then(response => {
-        var bills = response.data;
-        initialRows && initialRows.map((initialRow) => {
-          bills && bills.map((bill) => {
-              if(bill.partyId == initialRow.id){
-                if(bill.category == 'discount'){
-                  initialRow["discount"]=bill.payment;
-                  initialRow["iddiscount"]=bill.id;
-                } else{
-                  if(initialRow["paid"]){
-                    initialRow["paid"]=initialRow["paid"]+bill.payment;
-                  }else{
-                    initialRow["paid"]=+bill.payment;
-                  }
-                }
-              }
-            });
-        });
-        billService(calendar, initialRows);
-        deliveryService(calendar, initialRows);
-      })
-      .catch(e => {
-        console.log(e);
-      });
-    }
-
-    function deliveryService(calendar, initialRows){
-      const params ={ "month" : calendar.currentDate.format("MMM-YYYY"), type: "income"};
-      DeliveryService.getAll(params).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              initialRow[delivery.date] = delivery.quantity;
-              initialRow["id"+delivery.date]=delivery.id;
-              break;
-            }
-          };
-        });
-        console.log(initialRows);
-        setRows(initialRows);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    }
-
-    function billService(calendar, initialRows){
-      const paramsBill ={ month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "income"};
-      BillService.getAll(paramsBill).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["qty"] = delivery.quantity;
-                initialRow["rate"]=delivery.rate;
-                initialRow["bill"]=delivery.bill;
-                initialRow["dues"]=delivery.dues;
-                initialRow["totalBill"]=initialRow["bill"]+(initialRow["dues"]? initialRow["dues"] : 0);
-                initialRow["prevBill"]=delivery.lastBillTotal;
-                initialRow["currentDue"]=initialRow["prevBill"]-(initialRow["paid"]? initialRow["paid"] : 0);
-              }
-              break;
-            }
-          };
-        });
-
-        //previous month bill and due amount
-	  const paramsBillPrev ={ month :  calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY'), active: true, type: "income"};
-	  BillService.getAll(paramsBillPrev).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["prevBill"]=delivery.bill+delivery.dues;
-                initialRow["prevDues"]=delivery.dues;
-                initialRow["currentDue"]=initialRow["prevBill"]-(initialRow["paid"]? initialRow["paid"] : 0);
-              }
-              break;
-            }
-          };
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-    }
-   
     function rowChange(row, col) {
       constructDeliveryUpdateData(row,col);
     }
@@ -514,7 +459,7 @@ const CustomerCalendar = props => {
               </Link>
           </Grid>
           <Grid item xs={6} sm={3}> 
-              <Link
+              <Link to="#"
                 onClick={ () => generateBill(calendar.currentDate.format("MMM-YYYY"))}
                 className="badge">
                  Generate Bill Month - {calendar.currentDate.format("MMM-YYYY")}

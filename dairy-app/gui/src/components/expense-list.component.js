@@ -68,6 +68,7 @@ const ExpenseList = props => {
       const paramCustomer = {type: "expense", month: props.match.params.month};
       DeliveryService.getAll(paramCustomer).then((response) => {
         var expenses = response.data;
+		console.log(expenses);
         initialRows = [];
         expenses && expenses.map((customer, index) => {
           initialRows[index]={};
@@ -79,9 +80,9 @@ const ExpenseList = props => {
           initialRows[index]["amount"]=customer.amount;
 		  initialRows[index]["type"]=customer.type;
 		  initialRows[index]["category"]=customer.category;
-          if(customer.party){
-            initialRows[index]["name"]=customer.party.name;
-          }
+          
+          initialRows[index]["name"]=customer.party;
+          
         });
 		console.log(initialRows);
 		getPayment(props.match.params.month, initialRows);
@@ -105,9 +106,9 @@ const ExpenseList = props => {
 			  initialRows[index]["payment"]=customer.payment;
 			  initialRows[index]["type"]=customer.type;
 			  initialRows[index]["category"]=customer.category;
-			  if(customer.party){
-				initialRows[index]["name"]=customer.party.name;
-			  }
+			  
+			  initialRows[index]["name"]=customer.party;
+			  
           });
 		  setRows(initialRows);
 		  console.log(initialRows);
@@ -237,7 +238,7 @@ const ExpenseList = props => {
 					</Link>
 				</Grid>
 				 <Grid item xs={6} sm={3}> 
-					  <Link
+					  <Link to="#"
 						onClick={ () => generateExpenseBill(calendar.currentDate.format("MMM-YYYY"))}
 						className="badge">
 						 Generate Expense Bill Month - {calendar.currentDate.format("MMM-YYYY")}

@@ -46,10 +46,7 @@ export default class RoutesList extends Component {
     super(props);
     this.rowChange = this.rowChange.bind(this);
     this.saveRoute = this.saveRoute.bind(this);
-    this.routeStockService = this.routeStockService.bind(this);
-    this.customerService = this.customerService.bind(this);
-    this.deliveryService = this.deliveryService.bind(this);
-    
+    this.routeStockService = this.routeStockService.bind(this);    
 
     this.state = {
       rows: []
@@ -61,9 +58,14 @@ export default class RoutesList extends Component {
     this.retrieveRoutes();
   }
   retrieveRoutes() {
-  var currentDate = moment();
+    var currentDate = moment();
     var initialRows = null;
-    RouteService.getAll().then(response => {
+    const param = {
+      date: currentDate.format("DD") ,
+      month: currentDate.format("MMM-YYYY") , 
+      type: "income"
+    };
+    RouteService.getAll(param).then(response => {
         var routes = response.data;
 		    console.log(routes);
         initialRows = new Array(routes.length);
@@ -71,15 +73,19 @@ export default class RoutesList extends Component {
           initialRows[index]={};
           initialRows[index]["id"]=route.id;
           initialRows[index]["name"]=route.name;
-          initialRows[index]["address"]=route.address;          
-        });
+          initialRows[index]["address"]=route.address;    
+          
+          if(route.extraInfo){
+            initialRows[index]["totalCustomer"]=route.extraInfo.customerCount;
+            initialRows[index]["customerQuantity"]=route.extraInfo.customerTotalQuantity;
 
-        const param = {
-          date: currentDate.format("DD") ,
-          month: currentDate.format("MMM-YYYY") , type: "income"
-        };
+            initialRows[index]["served"]=route.extraInfo.customerDeliveredCount;
+            initialRows[index]["delivered"]=route.extraInfo.customerDeliveredQuantity;
+            initialRows[index]["pending"]=route.extraInfo.customerPendingCount;
+          }
+        });
+        
         this.routeStockService(param, initialRows);
-        this.customerService(param, initialRows);
       })
       .catch(e => {
         console.log(e);
@@ -89,86 +95,25 @@ export default class RoutesList extends Component {
   routeStockService(param, initialRows){
     RouteStockService.getAll(param).then((response) => {
       var stocks = response.data;    
-	  if(stocks){
-		  stocks.map((stock, index) => {
-			for(var initialRow of initialRows){
-			  if(initialRow.id == stock.routeId){
-				initialRow["quantity"]=stock.quantity;
-				initialRow["routeStockId"]=stock.id;
-				break;
-			  }
-			};
-		  });
-	  }
+      if(stocks){
+        stocks.map((stock, index) => {
+        for(var initialRow of initialRows){
+          if(initialRow.id == stock.routeId){
+            initialRow["quantity"]=stock.quantity;
+            initialRow["routeStockId"]=stock.id;
+          break;
+          }
+        };
+        });
+      }
+      this.setState({
+        rows: initialRows
+      });
     })
     .catch((e) => {
       console.log(e);
     });   
-  }
-
-  customerService(param, initialRows){
-    var customers =null;
-    const paramCustomer = {active: true, type: "customer"}; 
-    CustomerService.getAll(paramCustomer).then((response) => {
-      customers = response.data;
-      initialRows.map((initialRow, index) => {
-        var customerCount = 0;
-        var customerQuantity = 0;
-        for(var customer of customers){
-          if(initialRow.id == customer.routeId){
-			//to track which all customer got delivered, keeping all partyIds of the route
-            if(initialRow["partyId"]){
-              initialRow["partyId"][initialRow["partyId"].length]=customer.id;
-            }else{
-              initialRow["partyId"]=[];
-             initialRow["partyId"][0]=customer.id;
-           }
-            customerCount++;
-            customerQuantity = customerQuantity + customer.defaultQuantity;
-          }
-        }
-        initialRow["totalCustomer"]=customerCount;
-        initialRow["customerQuantity"]=customerQuantity;
-      });
-      this.deliveryService(param, initialRows);
-    })
-    .catch((e) => {
-      console.log(e);
-    });
-  }
-
-  deliveryService(param, initialRows){
-    DeliveryService.getAll(param).then((response) => {
-      var deliverys = response.data;
-	  if(deliverys){
-		  initialRows.map((initialRow, index) => {
-			var totalDelivered = 0;
-			var countOfCustomerDelivered = 0;
-			deliverys.map((delivery) => {
-				if(initialRow.partyId){
-				  for(var i=0; i < initialRow.partyId.length; i++){
-					if(initialRow.partyId[i] == delivery.partyId ){
-					  countOfCustomerDelivered++;
-					  totalDelivered = totalDelivered + +delivery.quantity ;
-					  break;
-					}
-				  }
-				}
-			});
-			initialRow["served"]=countOfCustomerDelivered;
-			initialRow["delivered"]=totalDelivered;
-			initialRow["pending"]=initialRow["totalCustomer"]-countOfCustomerDelivered;
-		  });
-	  }
-    console.log(initialRows);
-    this.setState({
-      rows: initialRows
-    });
-    })
-    .catch((e) => {
-      console.log(e);
-    }); 
-  }
+  }  
 
   rowChange(row, col) {
     this.saveRoute(row[col.indexes],col);
