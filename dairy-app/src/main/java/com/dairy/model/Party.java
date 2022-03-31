@@ -92,8 +92,6 @@ public class Party extends Base {
 	@Column(name = "TYPE")
 	private String type;
 	
-	private transient String searchFlag;
-
 	public Long getId() {
 		return id;
 	}
@@ -193,14 +191,6 @@ public class Party extends Base {
 
 	public void setType(String type) {
 		this.type = type;
-	}
-
-	public String getSearchFlag() {
-		return searchFlag;
-	}
-
-	public void setSearchFlag(String searchFlag) {
-		this.searchFlag = searchFlag;
 	}
 
 	public Set<DailyBill> getDailyBills() {

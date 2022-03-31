@@ -49,7 +49,12 @@ export default class CollectionBills extends Component {
 		deliverys && deliverys.map((delivery) => {
 		  for(var initialRow of initialRows){
 			if(initialRow && initialRow.partyId == delivery.partyId){
-			  initialRow[delivery.date] = delivery.quantity;
+        if(initialRow["delivery"]){
+          initialRow["delivery"][initialRow["delivery"].length]=delivery;
+        }else {
+          initialRow["delivery"]=new Array();
+          initialRow["delivery"][0]=delivery;
+        }
 			  break;
 			}
 		  };
@@ -116,199 +121,61 @@ export default class CollectionBills extends Component {
                              <td>{count.dues}</td>
 							 
 							               <th>Total Bill</th>
-                             <td>{count.totalBill} </td>
+                             <td colSpan={3}>{count.totalBill} </td>
                            </tr>
                            <tr>
-                             <td style={{margin:0, padding:0}} colspan={10}>
-                               <table style={{margin:0, padding:0}}>
-                                 <tr>
-                                   <td >Day</td>
-                                   <td >1</td>
-                                   <td >2</td>
-                                   <td >3</td>
-                                   <td >4</td>
-                                   <td >5</td>
-                                   <td >6</td>
-                                   <td >7</td>
-                                   <td >8</td>
-                                   <td >9</td>
-                                   <td >10</td>
-                                   <td >11</td>
-                                   <td >12</td>
-                                   <td >13</td>
-                                   <td >14</td>
-                                   <td >15</td>
-                                   <td >16</td>
-                                   <td rowSpan={2}><h1>RAMJI DAIRY</h1></td>								   
-                                 </tr>
-                                 <tr>
-                                          <td >Rate</td>  
-                                          <td  >{count["01"]}</td>
-                                          <td  >{count["02"]}</td>
-                                          <td  >{count["03"]}</td>
-                                          <td  >{count["04"]}</td>
-                                          <td  >{count["05"]}</td>
-                                          <td  >{count["06"]}</td>
-                                          <td  >{count["07"]}</td>
-                                          <td  >{count["08"]}</td>
-                                          <td  >{count["09"]}</td>
-                                          <td  >{count["10"]}</td>
-                                          <td  >{count["11"]}</td>
-                                          <td  >{count["12"]}</td>
-                                          <td  >{count["13"]}</td>
-                                          <td  >{count["14"]}</td>
-                                          <td  >{count["15"]}</td>
-                                          <td  >{count["16"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Fat</td>  
-                                          <td  >{count["01"]}</td>
-                                          <td  >{count["02"]}</td>
-                                          <td  >{count["03"]}</td>
-                                          <td  >{count["04"]}</td>
-                                          <td  >{count["05"]}</td>
-                                          <td  >{count["06"]}</td>
-                                          <td  >{count["07"]}</td>
-                                          <td  >{count["08"]}</td>
-                                          <td  >{count["09"]}</td>
-                                          <td  >{count["10"]}</td>
-                                          <td  >{count["11"]}</td>
-                                          <td  >{count["12"]}</td>
-                                          <td  >{count["13"]}</td>
-                                          <td  >{count["14"]}</td>
-                                          <td  >{count["15"]}</td>
-                                          <td  >{count["16"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Snf</td>  
-                                          <td  >{count["01"]}</td>
-                                          <td  >{count["02"]}</td>
-                                          <td  >{count["03"]}</td>
-                                          <td  >{count["04"]}</td>
-                                          <td  >{count["05"]}</td>
-                                          <td  >{count["06"]}</td>
-                                          <td  >{count["07"]}</td>
-                                          <td  >{count["08"]}</td>
-                                          <td  >{count["09"]}</td>
-                                          <td  >{count["10"]}</td>
-                                          <td  >{count["11"]}</td>
-                                          <td  >{count["12"]}</td>
-                                          <td  >{count["13"]}</td>
-                                          <td  >{count["14"]}</td>
-                                          <td  >{count["15"]}</td>
-                                          <td  >{count["16"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Water</td>  
-                                          <td  >{count["01"]}</td>
-                                          <td  >{count["02"]}</td>
-                                          <td  >{count["03"]}</td>
-                                          <td  >{count["04"]}</td>
-                                          <td  >{count["05"]}</td>
-                                          <td  >{count["06"]}</td>
-                                          <td  >{count["07"]}</td>
-                                          <td  >{count["08"]}</td>
-                                          <td  >{count["09"]}</td>
-                                          <td  >{count["10"]}</td>
-                                          <td  >{count["11"]}</td>
-                                          <td  >{count["12"]}</td>
-                                          <td  >{count["13"]}</td>
-                                          <td  >{count["14"]}</td>
-                                          <td  >{count["15"]}</td>
-                                          <td  >{count["16"]}</td>
-                                 </tr>
-                                 <tr>
-                                   <td >Day</td>
-                                   <td >17</td>
-                                   <td >18</td>
-                                   <td >19</td>
-                                   <td >20</td>
-                                   <td >21</td>
-                                   <td >22</td>
-                                   <td >23</td>
-                                   <td >24</td>
-                                   <td >25</td>
-                                   <td >26</td>
-                                   <td >27</td>
-                                   <td >28</td>
-                                   <td >29</td>
-                                   <td >30</td>
-                                   <td >31</td>
-                                   <td >{" "}</td>
-                                   <td rowSpan={2}><h3>9860910995</h3></td>
-                                 </tr>
-                                 <tr>
-                                          <td >Rate</td>
-                                          <td  >{count["17"]}</td>
-                                          <td  >{count["18"]}</td>
-                                          <td  >{count["19"]}</td>
-                                          <td  >{count["20"]}</td>
-                                          <td  >{count["21"]}</td>
-                                          <td  >{count["22"]}</td>
-                                          <td  >{count["23"]}</td>
-                                          <td  >{count["24"]}</td>
-                                          <td  >{count["25"]}</td>
-                                          <td  >{count["26"]}</td>
-                                          <td  >{count["27"]}</td>
-                                          <td  >{count["28"]}</td>
-                                          <td  >{count["29"]}</td>
-                                          <td  >{count["30"]}</td>
-                                          <td  >{count["31"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Fat</td>
-                                          <td  >{count["17"]}</td>
-                                          <td  >{count["18"]}</td>
-                                          <td  >{count["19"]}</td>
-                                          <td  >{count["20"]}</td>
-                                          <td  >{count["21"]}</td>
-                                          <td  >{count["22"]}</td>
-                                          <td  >{count["23"]}</td>
-                                          <td  >{count["24"]}</td>
-                                          <td  >{count["25"]}</td>
-                                          <td  >{count["26"]}</td>
-                                          <td  >{count["27"]}</td>
-                                          <td  >{count["28"]}</td>
-                                          <td  >{count["29"]}</td>
-                                          <td  >{count["30"]}</td>
-                                          <td  >{count["31"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Snf</td>
-                                          <td  >{count["17"]}</td>
-                                          <td  >{count["18"]}</td>
-                                          <td  >{count["19"]}</td>
-                                          <td  >{count["20"]}</td>
-                                          <td  >{count["21"]}</td>
-                                          <td  >{count["22"]}</td>
-                                          <td  >{count["23"]}</td>
-                                          <td  >{count["24"]}</td>
-                                          <td  >{count["25"]}</td>
-                                          <td  >{count["26"]}</td>
-                                          <td  >{count["27"]}</td>
-                                          <td  >{count["28"]}</td>
-                                          <td  >{count["29"]}</td>
-                                          <td  >{count["30"]}</td>
-                                          <td  >{count["31"]}</td>
-                                 </tr>
-                                 <tr>
-                                          <td >Water</td>
-                                          <td  >{count["17"]}</td>
-                                          <td  >{count["18"]}</td>
-                                          <td  >{count["19"]}</td>
-                                          <td  >{count["20"]}</td>
-                                          <td  >{count["21"]}</td>
-                                          <td  >{count["22"]}</td>
-                                          <td  >{count["23"]}</td>
-                                          <td  >{count["24"]}</td>
-                                          <td  >{count["25"]}</td>
-                                          <td  >{count["26"]}</td>
-                                          <td  >{count["27"]}</td>
-                                          <td  >{count["28"]}</td>
-                                          <td  >{count["29"]}</td>
-                                          <td  >{count["30"]}</td>
-                                          <td  >{count["31"]}</td>
-                                 </tr>
+                             <td style={{margin:0, padding:0}} colspan={12}>
+                               <table style={{margin:0, padding:0}}>   
+                                   <tr>
+                                     <td>
+                                       <table>
+                                         <tr>
+                                            <th>Date</th>
+                                            <th>SNF</th>
+                                            <th>Water</th>
+                                            <th>Rate</th>                                      
+                                            <th>Quantity</th>
+                                            <th>Amount</th>                                    
+                                          </tr>                               
+                                          {count.delivery && count.delivery.map((delivery, index) => (
+                                            (index%2==0 ? 
+                                          <tr>
+                                            <td><b>{delivery.date}</b></td>
+                                            <td>{delivery.snf}</td>
+                                            <td>{delivery.water}</td>
+                                            <td>{delivery.rate}</td>                                      
+                                            <td>{delivery.quantity}</td>
+                                            <td>{delivery.amount}</td>
+                                          </tr>
+                                          :"")
+                                          ))}
+                                    </table>
+                                    </td>
+                                    <td>
+                                       <table>
+                                         <tr>
+                                            <th>Date</th>
+                                            <th>SNF</th>
+                                            <th>Water</th>
+                                            <th>Rate</th>                                      
+                                            <th>Quantity</th>
+                                            <th>Amount</th>                                    
+                                          </tr>                               
+                                          {count.delivery && count.delivery.map((delivery, index) => (
+                                           (index%2==1 ? 
+                                              <tr>
+                                            <td><b>{delivery.date}</b></td>
+                                            <td>{delivery.snf}</td>
+                                            <td>{delivery.water}</td>
+                                            <td>{delivery.rate}</td>                                      
+                                            <td>{delivery.quantity}</td>
+                                            <td>{delivery.amount}</td>
+                                            </tr>
+                                            :"")
+                                          ))}
+                                    </table>
+                                    </td>
+                                    </tr>
                                </table>
                              </td>
                            </tr>

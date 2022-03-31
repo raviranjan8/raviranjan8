@@ -82,7 +82,18 @@ const CollectionDaily = props => {
         </FilterRenderer>
       )
       },
-      { key: 'name', name: 'Name' , width: 200, resizable: true},
+      { key: 'name', name: 'Name' , width: 200, resizable: true,
+      formatter(props) {
+        return <>
+          {props.row.name}
+          <Link disable="true" to="#"
+          onClick={() => addCollectionForSameFarmer(props.row.id, props.row.index, props.row)}
+          className="badge badge-warning">
+          Add
+          </Link>
+        </>;
+      }
+      },
       { key: 'today', name: 'Quantity' , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:80, resizable: true },
       { key: 'fat', name: 'Fat' , minWidth:20 , resizable: true , editor: NumericEditor, editorOptions: {editOnClick: true} },
       { key: 'snf', name: 'Snf' , minWidth:20 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
@@ -110,11 +121,9 @@ const CollectionDaily = props => {
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
           initialRows[index]["route"]=customer.route.name;
-
+          initialRows[index]["index"]=index;
         });
-        getPayment(calendar, initialRows);
         deliveryService(calendar, initialRows);
-        billService(calendar, initialRows);
       })
       .catch((e) => {
         console.log(e);
@@ -127,22 +136,40 @@ const CollectionDaily = props => {
                       "month" : calendar.currentDate.format("MMM-YYYY"), type: "expense"};
       DeliveryService.getAll(params).then((response) => {
         var deliverys = response.data;
+       
         deliverys && deliverys.map((delivery) => {
           for(var initialRow of initialRows){
             if(initialRow.id == delivery.partyId){
-              initialRow["today"] = delivery.quantity;
-              initialRow["idtoday"]=delivery.id;
-              initialRow["fat"]=delivery.fat;
-              initialRow["snf"]=delivery.snf;
-              initialRow["water"]=delivery.water;
-              initialRow["rate"]=delivery.rate;
-              initialRow["amount"]=delivery.amount;
+              if(initialRow["idtoday"]){
+                var rowCopy = {
+                  id: initialRow.id,
+                  name: initialRow.name,
+                  route: initialRow.route,
+                  index: initialRow.index+1,
+
+                  today: delivery.quantity,
+                  idtoday: delivery.id,
+                  fat: delivery.fat,
+                  snf: delivery.snf,
+                  water: delivery.water,
+                  rate: delivery.rate,
+                  amount: delivery.amount
+                }
+                initialRows.splice(initialRow.index, 0, rowCopy);
+              }else{
+                initialRow["today"] = delivery.quantity;
+                initialRow["idtoday"]=delivery.id;
+                initialRow["fat"]=delivery.fat;
+                initialRow["snf"]=delivery.snf;
+                initialRow["water"]=delivery.water;
+                initialRow["rate"]=delivery.rate;
+                initialRow["amount"]=delivery.amount;
+              }
               break;
             }
           };
         });
-        console.log(initialRows);
-        setRows(initialRows);
+        billService(calendar, initialRows);
       })
       .catch((e) => {
         console.log(e);
@@ -153,8 +180,8 @@ const CollectionDaily = props => {
       const paramsBill ={ from: calendar.currentDate.format("YYYY-MM-DD"), month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "expense"};
       BillService.getAll(paramsBill).then((response) => {
         var deliverys = response.data;        
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
+        initialRows && initialRows.map((initialRow) => {
+          for(var delivery of deliverys){
             if(initialRow.id == delivery.partyId){
               if(delivery.bill){
                 initialRow["qty"] = delivery.quantity;                
@@ -164,30 +191,14 @@ const CollectionDaily = props => {
             }
           };
         });
+        getPayment(calendar, initialRows);
       })
       .catch((e) => {
         console.log(e);
       });
 	  
       //previous month bill and due amount
-	  const paramsBillPrev ={ month :  calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY'), active: true, type: "expense"};
-	  BillService.getAll(paramsBillPrev).then((response) => {
-        var deliverys = response.data;
-        deliverys && deliverys.map((delivery) => {
-          for(var initialRow of initialRows){
-            if(initialRow.id == delivery.partyId){
-              if(delivery.rate){
-                initialRow["prevBill"]=delivery.bill;
-                initialRow["prevDues"]=delivery.dues;
-              }
-              break;
-            }
-          };
-        });
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+	  
     }
 
     function getPayment(calendar, initialRows){
@@ -205,27 +216,29 @@ const CollectionDaily = props => {
               }
             });
         });
+
+        console.log(initialRows);
+        setRows(initialRows);
       })
       .catch(e => {
         console.log(e);
       });
     }
-   
 
-    function handleClickOpen () {
-      setOpen(true);
+    function addCollectionForSameFarmer(pa0tyId, index, row){
+        var rowCopy = {
+          id: row.id,
+          name: row.name,
+          route: row.route,
+          index: row.index,
+          qty: row.quantity,
+          bill: row.bill,
+          paid: row.paid
+        }
+        row.index=index+1;
+        rows.splice(index, 0, rowCopy);
+        setRows(rows.slice());
     }
-  
-    function handleClose () {
-      setConfirm(false);
-      setOpen(false);
-    };
-	
-      function handleConfirm () {
-        setConfirm(false);
-        generateBillsCollectionAfterCheck(calendar.currentDate.format("MMM-YYYY"));
-        setOpen(false);
-      }
 
     function rowChange(row, col) {
       constructDeliveryUpdateData(row,col);
@@ -257,6 +270,8 @@ const CollectionDaily = props => {
       }
 
       amount = rate * tempQantity;
+      rowData["amount"]=amount;
+
 
       var data = {
         id: id,
@@ -292,55 +307,7 @@ const CollectionDaily = props => {
               console.log(e);
             });
         }
-      }
-
-      function generateBillCollection(){
-        const paramsFrom ={ "type": "expense","from":from, "to":to };
-        BillService.validateCollectionBillsGeneration("expense",paramsFrom).then((response) => {
-          console.log(response.data);
-          var bill = response.data;
-          //bill object has bill, means the bill was generated
-          if(bill.rate){
-            setConfirm(true);
-            setMessage("Bill already generated for the period. Do you want to continue? Please confirm to proceed.");
-            handleClickOpen();
-          }else{
-            generateBillsCollectionAfterCheck();
-          }
-        })
-        .catch((e) => {
-          console.log(e);
-          //no bill exist for the month, so generate bill without prompting user
-          if(e.response.status == 404){
-            generateBillsCollectionAfterCheck();
-          }
-        });
-        }
-      
-      function generateBillsCollectionAfterCheck(){
-        const paramsBill ={  "type": "expense","from":from, "to":to , "category":"collection"};
-        BillService.generateBillsCollection(paramsBill).then((response) => {
-            var deliverys = response.data;
-            deliverys && deliverys.map((delivery) => {
-              for(var initialRow of rows){
-                if(initialRow.id == delivery.partyId){
-                  initialRow["qty"] = delivery.quantity;
-                  initialRow["rate"]=delivery.rate;
-                  initialRow["bill"]=delivery.bill;
-                  break;
-                }
-              };
-            });
-        setMessage("Bill generated for the period .");
-        handleClickOpen();
-        console.log(rows);
-        setRows(rows);
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-      }
-      
+      } 
 
   const filteredRows = useMemo( () => {
     function filter(){

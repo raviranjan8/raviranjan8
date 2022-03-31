@@ -28,6 +28,8 @@ public class Base implements Serializable{
     
     @Column(name = "modified_by")
     String modifiedBy;
+    
+    transient String searchFlag;
 
 	public LocalDate getCreatedDate() {
 		return createdDate;
@@ -60,4 +62,13 @@ public class Base implements Serializable{
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
 	}
+
+	public String getSearchFlag() {
+		return searchFlag;
+	}
+
+	public void setSearchFlag(String searchFlag) {
+		this.searchFlag = searchFlag;
+	}
+	
 }

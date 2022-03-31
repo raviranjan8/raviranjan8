@@ -35,8 +35,11 @@ public class DailyBillController {
 		try {
 			List<DailyBill> responseList = new ArrayList<DailyBill>();
 			
+			
 			if(null != param) {
-				repository.findAll(Example.of(param)).forEach(responseList::add);
+				if(null != param.getSearchFlag() && param.getSearchFlag().equals("not-collection")) {
+					repository.findExpenseDailyBillExceptCollection(param.getType(), param.getMonth()).forEach(responseList::add);
+				}else repository.findAll(Example.of(param)).forEach(responseList::add);
 			}else {
 				repository.findAll().forEach(responseList::add);
 			}
@@ -45,6 +48,7 @@ public class DailyBillController {
 			}
 			return new ResponseEntity<>(responseList, HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

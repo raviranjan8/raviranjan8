@@ -65,7 +65,8 @@ const ExpenseList = props => {
 	  var calendar={currentDate: moment(props.match.params.month,'MMM-YYYY')};
       setCalendar(calendar);
       var initialRows = null;
-      const paramCustomer = {type: "expense", month: props.match.params.month};
+      const paramCustomer = {type: "expense", month: props.match.params.month,
+										searchFlag: "not-collection"};
       DeliveryService.getAll(paramCustomer).then((response) => {
         var expenses = response.data;
 		console.log(expenses);
