@@ -221,6 +221,7 @@ export default class ProjectData extends Component {
     if(this.state.activeProject === '') {
       return (
         <div>
+          <div style={{ textAlign: 'center' }}><h1>Route - {projects && projects[0] && projects[0].route.name}</h1></div>
           <Grid container spacing={{ xs: 1, md: 1 }} columns={{ xs: 4, sm: 8, md: 12 }}>
                 {projectComponents}
           </Grid>
@@ -271,7 +272,7 @@ class Project extends React.Component {
     return (
 
   <Grid item xs={2} sm={4} md={4} key={this.props.index} onClick={this.props.onModalOpen.bind(this, this.props.index)}>
-    <Item><h1>{this.props.name} - {this.props.url}</h1></Item>
+    <Item><h1>{this.props.name}</h1></Item>
   </Grid>                
     );
   }

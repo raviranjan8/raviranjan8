@@ -43,6 +43,7 @@ const CollectionDaily = props => {
 
   const [filters, setFilters] = useState({
     name: '',
+    route: '',
     enabled: true
   });
 
@@ -100,7 +101,27 @@ const CollectionDaily = props => {
       { key: 'water', name: 'Water' , minWidth:40 , resizable: true, editor: NumericEditor, editorOptions: {editOnClick: true} },
       { key: 'rate', name: 'Rate' , minWidth:40 , resizable: true ,editor: NumericEditor, editorOptions: {editOnClick: true}},
       { key: 'amount', name: 'Amount' , minWidth:40 , resizable: true },
-      { key: 'route', name: 'Route' , minWidth:40, resizable: true },
+      { key: 'route', name: 'Route' , minWidth:40, resizable: true ,
+          headerCellClass: filterColumnClassName,
+          headerRenderer: (p) => (
+            <FilterRenderer {...p}>
+              {({ filters, ...rest }) => (
+                <input
+                  {...rest}
+                  className={filterClassname}
+                  value={filters.route}
+                  onChange={(e) =>
+                    setFilters({
+                      ...filters,
+                      route: e.target.value
+                    })
+                  }
+                  onKeyDown={inputStopPropagation}
+                />
+              )}
+            </FilterRenderer>
+          )
+      },
       { key: 'bill', name: 'Bill' , minWidth:40 , resizable: true },
       { key: 'qty', name: 'Bill Qty' , minWidth:70 , resizable: true },
       { key: 'paid', name: 'Paid' , minWidth:60 , resizable: true }
@@ -315,6 +336,7 @@ const CollectionDaily = props => {
        filteredRows = rows.filter((r) => {
         return (
           (filters.name ? r.name.includes(filters.name) : true)
+          && (filters.route ? r.route.includes(filters.route) : true)
         );
       })
       if (sortColumns.length === 0) return filteredRows;

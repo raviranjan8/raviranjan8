@@ -238,15 +238,15 @@ export default class Modal extends React.Component {
                         name="defaultQuantity"
                       />
                 </div>
-                    <div className="form-group">
-                      <button className="btn btn-success" onClick={this.props.onPrev}>{'\u2B05'}{this.props.previousTitle} </button>
-                      {" "}
+                    <div className="form-group" style={{ textAlign: 'center' }}>
                       <button className="btn btn-success" onClick={this.props.onUpdate}>Update & Next</button>
-                      {" "}
-                      <button className="btn btn-success" onClick={this.props.onNext}>{this.props.nextTitle} {'\u27A1'}</button>    
                     </div>
-                    <div className="form-group" >
-                      <button className="btn btn-success" onClick={this.props.onModalClose}>Close Route Delivery</button>
+                    <div className="form-group" style={{ textAlign: 'center' }}>
+                      <button className="btn btn-success" onClick={this.props.onModalClose}>Back</button>
+                      {" "}
+                      <button className="btn btn-success" onClick={this.props.onPrev}>{'\u2B05'}{this.props.previousTitle} </button>
+                      {" "}                      
+                      <button className="btn btn-success" onClick={this.props.onNext}>{this.props.nextTitle} {'\u27A1'}</button>
                     </div>
           </Grid>
           <Grid item xs={12} sm={6}> 

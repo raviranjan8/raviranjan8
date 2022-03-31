@@ -7,6 +7,7 @@ import CustomerService from "../services/customer.service";
 import BillService from "../services/bill.service";
 import RateService from "../services/rate.service";
 import PaymentService from "../services/payment.service";
+import CountdownLatch from "../components/hooks/countdown.latch";
 import moment from 'moment';
 import Grid from '@mui/material/Grid';
 
@@ -18,6 +19,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+
+
 
 const rootClassname = 'rootClassname';
 const filterColumnClassName = 'filter-cell';
@@ -148,7 +151,8 @@ const CustomerCalendar = props => {
       { key: 'prevBill', name: 'P-Bill' , minWidth:75 , resizable: true },
       { key: 'paid', name: 'Paid' , minWidth:60 , resizable: true },
       { key: 'currentDue', name: 'C-Due' , minWidth:60 , resizable: true },
-      { key: 'discount', name: 'Discount' , width:80 , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true }
+      { key: 'discount', name: 'Discount' , width:80 , editor: NumericEditor, editorOptions: {editOnClick: true} , minWidth:40 , resizable: true },
+      { key: 'pay', name: 'Pay' , minWidth:60 , resizable: true , editor: NumericEditor, editorOptions: {editOnClick: true} }
     ];
 
     useEffect(() => {
@@ -172,7 +176,7 @@ const CustomerCalendar = props => {
           .catch((e) => {
             console.log(e);
       });
-
+      var barrier = new CountdownLatch(3);
       CustomerService.getAll(paramCustomer).then((response) => {
         var customers = response.data;
         initialRows = new Array(customers.length);
@@ -182,15 +186,21 @@ const CustomerCalendar = props => {
           initialRows[index]["name"]=customer.name;
           initialRows[index]["route"]=customer.route.name;
         });
-        getPayment(calendar, initialRows);
+        billService(calendar, initialRows,barrier);
+        getPayment(calendar, initialRows,barrier);
+        deliveryService(calendar, initialRows,barrier);
       })
       .catch((e) => {
         console.log(e);
       });
 	  
+      barrier.await(function(){
+        setRows(initialRows);
+        console.log('done all');
+      });
     }, [props.match.params.date]);
 
-    function getPayment(calendar, initialRows){
+    function getPayment(calendar, initialRows, barrier){
       var params ={ "month": calendar.currentDate.format("MMM-YYYY"), "active": true, type: "income"};
       PaymentService.getAll(params).then(response => {
         var bills = response.data;
@@ -209,16 +219,15 @@ const CustomerCalendar = props => {
                 }
               }
             });
-        });
-        billService(calendar, initialRows);
-        deliveryService(calendar, initialRows);
+        });  
+        barrier.countDown();      
       })
       .catch(e => {
         console.log(e);
       });
     }
 
-    function deliveryService(calendar, initialRows){
+    function deliveryService(calendar, initialRows,barrier){
       const params ={ "month" : calendar.currentDate.format("MMM-YYYY"), type: "income"};
       DeliveryService.getAll(params).then((response) => {
         var deliverys = response.data;
@@ -231,15 +240,14 @@ const CustomerCalendar = props => {
             }
           };
         });
-        console.log(initialRows);
-        setRows(initialRows);
+        barrier.countDown();
       })
       .catch((e) => {
         console.log(e);
       });
     }
 
-    function billService(calendar, initialRows){
+    function billService(calendar, initialRows,barrier){
       const paramsBill ={ month : calendar.currentDate.format("MMM-YYYY"), active: true, type: "income"};
       BillService.getAll(paramsBill).then((response) => {
         var deliverys = response.data;
@@ -259,7 +267,7 @@ const CustomerCalendar = props => {
             }
           };
         });
-
+        barrier.countDown();   
         //previous month bill and due amount
 	  const paramsBillPrev ={ month :  calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY'), active: true, type: "income"};
 	  BillService.getAll(paramsBillPrev).then((response) => {
@@ -335,7 +343,7 @@ const CustomerCalendar = props => {
         active: true,
         payment: null
       };
-      if(date != "discount"){
+      if(date != "discount" && date != "pay"){
           if(id){
               DeliveryService.update(id, data)
                 .then(response => {
@@ -356,7 +364,9 @@ const CustomerCalendar = props => {
                 });
             }
       }else{
-        data.category="discount";
+        if(date == "discount"){
+          data.category="discount";
+        }
         data.payment=columnVal;
         data.date=moment().format("DD");
         if(id){
@@ -383,7 +393,6 @@ const CustomerCalendar = props => {
 
     function generateBill(month){
 		BillService.validateBillGeneration(month,"income").then((response) => {
-			console.log(response.data);
 			var bill = response.data;
 			//bill object has bill, means the bill was generated
 			if(bill.rate){
@@ -421,7 +430,6 @@ const CustomerCalendar = props => {
         });
 		setMessage("Bill generated for the month "+month+".");
 		handleClickOpen();
-		console.log(rows);
 		setRows(rows);
       })
       .catch((e) => {
@@ -461,9 +469,8 @@ const CustomerCalendar = props => {
 	  RateService.create(newRate)
 		.then(response => {
 		   setRate(response.data);
-		setMessage("New rate saved.");
-		handleClickOpen();
-		console.log(rate);
+        setMessage("New rate saved.");
+        handleClickOpen();
 		})
 		.catch(e => {
 		  console.log(e);
@@ -514,7 +521,7 @@ const CustomerCalendar = props => {
               </Link>
           </Grid>
           <Grid item xs={6} sm={3}> 
-              <Link
+              <Link to="#"
                 onClick={ () => generateBill(calendar.currentDate.format("MMM-YYYY"))}
                 className="badge">
                  Generate Bill Month - {calendar.currentDate.format("MMM-YYYY")}
@@ -531,7 +538,7 @@ const CustomerCalendar = props => {
                 name="rate"
 				style={{ width:60, height:20 }}
               />
-              <Link
+              <Link to="#"
                 onClick={saveRate}
                 className="badge">
                  Set Rate

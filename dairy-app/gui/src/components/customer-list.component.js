@@ -199,7 +199,7 @@ const CustomerList = props => {
                 <Link to={"/gui/addCustomer"} className="nav-link">
                   Add Customer
                 </Link>
-        <div className="rootClassname">
+        <div className={rootClassname}>
           <FilterContext.Provider value={filters}>
             <DataGrid columns={columns} onRowsChange={rowChange} 
              defaultColumnOptions={{
