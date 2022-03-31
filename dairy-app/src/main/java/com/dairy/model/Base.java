@@ -1,7 +1,7 @@
 package com.dairy.model;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
@@ -17,11 +17,11 @@ public class Base implements Serializable{
 	
 	@Column(name = "created_date", updatable = false)
     @CreatedDate
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Column(name = "modified_date")
     @LastModifiedDate
-    private LocalDate modifiedDate;
+    private LocalDateTime modifiedDate;
     
     @Column(name = "created_by")
     String createdBy;
@@ -31,19 +31,19 @@ public class Base implements Serializable{
     
     transient String searchFlag;
 
-	public LocalDate getCreatedDate() {
+	public LocalDateTime getCreatedDate() {
 		return createdDate;
 	}
 
-	public void setCreatedDate(LocalDate createdDate) {
+	public void setCreatedDate(LocalDateTime createdDate) {
 		this.createdDate = createdDate;
 	}
 
-	public LocalDate getModifiedDate() {
+	public LocalDateTime getModifiedDate() {
 		return modifiedDate;
 	}
 
-	public void setModifiedDate(LocalDate modifiedDate) {
+	public void setModifiedDate(LocalDateTime modifiedDate) {
 		this.modifiedDate = modifiedDate;
 	}
 
