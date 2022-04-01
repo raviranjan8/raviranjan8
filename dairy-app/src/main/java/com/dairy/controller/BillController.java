@@ -73,144 +73,148 @@ public class BillController {
 	 * @return
 	 */
 	@GetMapping("/generateBills")
-	public ResponseEntity<List<Bill>> generateBills(@ModelAttribute Bill param) {
-		param.setActive(true);
-		//get active customer
-		List<Long> customerIdList = customerRepository.findDistinctIdByActive(true);
-		
-		DailyBill paramDelivery= new DailyBill();
-		paramDelivery.setMonth(param.getMonth());
-		paramDelivery.setType(param.getType());	
-		//get all deliveries for all customers for the month
-		List<DailyBill> customerDeliveryList = customerDeliveryRepository.findAll(Example.of(paramDelivery));
-		
-		Rate paramRate = new Rate();
-		paramRate.setActive(true);
-		List<Rate> rate = rateRepository.findAll(Example.of(paramRate));
-		
-		//last month bill - it will be used to calculate dues
-		List<Bill> previousBills = new ArrayList<Bill>();
-		
-		Bill paramPrevMonth = new Bill();
-		LocalDate paramDate = LocalDate.parse("01-"+param.getMonth(),format);
-		paramPrevMonth.setMonth(paramDate.minusMonths(1).format(formatMonth));
-		paramPrevMonth.setActive(true);
-		paramPrevMonth.setType(param.getType());
-		repository.findAll(Example.of(paramPrevMonth)).forEach(previousBills::add);
-		
-		//this month bill to de-active
-		List<Bill> existingBills = new ArrayList<Bill>();		
-		repository.findAll(Example.of(param)).forEach(existingBills::add);
-		
-		//this month bill to see payments
-		Payment paymentParam=new Payment();
-		paymentParam.setActive(true);
-		paymentParam.setMonth(param.getMonth());
-		paymentParam.setType(param.getType());
-		List<Payment> payments = new ArrayList<Payment>();		
-		paymentRepository.findAll(Example.of(paymentParam)).forEach(payments::add);
+	public ResponseEntity<?> generateBills(@ModelAttribute Bill param) {
+		try {
+			param.setActive(true);
+			//get active customer
+			List<Long> customerIdList = customerRepository.findDistinctIdByActive(true);
+			
+			DailyBill paramDelivery= new DailyBill();
+			paramDelivery.setMonth(param.getMonth());
+			paramDelivery.setType(param.getType());	
+			//get all deliveries for all customers for the month
+			List<DailyBill> customerDeliveryList = customerDeliveryRepository.findAll(Example.of(paramDelivery));
+			
+			Rate paramRate = new Rate();
+			paramRate.setActive(true);
+			List<Rate> rate = rateRepository.findAll(Example.of(paramRate));
+			
+			//last month bill - it will be used to calculate dues
+			List<Bill> previousBills = new ArrayList<Bill>();
+			
+			Bill paramPrevMonth = new Bill();
+			LocalDate paramDate = LocalDate.parse("01-"+param.getMonth(),format);
+			paramPrevMonth.setMonth(paramDate.minusMonths(1).format(formatMonth));
+			paramPrevMonth.setActive(true);
+			paramPrevMonth.setType(param.getType());
+			repository.findAll(Example.of(paramPrevMonth)).forEach(previousBills::add);
+			
+			//this month bill to de-active
+			List<Bill> existingBills = new ArrayList<Bill>();		
+			repository.findAll(Example.of(param)).forEach(existingBills::add);
+			
+			//this month bill to see payments
+			Payment paymentParam=new Payment();
+			paymentParam.setActive(true);
+			paymentParam.setMonth(param.getMonth());
+			paymentParam.setType(param.getType());
+			List<Payment> payments = new ArrayList<Payment>();		
+			paymentRepository.findAll(Example.of(paymentParam)).forEach(payments::add);
+					
+			List<Bill> billsToBeDeActivated = new ArrayList<Bill>();
+			
+			List<Bill> billsForCreation = new ArrayList<Bill>();	
+			customerIdList.stream().forEach(customerId -> {
+				Bill customerBill = new Bill();
+				customerBill.setPartyId(customerId);
+				customerBill.setMonth(param.getMonth());
+				if(null ==rate || rate.size()==0) {
+					customerBill.setRate(new BigDecimal(1));
+				} else customerBill.setRate(rate.get(0).getRate());
 				
-		List<Bill> billsToBeDeActivated = new ArrayList<Bill>();
-		
-		List<Bill> billsForCreation = new ArrayList<Bill>();	
-		customerIdList.stream().forEach(customerId -> {
-			Bill customerBill = new Bill();
-			customerBill.setPartyId(customerId);
-			customerBill.setMonth(param.getMonth());
-			if(null ==rate || rate.size()==0) {
-				customerBill.setRate(new BigDecimal(1));
-			} else customerBill.setRate(rate.get(0).getRate());
-			
-			customerBill.setActive(true);
-			customerBill.setType(param.getType());
-			
-			customerBill.setDaysCount(0L);
-			customerBill.setQuantity(new BigDecimal(0));
-			customerBill.setDues(new BigDecimal(0));
-			customerBill.setPayment(new BigDecimal(0));
-			customerBill.setDiscount(new BigDecimal(0));
-			customerBill.setBill(new BigDecimal(0));
-			customerBill.setLastBillTotal(new BigDecimal(0));
-			customerDeliveryList.stream().
-				filter(c -> c.getPartyId().equals(customerId)).forEach(customerDelivery  ->{
-					if(null != customerDelivery.getQuantity()) {
-						customerBill.setQuantity(customerBill.getQuantity().add(customerDelivery.getQuantity()));
-					}
-					//for expense, sum of amount is the billed amount
-					if(null != customerDelivery.getAmount()) {
-						customerBill.setBill(customerBill.getBill().add(customerDelivery.getAmount()));
-					}
-					customerBill.setDaysCount(customerBill.getDaysCount()+1);
-				});
-			
-			if(param.getType().equals("income")) {
-				//for income, rate * quantity is the billed amount
-				customerBill.setBill(customerBill.getQuantity().multiply(customerBill.getRate()));
-			}
-			
-			existingBills.stream().
-				filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
-					//all previous bill be deactivated for the month except payment One
-					bill.setActive(false);
-					billsToBeDeActivated.add(bill);
-				});
-			
-			payments.stream().
-				filter(c -> c.getPartyId().equals(customerId)).forEach(payment ->{
-						//payment with discount category is discount
-						if(null != payment.getCategory() && "discount".equals(payment.getCategory())) {
-							customerBill.setDiscount(customerBill.getDiscount().add(payment.getPayment()));
-						}else {
-							//and all paid amount for the month will be used to calculate dues against previous month bill
-							customerBill.setPayment(customerBill.getPayment().add(payment.getPayment()));
+				customerBill.setActive(true);
+				customerBill.setType(param.getType());
+				
+				customerBill.setDaysCount(0L);
+				customerBill.setQuantity(new BigDecimal(0));
+				customerBill.setDues(new BigDecimal(0));
+				customerBill.setPayment(new BigDecimal(0));
+				customerBill.setDiscount(new BigDecimal(0));
+				customerBill.setBill(new BigDecimal(0));
+				customerBill.setLastBillTotal(new BigDecimal(0));
+				customerDeliveryList.stream().
+					filter(c -> c.getPartyId().equals(customerId)).forEach(customerDelivery  ->{
+						if(null != customerDelivery.getQuantity()) {
+							customerBill.setQuantity(customerBill.getQuantity().add(customerDelivery.getQuantity()));
 						}
-						//also to show total payment against last month bill
+						//for expense, sum of amount is the billed amount
+						if(null != customerDelivery.getAmount()) {
+							customerBill.setBill(customerBill.getBill().add(customerDelivery.getAmount()));
+						}
+						customerBill.setDaysCount(customerBill.getDaysCount()+1);
+					});
+				
+				if(param.getType().equals("income")) {
+					//for income, rate * quantity is the billed amount
+					customerBill.setBill(customerBill.getQuantity().multiply(customerBill.getRate()));
+				}
+				
+				existingBills.stream().
+					filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+						//all previous bill be deactivated for the month except payment One
+						bill.setActive(false);
+						billsToBeDeActivated.add(bill);
+					});
+				
+				payments.stream().
+					filter(c -> c.getPartyId().equals(customerId)).forEach(payment ->{
+							//payment with discount category is discount
+							if(null != payment.getCategory() && "discount".equals(payment.getCategory())) {
+								customerBill.setDiscount(customerBill.getDiscount().add(payment.getPayment()));
+							}else {
+								//and all paid amount for the month will be used to calculate dues against previous month bill
+								customerBill.setPayment(customerBill.getPayment().add(payment.getPayment()));
+							}
+							//also to show total payment against last month bill
+				});
+				
+				previousBills.stream().
+					filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+						if(param.getType().equals("income")) {
+							//this month bill + last month dues = last  month total bill
+							BigDecimal previousMonthTotal = new BigDecimal(0);
+							if(null != bill.getBill()) {
+								previousMonthTotal = previousMonthTotal.add(bill.getBill());
+							}
+							if(null != bill.getDues()) {
+								previousMonthTotal = previousMonthTotal.add(bill.getDues());
+							}
+							customerBill.setLastBillTotal(customerBill.getLastBillTotal().add(previousMonthTotal));
+						}else {		//for expense billing	
+							//last month bill - last month payment = dues 
+							BigDecimal previousMonthDue = new BigDecimal(0);
+							if(null != bill.getBill()) {
+								previousMonthDue = previousMonthDue.add(bill.getBill());
+							}
+							if(null != bill.getPayment()) {
+								previousMonthDue = previousMonthDue.subtract(bill.getPayment());
+							}
+							customerBill.setDues(customerBill.getDues().add(previousMonthDue));
+						}
+					});
+				
+				if(param.getType().equals("income")) {
+					//last month total bill - this month payment - this month discount = dues
+					//negative due means Advance
+					customerBill.setDues(customerBill.getLastBillTotal().subtract(customerBill.getPayment())
+											.subtract(customerBill.getDiscount()));
+				}
+				
+				//generate bill only if any delivery was done or any due is there or any payment made income/expense
+				if(customerBill.getQuantity().compareTo(zero)>0 || customerBill.getDues().compareTo(zero)>0 || customerBill.getPayment().compareTo(zero)>0) {
+					billsForCreation.add(customerBill);
+				}
 			});
-			
-			previousBills.stream().
-				filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
-					if(param.getType().equals("income")) {
-						//this month bill + last month dues = last  month total bill
-						BigDecimal previousMonthTotal = new BigDecimal(0);
-						if(null != bill.getBill()) {
-							previousMonthTotal = previousMonthTotal.add(bill.getBill());
-						}
-						if(null != bill.getDues()) {
-							previousMonthTotal = previousMonthTotal.add(bill.getDues());
-						}
-						customerBill.setLastBillTotal(customerBill.getLastBillTotal().add(previousMonthTotal));
-					}else {		//for expense billing	
-						//last month bill - last month payment = dues 
-						BigDecimal previousMonthDue = new BigDecimal(0);
-						if(null != bill.getBill()) {
-							previousMonthDue = previousMonthDue.add(bill.getBill());
-						}
-						if(null != bill.getPayment()) {
-							previousMonthDue = previousMonthDue.subtract(bill.getPayment());
-						}
-						customerBill.setDues(customerBill.getDues().add(previousMonthDue));
-					}
-				});
-			
-			if(param.getType().equals("income")) {
-				//last month total bill - this month payment - this month discount = dues
-				//negative due means Advance
-				customerBill.setDues(customerBill.getLastBillTotal().subtract(customerBill.getPayment())
-										.subtract(customerBill.getDiscount()));
+			repository.saveAll(billsToBeDeActivated);
+			//send the latest bill generated to UI
+			List<Bill> responseList = repository.saveAll(billsForCreation);		
+			if (responseList.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			
-			//generate bill only if any delivery was done or any due is there or any payment made income/expense
-			if(customerBill.getQuantity().compareTo(zero)>0 || customerBill.getDues().compareTo(zero)>0 || customerBill.getPayment().compareTo(zero)>0) {
-				billsForCreation.add(customerBill);
-			}
-		});
-		repository.saveAll(billsToBeDeActivated);
-		//send the latest bill generated to UI
-		List<Bill> responseList = repository.saveAll(billsForCreation);		
-		if (responseList.isEmpty()) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			return new ResponseEntity<>(responseList, HttpStatus.OK);
+		}catch (Exception e) {
+			return new ResponseEntity<>(e,HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<>(responseList, HttpStatus.OK);
 	}
 	
 	@GetMapping("/generateBills/{month}/{type}")

@@ -56,7 +56,9 @@ public class PartyController {
 			
 			if(null != param && null == param.getSearchFlag()) {
 				repository.findAll(Example.of(param), Sort.by("routeId","routeSeq")).forEach( party -> {responseList.add(party);nullify(party) ;});
-			}else if(null != param && null != param.getSearchFlag() && "non-customer".equals(param.getSearchFlag())) {
+			} else if(null != param && null != param.getSearchFlag() && "pending".equals(param.getSearchFlag())) {
+				repository.findPendingCustomer(param.getRouteId(),LocalDate.now().format(formatMonth),LocalDate.now().format(formatDate)).forEach( party -> {responseList.add(party);nullify(party) ;});
+			} else if(null != param && null != param.getSearchFlag() && "non-customer".equals(param.getSearchFlag())) {
 				repository.findNonCustomerParties().forEach( party -> {responseList.add(party);nullify(party) ;});
 			} else if(null != param && null != param.getSearchFlag() && param.getSearchFlag().contains("-")){
 				repository.getPartyCalendarInfo(param.getSearchFlag(),LocalDate.parse("01-"+param.getSearchFlag(), formatMonthDate).minusMonths(1).format(formatMonth)).forEach(responseList::add);
