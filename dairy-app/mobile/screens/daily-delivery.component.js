@@ -24,7 +24,8 @@ export default class ProjectData extends Component {
 	    amount: null,
       date: moment().format("DD-MMM-YYYY"),
       routeId: null,
-      progress:0
+      progress:0,
+      pending: null
     }
   }
   
@@ -37,7 +38,7 @@ export default class ProjectData extends Component {
   }
 
   getData(){    
-    if(this.state.routeId != this.props.route.params.id){
+    if(this.state.routeId != this.props.route.params.id || this.state.pending != this.props.route.params.pending){
       this.handleModalClose();
       this.setState({
         projects: [],
@@ -45,7 +46,8 @@ export default class ProjectData extends Component {
       });
       this.getProjects(this.props.route.params.id, this.props.route.params.pending);
       this.setState({
-        routeId: this.props.route.params.id
+        routeId: this.props.route.params.id,
+        pending: this.props.route.params.pending
       });  
     }
   }
@@ -169,15 +171,19 @@ export default class ProjectData extends Component {
     return (
         <ScrollView>
           <LinearProgress style={{ marginVertical: 10 }} value={this.state.progress}  variant="determinate"/>
-        {this.state.activeProject === '' ? 
+        {this.state.activeProject === '' ?         
+          (this.state.projects == null || this.state.projects.length==0)?
+          <Text>{''}</Text>
+          :
             <View style={[styles.container, {
                   flexDirection: "row",
                   flexWrap: "wrap",
                   justifyContent: 'space-around',
                   marginBottom: 30,
                 }]}>
-                  {projectComponents}
+                  {projectComponents} 
             </View>
+            
         : 
         <View>
             <Modal 
@@ -204,7 +210,7 @@ class Project extends React.Component {
   render() {
     return (
          <Avatar     
-           title={this.props.name + '-' +this.props.url}
+           title={this.props.name}
            containerStyle={{ backgroundColor: '#1F1A24', margin: 5, }}
            size={94}
            titleStyle={{fontSize:15, color:'grey' }}

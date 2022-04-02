@@ -1,8 +1,10 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
-import { View, Text, StyleSheet ,ScrollView } from "react-native";
+import { View, Input,Text, StyleSheet ,ScrollView } from "react-native";
+import { useFocusEffect } from '@react-navigation/native';
 import { Avatar, ListItem, Icon } from 'react-native-elements';
 import RouteService from "../services/route.service";
-import ProjectData from '../screens/daily-delivery.component';
+import RouteStockService from "../services/route.stock.service";
+import moment from 'moment';
 
 export default function ProfileScreen({ props, navigation }) {
 
@@ -10,7 +12,7 @@ export default function ProfileScreen({ props, navigation }) {
     borderWidth: 0,
   };
 
-  const [rows, setRows] = useState([]);  
+  const [rows, setRows] = useState([]);
     
     Array.prototype.chunk = function ( n ) {
         if ( !this.length ) {
@@ -19,18 +21,86 @@ export default function ProfileScreen({ props, navigation }) {
         return [ this.slice( 0, n ) ].concat( this.slice(n).chunk(n) );
     };  
 
-    useEffect(() => {
-      RouteService.getAll().then(response => {
+   
+
+    useFocusEffect(
+      React.useCallback(() => {
+        getData();
+        return () => {
+        };
+      }, [])
+    );
+
+    function getData(){
+      var currentDate = moment();
+      const param = {
+        date: currentDate.format("DD") ,
+        month: currentDate.format("MMM-YYYY") , 
+        type: "income"
+      };
+
+      RouteService.getAll(param).then(response => {
         var routes = response.data;
-		    console.log(routes);
+		    console.log(routes);       
         setRows(routes);
+        routeStockService(param, routes);
       })
       .catch(e => {
         console.log(e);
       });
-	  
-    }, [props]);
+    }
 
+    function routeStockService(param, initialRows){
+      RouteStockService.getAll(param).then((response) => {
+        var stocks = response.data;        
+        stocks &&  stocks.map((stock, index) => {
+          for(var initialRow of initialRows){
+            if(initialRow.id == stock.routeId){
+              initialRow["quantity"]=stock.quantity+'';
+              initialRow["routeStockId"]=stock.id;
+              break;
+            }
+          };
+        });
+        setRows(initialRows.slice());
+      })
+      .catch((e) => {
+        console.log(e);
+      });   
+    }  
+  
+    function onChangeQuantity(input, routeId, stockId, row){
+      saveRoute(input, routeId, stockId, row);
+    }
+
+    function saveRoute(input, routeId, stockId,row) {   
+        var data = {
+          id: stockId,
+          routeId: routeId,
+          quantity: +input,
+          date: moment().format("DD"),
+          month: moment().format("MMM-YYYY")
+        };
+        if(data.id){
+          RouteStockService.update(data.id, data)
+          .then(response => {
+            console.log(response.data);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+        }else{
+          RouteStockService.create(data)
+          .then(response => {            
+            row.routeStockId = response.data.id;
+            console.log(row);
+          })
+          .catch(e => {
+            console.log(e);
+          });
+        }
+    }
+  
    return (
 <>
       <ScrollView>
@@ -73,9 +143,14 @@ export default function ProfileScreen({ props, navigation }) {
                   >
                   </Avatar>
                 <ListItem.Content>
-                  <ListItem.Title>{l.name}</ListItem.Title>                                    
+                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo.customerPendingCount}</ListItem.Title> 
+                  <ListItem.Subtitle>{l.extraInfo.customerPendingQuantity}</ListItem.Subtitle>
                 </ListItem.Content>
-                <ListItem.Input style={styles.text} keyboardType="numeric"></ListItem.Input>
+                <ListItem.Content>
+                      <ListItem.Title>{l.extraInfo.customerDeliveredCount}</ListItem.Title>
+                      <ListItem.Title>{l.extraInfo.customerDeliveredQuantity}</ListItem.Title>
+                </ListItem.Content>
+                <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  ></ListItem.Input>
               </ListItem>
             ))
           }
@@ -98,5 +173,10 @@ export default function ProfileScreen({ props, navigation }) {
     borderWidth: 1,
     maxWidth:50,
     textAlign : "center",
-   }
+   },
+   subtitleView: {
+    flexDirection: 'row',
+    paddingLeft: 10,
+    paddingTop: 5
+  }
  })
