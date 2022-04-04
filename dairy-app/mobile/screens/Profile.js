@@ -103,7 +103,7 @@ export default function ProfileScreen({ props, navigation }) {
   
    return (
 <>
-      <ScrollView>
+      <ScrollView horizontal>
         {/* {rows.chunk(3).map((chunk, chunkIndex) => (
           <View
             style={{
@@ -141,16 +141,24 @@ export default function ProfileScreen({ props, navigation }) {
                     onPress={() => {navigation.navigate('RouteDelivery', { id: l.id })}}
                     titleStyle={{fontSize:15 }}
                   >
-                  </Avatar>
-                <ListItem.Content>
-                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo.customerPendingCount}</ListItem.Title> 
-                  <ListItem.Subtitle>{l.extraInfo.customerPendingQuantity}</ListItem.Subtitle>
-                </ListItem.Content>
+                  </Avatar> 
+                <ListItem.Content>                
+                  <ListItem.Title>{l.extraInfo.payment}</ListItem.Title>
+                  <ListItem.Subtitle>{''}</ListItem.Subtitle>
+                </ListItem.Content>                 
                 <ListItem.Content>
                       <ListItem.Title>{l.extraInfo.customerDeliveredCount}</ListItem.Title>
-                      <ListItem.Title>{l.extraInfo.customerDeliveredQuantity}</ListItem.Title>
+                      <ListItem.Subtitle>{l.extraInfo.customerDeliveredQuantity}</ListItem.Subtitle>
                 </ListItem.Content>
-                <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  ></ListItem.Input>
+                <ListItem.Content>
+                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo.customerPendingCount}</ListItem.Title> 
+                  <ListItem.Subtitle>{l.extraInfo.customerPendingQuantity}</ListItem.Subtitle>                  
+                </ListItem.Content>
+                <ListItem.Content>                
+                    <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  ></ListItem.Input>                    
+                    <ListItem.Subtitle>{''}</ListItem.Subtitle>
+                </ListItem.Content>
+                
               </ListItem>
             ))
           }

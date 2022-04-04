@@ -4,6 +4,7 @@ import { View, Text, StyleSheet ,ScrollView } from "react-native";
 import {  Card,Avatar, LinearProgress} from 'react-native-elements';
 
 import CustomerService from "../services/customer.service";
+import DeliveryService from "../services/delivery.service";
 import Modal from "./modal.component";
 
 export default class ProjectData extends Component {
@@ -68,17 +69,38 @@ export default class ProjectData extends Component {
         });
     }else{
       const params ={ "routeId" : id, type: "customer" };
-      CustomerService.getAll(params)
-        .then(response => {
+      CustomerService.getAll(params).then(response => {
         console.log(response.data);
-        this.setState({
-          projects: response.data,
-          progress:1
-        });
+        var projects = response.data;
+        var today = moment();
+        const params =  { date: today.format("DD"),
+                          month: today.format("MMM-YYYY"), 
+                          "type": "income"
+                     };
+        //checking if already delivered for the day
+        DeliveryService.getAll(params).then(response => {
+          var deliverys = response.data;
+          deliverys && deliverys.map((delivery) => {
+            for(var initialRow of projects){
+              initialRow.today = delivery.quantity;        
+              if(initialRow.id == delivery.partyId){
+                initialRow.today = delivery.quantity;                
+                break;
+              }
+            };
+          });          
+          this.setState({
+            projects: projects,
+            progress:1
+          });
         })
         .catch(e => {
-        console.log(e);
+          console.log(e);
         });
+      })
+      .catch(e => {
+      console.log(e);
+      });
     }
   }
 
@@ -163,7 +185,7 @@ export default class ProjectData extends Component {
         key={'project-' + data.id}
         index={idx}
         name={data.name}
-        url={data.address}
+        url={data.today}
         onModalOpen={this.handleModalOpen}
       />,
     );
@@ -210,7 +232,7 @@ class Project extends React.Component {
   render() {
     return (
          <Avatar     
-           title={this.props.name}
+           title={this.props.url ? (this.props.name +'-' + this.props.url) : this.props.name }
            containerStyle={{ backgroundColor: '#1F1A24', margin: 5, }}
            size={94}
            titleStyle={{fontSize:15, color:'grey' }}
