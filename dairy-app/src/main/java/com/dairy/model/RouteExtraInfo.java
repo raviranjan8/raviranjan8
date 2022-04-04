@@ -12,12 +12,12 @@ public class RouteExtraInfo {
 	private BigDecimal customerPendingQuantity;
 	private Long customerDeliveredCount;
 	private BigDecimal customerDeliveredQuantity;
+	private BigDecimal payment;
 	
 	public RouteExtraInfo() {}
 	
 	public RouteExtraInfo(Long routeId, Long customerCount, BigDecimal customerTotalQuantity,  Long customerDeliveredCount, BigDecimal customerDeliveredQuantity,
-			Long customerPendingCount,
-			BigDecimal customerPendingQuantity) {
+			Long customerPendingCount, BigDecimal customerPendingQuantity , BigDecimal payment) {
 		super();
 		this.routeId = routeId;
 		this.customerCount = customerCount;
@@ -26,6 +26,7 @@ public class RouteExtraInfo {
 		this.customerPendingQuantity = customerPendingQuantity;
 		this.customerDeliveredCount = customerDeliveredCount;
 		this.customerDeliveredQuantity = customerDeliveredQuantity;
+		this.payment = payment;
 	}
 
 	public Long getRouteId() {
@@ -92,6 +93,14 @@ public class RouteExtraInfo {
 
 	public void setCustomerDeliveredQuantity(BigDecimal customerDeliveredQuantity) {
 		this.customerDeliveredQuantity = customerDeliveredQuantity;
+	}
+	
+	public BigDecimal getPayment() {
+		return payment;
+	}
+
+	public void setPayment(BigDecimal payment) {
+		this.payment = payment;
 	}
 
 	@Override
