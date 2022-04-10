@@ -8,11 +8,12 @@ export default class SellerProduct extends Component {
     super(props);
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
+    this.onChangeImagepath = this.onChangeImagepath.bind(this);
     this.onChangeBrand = this.onChangeBrand.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
-    this.onChangeMRP = this.onChangeMRP.bind(this);
-    this.onChangeUnit = this.onChangeUnit.bind(this);
+    this.onChangeMrp = this.onChangeMrp.bind(this);
     this.onChangeWeight = this.onChangeWeight.bind(this);
+    this.onChangeUnit = this.onChangeUnit.bind(this);
   	this.onChangeMeasurment = this.onChangeMeasurment.bind(this);
     this.onChangeQuantity = this.onChangeQuantity.bind(this);
     this.onChangeRate = this.onChangeRate.bind(this);
@@ -24,17 +25,18 @@ export default class SellerProduct extends Component {
     this.onChangeproduct=this.onChangeproduct.bind(this);
     this.getproduct=this.getproduct.bind(this);
     this.myRef = React.createRef();
-    
+    this.myRefUnit = React.createRef();    
     const today = moment();
     this.state = {
       id: null,
       name: "",
       description: "", 
+      imagepath: "",
       brand: "",
 	    company:"",
-      MRP:"",
-      unit:"",
+      mrp:"",
       weight:"",
+      unit:"",
       measurment:"",
       quantity:"",
       rate:"",
@@ -63,6 +65,11 @@ export default class SellerProduct extends Component {
       description: e.target.value
     });
   }
+  onChangeImagepath(e) {
+    this.setState({
+      imagepath: e.target.value
+    });
+  }
   onChangeBrand(e) {
     if (e.target.value.length<11 ){
     this.setState({
@@ -77,21 +84,21 @@ export default class SellerProduct extends Component {
     });
   }
 
-  onChangeMRP(e) {
+  onChangeMrp(e) {
     this.setState({
-      MRP: e.target.value
-    });
-  }
-
-  onChangeUnit(e) {
-    this.setState({
-      unit: e.target.value
+      mrp: e.target.value
     });
   }
 
   onChangeWeight(e) {
     this.setState({
       weight: e.target.value
+    });
+  }
+
+  onChangeUnit(e) {
+    this.setState({
+      unit: e.target.value
     });
   }
 
@@ -134,6 +141,15 @@ export default class SellerProduct extends Component {
     this.setState({
       productId: e.target.value
     });
+    console.log(e.target.value);
+    this.state.products.map((product)=>{
+      if (e.target.value==product.id){
+        this.setState({
+          description: product.description,
+          imagepath: product.imagepath
+        });
+      }
+    })
   }
 
   onChangeActive(e) {
@@ -144,14 +160,16 @@ export default class SellerProduct extends Component {
 
   saveTutorial(e) {
 	e.target.disabled=true;
+  
     var data = {
-      name: this.myRef.current.value,
+      name: this.state.name,
       description: this.state.description,
+      imagepath: this.state.imagepath,
       brand: this.state.brand,
       company: this.state.company,
-      MRP: this.state.MRP,
-      unit: this.state.unit,
+      mrp: this.state.mrp,
       weight: this.state.weight,
+      unit: this.state.unit,
       measurment: this.state.measurment,
       quantity: this.state.quantity,
       rate: this.state.rate,
@@ -159,7 +177,8 @@ export default class SellerProduct extends Component {
       discountType: this.state.discountType,
       deliveryCharge: this.state.deliveryCharge,
       active: this.state.active,
-      productId: this.myRef.current.value
+      productId: this.state.productId,
+     
     };
 console.log(data);
 this.setState({submitted: true});
@@ -168,13 +187,13 @@ this.setState({submitted: true});
         this.setState({
           id: response.data.id,
           name: response.data.name,
-          name: response.data.name,
           description: response.data.description,
+          imagepath: response.data.imagepath,
           brand: response.data.brand,
           company: response.data.company,
-          MRP: response.data.MRP,
-          unit: response.data.unit,
+          mrp: response.data.mrp,
           weight: response.data.weight,
+          unit: response.data.unit,
           measurment: response.data.measurment,
           quantity: response.data.quantity,
           rate: response.data.rate,
@@ -183,6 +202,7 @@ this.setState({submitted: true});
           deliveryCharge: response.data.deliveryCharge,
           active: response.data.active,
           productId: response.data.productId,
+         
           submitted: true
         });
 		e.target.disabled=false;
@@ -198,11 +218,12 @@ this.setState({submitted: true});
       id: null,
       name: "",
       description: "",
+      imagepath: "",
       brand: "",
       company: "",
-      MRP: "",
-      unit: "",
+      mrp: "",
       weight: "",
+      unit: "",
       measurment: "",
       quantity: "",
       rate: "",
@@ -251,7 +272,7 @@ this.setState({submitted: true});
                     <select className="form-control" value={this.state.productId} 
                     onChange={this.onChangeproduct} ref={this.myRef} name="productId">
                       {products && products.map((option) => (
-                        <option value={option.name}>{option.name}</option>
+                        <option value={option.id}>{option.name}</option>
                       ))}
                     </select>
                   </div>
@@ -268,6 +289,19 @@ this.setState({submitted: true});
                 name="description"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="imagepath">Imagepath</label>
+              <input
+                type="text"
+                className="form-control"
+                id="imagepath"
+                required
+                value={this.state.imagepath}
+                onChange={this.onChangeImage}
+                name="imagepath"
+              />
+            </div>
+
             <div className="form-group">
               <label htmlFor="brand">Brand</label>
               <input
@@ -295,29 +329,18 @@ this.setState({submitted: true});
             </div>
 
             <div className="form-group">
-              <label htmlFor="MRP">MRP</label>
+              <label htmlFor="mrp">MRP</label>
               <input
                 type="text"
                 className="form-control"
-                id="MRP"
+                id="mrp"
                 required
-                value={this.state.MRP}
-                onChange={this.onChangeMRP}
-                name="MRP"
+                value={this.state.mrp}
+                onChange={this.onChangeMrp}
+                name="mrp"
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="unit">unit</label>
-              <input
-                type="text"
-                className="form-control"
-                id="unit"
-                required
-                value={this.state.unit}
-                onChange={this.onChangeUnit}
-                name="unit"
-              />
-            </div>
+           
             <div className="form-group">
               <label htmlFor="weight">Weight</label>
               <input
@@ -327,8 +350,20 @@ this.setState({submitted: true});
                 required
                 value={this.state.weight}
                 onChange={this.onChangeWeight}
-                name="unit"
+                name="weight"
               />
+            </div>
+            <div className="form-group">        
+                  <label htmlFor="unit">Unit</label>
+                  <div className="select-container">
+                    <select className="form-control" value={this.state.unit} 
+						onChange={this.onChangeUnit} ref={this.myRefUnit} name="unit">
+                        <option value="killogram">Kg</option>
+                        <option value="gram">grm</option>
+                        <option value="litre">litre</option>
+
+                    </select>
+                  </div>
             </div>
             <div className="form-group">
               <label htmlFor="measurment">Measurment</label>

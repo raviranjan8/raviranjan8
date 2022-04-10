@@ -3,7 +3,7 @@ import React, { useState , useEffect, useMemo, useContext, createContext, useRef
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
 import DeliveryService from "../services/delivery.service";
-import ProductService from "../services/product.service";
+import SellerProductService from "../services/seller.product.service";
 import DropDownEditor, {useRoute} from "./editor/dropdown.component";
 import NumericEditor from "./editor/numericeditor.component";
 import moment from 'moment';
@@ -28,9 +28,13 @@ export function stopPropagation(event) {
 function getComparator(sortColumn) {
   switch (sortColumn) {
     case 'name':
-	case 'description':
-
-      return (a, b) => {
+	  case 'description':
+    case 'brand':
+    case 'company':
+    case 'measurment':
+    case 'discountType':
+           
+    return (a, b) => {
         return a[sortColumn].localeCompare(b[sortColumn]);
       };
     default:
@@ -40,7 +44,7 @@ function getComparator(sortColumn) {
   }
 }
 
-const ProductList = props => {  
+const SellerProductList = props => {  
 
   const [rows, setRows] = useState([]);
 	const [sortColumns, setSortColumns] = useState([]);  
@@ -72,28 +76,46 @@ const ProductList = props => {
         )
     },
     { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'minRate', name: 'minRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'maxRate', name: 'maxRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'imagepath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,
-           },
+    { key: 'brand', name: 'Brand' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'company', name: 'Company' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'mrp', name: 'Mrp' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'weight', name: 'Weight' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'unit', name: 'Unit' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'measurment', name: 'Measurment' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'quantity', name: 'Quantity' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'rate', name: 'Rate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'discount', name: 'Discount' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'discountType', name: 'DiscountType' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'deliveryCharge', name: 'DeliveryCharge' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true,
+   },
+
   ];
 
     useEffect(() => {
       var initialRows = null;
-      const paramProduct= { _sort: "routeId",
-                        _order: "asc"};
-     ProductService.getAll(paramProduct).then((response) => {
-        var products = response.data;
-        initialRows = new Array(products.length);
-        products.map((product, index) => {
+      const paramSellerProduct= { _sort: "routeId", _order: "asc"};
+     SellerProductService.getAll(paramSellerProduct).then((response) => {
+        var sellerproducts = response.data;
+        initialRows = new Array(sellerproducts.length);
+        sellerproducts && sellerproducts.map((sellerproducts, index) => {
           initialRows[index]={};
-          initialRows[index]["id"]=product.id;
-          initialRows[index]["name"]=product.name;
-          initialRows[index]["minRate"]=product.minRate;
-          initialRows[index]["maxRate"]=product.maxRate;
-          initialRows[index]["imagepath"]=product.imagepath;
-          initialRows[index]["description"]=product.description;
+          initialRows[index]["id"]=sellerproducts.id;
+          initialRows[index]["name"]=sellerproducts.name;
+          initialRows[index]["description"]=sellerproducts.description;
+          initialRows[index]["imagepath"]=sellerproducts.imagepath;
+          initialRows[index]["brand"]=sellerproducts.brand;
+          initialRows[index]["company"]=sellerproducts.company;
+          initialRows[index]["mrp"]=sellerproducts.mrp;
+          initialRows[index]["weight"]=sellerproducts.weight;
+          initialRows[index]["unit"]=sellerproducts.unit;
+          initialRows[index]["measurment"]=sellerproducts.measurment;
+          initialRows[index]["quantity"]=sellerproducts.quantity;
+          initialRows[index]["rate"]=sellerproducts.rate;
+          initialRows[index]["discount"]=sellerproducts.discount;
+          initialRows[index]["discountType"]=sellerproducts.discountType;
+          initialRows[index]["deliveryCharge"]=sellerproducts.deliveryCharge;
           
         });
         setRows(initialRows);
@@ -117,16 +139,26 @@ const ProductList = props => {
       var data = {
         id: row.id,
         name: row.name,
-        minRate: row.minRate,
-        maxRate: row.maxRate,
-        imagepath: row.imagepath,
         description: row.description,
+        imagepath: row.imagepath,
+        brand: row.brand,
+        company: row.company,
+        mrp: row.mrp,
+        weight: row.weight,
+        unit: row.unit,
+        measurment: row.measurment,
+        quantity: row.quantity,
+        rate: row.rate,
+        discount: row.discount,
+        discountType: row.discountType,
+        deliveryCharge: row.deliveryCharge,
+        
       };
       console.log(data);
       
-           ProductService.update(row.id, data)
+           SellerProductService.update(row.id, data)
             .then(response => {
-              console.log(response.data);
+              console.log(response.data); 
             })
             .catch(e => {
               console.log(e);
@@ -159,8 +191,8 @@ const ProductList = props => {
   
     return (
       <div >
-                <Link to={"/gui/addProduct"} className="nav-link">
-                  Add Product
+                <Link to={"/gui/sellerProduct"} className="nav-link">
+                  Add Seller Product
                 </Link>
         <div className="rootClassname">
           <FilterContext.Provider value={filters}>
@@ -181,7 +213,7 @@ const ProductList = props => {
     );
   };
   
-  export default ProductList;
+  export default SellerProductList;
 
   
 function FilterRenderer({isCellSelected,column,children}) {

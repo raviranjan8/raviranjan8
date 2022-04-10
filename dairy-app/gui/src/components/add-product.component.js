@@ -8,9 +8,8 @@ export default class AddProduct extends Component {
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeminRate = this.onChangeminRate.bind(this);
     this.onChangemaxRate = this.onChangemaxRate.bind(this);
-    this.onChangephoto = this.onChangephoto.bind(this);
+    this.onChangeImagepath = this.onChangeImagepath.bind(this);
     this.onChangedescription = this.onChangedescription.bind(this);
-    this.onChangeunitOfQuantity= this.onChangeunitOfQuantity.bind(this);
   	this.onChangeType = this.onChangeType.bind(this);
     this.saveTutorial = this.saveTutorial.bind(this);
     this.newTutorial = this.newTutorial.bind(this);
@@ -21,9 +20,8 @@ export default class AddProduct extends Component {
       name: "",
       minRate: "",
       maxRate: "",
-      photo: "",
+      imagepath: "",
       description: "",
-      unitOfQuantity: "",
       submitted: false
     };
   }
@@ -51,9 +49,9 @@ export default class AddProduct extends Component {
   }
   
 
-  onChangephoto(e) {
+  onChangeImagepath(e) {
     this.setState({
-      photo: e.target.value
+      imagepath: e.target.value
     });
   }
 
@@ -63,23 +61,15 @@ export default class AddProduct extends Component {
     });
   }
 
-  onChangeunitOfQuantity(e) {
-    this.setState({
-      unitOfQuantity: e.target.checked
-    });
-  }
-  
   saveTutorial(e) {
 	e.target.disabled=true;
     var data = {
       name: this.state.name,
       minRate: this.state.minRate,
       maxRate: this.state.maxRate,
-      photo: this.state.photo,
+      imagepath: this.state.imagepath,
       description: this.state.description,
-      unitOfQuantity:this.state.unitOfQuantity,
-    
-	 
+     
     };
 console.log(data);
 this.setState({submitted: true});
@@ -89,8 +79,8 @@ this.setState({submitted: true});
           id: response.data.id,
           name: response.data.name,
           minRate: response.data.minRate,
-          maxRate: Response.data.maxRate,
-          photo: response.data.photo,
+          maxRate: response.data.maxRate,
+          imagepath: response.data.imagepath,
           description: response.data.description,
           submitted: true
         });
@@ -108,9 +98,8 @@ this.setState({submitted: true});
       name: "",
       minRate: "",
       maxRate: "",
-      photo: "",
+      imagepath: "",
       description: "",
-      unitOfQuantity: "",
       submitted: false
     });
   }
@@ -172,16 +161,16 @@ this.setState({submitted: true});
             </div>
 
             <div className="form-group">
-              <label htmlFor="photo">Photo
+              <label htmlFor="imagepath">Imagepath
               </label>
               <input
                 type="text"
                 className="form-control"
-                id="photo"
+                id="imagepath"
                 required
-                value={this.state.photo}
-                onChange={this.onChangephoto}
-                  name="photo"
+                value={this.state.imagepath}
+                onChange={this.onChangeImagepath}
+                  name="imagepath"
               />
             </div>
 
@@ -197,19 +186,7 @@ this.setState({submitted: true});
                 name="description"
               />
             </div>
-            <div className="form-group">
-              <label htmlFor="unitOfQuantity">Unit Of Quantity Quantity</label>
-              <input
-                type="text"
-                className="form-control"
-                id="unitOfQuantity"
-                required
-                value={this.state.unitOfQuantity}
-                onChange={this.onChangeunitOfQuantity}
-                name="unitOfQuantity"
-              />
-            </div>
-
+            
             <button onClick={this.saveTutorial} className="btn btn-success">
               Submit
             </button>
