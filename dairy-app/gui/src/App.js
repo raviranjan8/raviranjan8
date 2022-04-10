@@ -8,6 +8,7 @@ import AddCustomer from "./components/add-customer.component";
 import AddProduct from "./components/add-product.component";
 import ProductList from "./components/product-list.component";
 import SellerProduct from "./components/seller-product.component";
+import SellerProductList from "./components/seller-product-list.component";
 import ProjectData from "./components/daily-delivery.component";
 import AddRoute from "./components/add-route.component";
 import RoutesList from "./components/routes-list.component";
@@ -92,6 +93,30 @@ class App extends Component {
                 </Link>
               </li>
 			)}
+      
+      {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/productlist"} className="nav-link">
+                  ProductList
+                </Link>
+              </li>
+			)}
+     
+      {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/sellerProduct"} className="nav-link">
+                  SellerProduct
+                </Link>
+              </li>
+			)}
+       {showAdminBoard && (
+              <li className="nav-item">
+                <Link to={"/gui/sellerProductlist"} className="nav-link">
+                  SellerProductList
+                </Link>
+              </li>
+			)}
+
       {showModeratorBoard && (
 			  <li className="nav-item">
                 <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
@@ -106,32 +131,19 @@ class App extends Component {
                 </Link>
               </li>
 			)}
-    {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/productlist"} className="nav-link">
-                  ProductList
-                </Link>
-              </li>
-			)}
-      {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/sellerProduct"} className="nav-link">
-                  SellerProduct
-                </Link>
-              </li>
-			)}
-
             </div>
           </nav>
 
           <div className="container mt-3">
             <Switch>
               <Route exact path={["/", "/gui/routes"]} component={RoutesList} />
+             // <Route exact path={["/", "/gui/routes/:date"]} component={RoutesList} />
               <Route exact path="/gui/customers" component={CustomerList} />
               <Route exact path="/gui/addCustomer" component={AddCustomer} />
               <Route exact path="/gui/productlist" component={ProductList} />
               <Route exact path="/gui/addProduct" component={AddProduct} />
               <Route exact path="/gui/sellerProduct" component={SellerProduct} />
+              <Route exact path="/gui/sellerProductlist" component={SellerProductList} />
               <Route exact path="/gui/dailyDelivery/:id" component={ProjectData} />
 			        <Route exact path="/gui/dailyDelivery/:id/:pending" component={ProjectData} />
               <Route exact path="/gui/route" component={AddRoute} />
@@ -147,6 +159,7 @@ class App extends Component {
 			        <Route exact path="/gui/addExpense" component={AddExpense} />
 			        <Route exact path="/gui/login" component={Login} />
               <Route exact path="/gui/collectionDaily/:date" component={CollectionDaily} />
+              <Route exact path="/gui/routes/:date" component={RoutesList} />
               <Route exact path="/gui/CollectionBillsList/:date" component={CollectionBillsList} />
               <Route exact path="/gui/employeeDaily/:date" component={EmployeeDaily} />
             </Switch>

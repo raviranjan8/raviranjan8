@@ -25,8 +25,8 @@ public class SellerProduct extends Base {
 	@Column(name = "DESCRIPTION")
 	private String description;
 	
-	@Column(name = "PHOTO")
-	private String photo;
+	@Column(name = "IMAGE_PATH")
+	private String imagePath;
 	
 	@Column(name = "PRODUCT_ID")
 	private Long productId;
@@ -168,12 +168,12 @@ public class SellerProduct extends Base {
 		this.deliveryCharge = deliveryCharge;
 	}
 	
-	public String getPhoto() {
-		return photo;
+	public String getImagePath() {
+		return imagePath;
 	}
 
-	public void setPhoto(String photo) {
-		this.photo = photo;
+	public void setImagePath(String imagePath) {
+		this.imagePath = imagePath;
 	}
 
 	public Long getProductId() {
@@ -187,7 +187,7 @@ public class SellerProduct extends Base {
 	@Override
 	public int hashCode() {
 		return Objects.hash(brand, company, deliveryCharge, description, discount, discountType, id, measurment, mrp,
-				 photo, productId, quantity, rate, unit, weight);
+				 imagePath, productId, quantity, rate, unit, weight);
 	}
 
 	@Override
@@ -204,7 +204,7 @@ public class SellerProduct extends Base {
 				&& Objects.equals(description, other.description) && Objects.equals(discount, other.discount)
 				&& Objects.equals(discountType, other.discountType) && Objects.equals(id, other.id)
 				&& Objects.equals(measurment, other.measurment) && Objects.equals(mrp, other.mrp)
-				&& Objects.equals(photo, other.photo)
+				&& Objects.equals(imagePath, other.imagePath)
 				&& Objects.equals(productId, other.productId) && Objects.equals(quantity, other.quantity)
 				&& Objects.equals(rate, other.rate) && Objects.equals(unit, other.unit)
 				&& Objects.equals(weight, other.weight);
@@ -212,7 +212,7 @@ public class SellerProduct extends Base {
 
 	@Override
 	public String toString() {
-		return "SellerProduct [id=" + id + ", description=" + description + ", photo=" + photo
+		return "SellerProduct [id=" + id + ", description=" + description + ", imagePath=" + imagePath
 				+ ", productId=" + productId + ", brand=" + brand + ", company=" + company + ", mrp=" + mrp + ", unit="
 				+ unit + ", weight=" + weight + ", measurment=" + measurment + ", quantity=" + quantity + ", rate="
 				+ rate + ", discount=" + discount + ", discountType=" + discountType + ", deliveryCharge="
