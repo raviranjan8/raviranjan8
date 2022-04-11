@@ -9,9 +9,15 @@ import javax.persistence.EntityListeners;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "SELLER_PRODUCT")
@@ -63,6 +69,12 @@ public class SellerProduct extends Base {
 	
 	@Column(name = "DELIVERY_CHARGE")
 	private BigDecimal deliveryCharge;
+	
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+	@ManyToOne
+	@Fetch(value = FetchMode.JOIN)
+	@JoinColumn(name = "PRODUCT_ID", insertable = false, updatable = false)
+	private Product product;
 
 	public Long getId() {
 		return id;
@@ -182,6 +194,14 @@ public class SellerProduct extends Base {
 
 	public void setProductId(Long productId) {
 		this.productId = productId;
+	}
+	
+	public Product getProduct() {
+		return product;
+	}
+
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
 	@Override

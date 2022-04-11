@@ -6,6 +6,7 @@ import DeliveryService from "../services/delivery.service";
 import ProductService from "../services/product.service";
 import DropDownEditor, {useRoute} from "./editor/dropdown.component";
 import NumericEditor from "./editor/numericeditor.component";
+import {baseURL} from "../http-common";
 import moment from 'moment';
 
 //const rootClassname = 'rootClassname';
@@ -74,9 +75,15 @@ const ProductList = props => {
     { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'minRate', name: 'minRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'maxRate', name: 'maxRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'imagepath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,
-           },
+    { key: 'imagePath', name: 'ImagePath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'image', name: 'Image' , width: 80 , resizable: true ,
+		formatter(props) {
+              return <>
+                <img src={props.row.imagePath.startsWith('http') ? props.row.imagePath
+                            : (baseURL+'static/images/P_'+ props.row.id + '_' + props.row.imagePath)} />
+              </>;
+            }},
   ];
 
     useEffect(() => {
@@ -92,7 +99,7 @@ const ProductList = props => {
           initialRows[index]["name"]=product.name;
           initialRows[index]["minRate"]=product.minRate;
           initialRows[index]["maxRate"]=product.maxRate;
-          initialRows[index]["imagepath"]=product.imagepath;
+          initialRows[index]["imagePath"]=product.imagePath;
           initialRows[index]["description"]=product.description;
           
         });
@@ -119,7 +126,7 @@ const ProductList = props => {
         name: row.name,
         minRate: row.minRate,
         maxRate: row.maxRate,
-        imagepath: row.imagepath,
+        imagePath: row.imagePath,
         description: row.description,
       };
       console.log(data);

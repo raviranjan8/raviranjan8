@@ -2,13 +2,15 @@ import React, { Component } from "react";
 import moment from "moment";
 import ProductService from "../services/product.service";
 import SellerProductService from "../services/seller.product.service";
+import {baseURL} from "../http-common";
+import UploadService from "../services/upload-files.service";
 
 export default class SellerProduct extends Component {
   constructor(props) {
     super(props);
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.onChangeImagepath = this.onChangeImagepath.bind(this);
+    this.onChangeImagePath = this.onChangeImagePath.bind(this);
     this.onChangeBrand = this.onChangeBrand.bind(this);
     this.onChangeCompany = this.onChangeCompany.bind(this);
     this.onChangeMrp = this.onChangeMrp.bind(this);
@@ -24,6 +26,7 @@ export default class SellerProduct extends Component {
     this.newTutorial = this.newTutorial.bind(this);
     this.onChangeproduct=this.onChangeproduct.bind(this);
     this.getproduct=this.getproduct.bind(this);
+    this.selectFile=this.selectFile.bind(this);
     this.myRef = React.createRef();
     this.myRefUnit = React.createRef();    
     const today = moment();
@@ -31,7 +34,7 @@ export default class SellerProduct extends Component {
       id: null,
       name: "",
       description: "", 
-      imagepath: "",
+      imagePath: "",
       brand: "",
 	    company:"",
       mrp:"",
@@ -45,7 +48,11 @@ export default class SellerProduct extends Component {
       deliveryCharge:"",
       products:[],
       productId: "",
-      submitted: false
+      submitted: false,
+      message: "",
+      selectedFiles: undefined,
+      uploadDisable: false,
+      displayImagePath: "",
     };
   }
 
@@ -65,11 +72,20 @@ export default class SellerProduct extends Component {
       description: e.target.value
     });
   }
-  onChangeImagepath(e) {
+  onChangeImagePath(e) {
     this.setState({
-      imagepath: e.target.value
+      imagePath: e.target.value,
+      selectedFiles: undefined,
+      uploadDisable: true
     });
   }
+  selectFile(event) {
+    this.setState({
+      selectedFiles: event.target.files,
+      imagePath: event.target.files[0].name
+    });
+  }
+
   onChangeBrand(e) {
     if (e.target.value.length<11 ){
     this.setState({
@@ -146,7 +162,7 @@ export default class SellerProduct extends Component {
       if (e.target.value==product.id){
         this.setState({
           description: product.description,
-          imagepath: product.imagepath
+          displayImagePath: product.imagePath
         });
       }
     })
@@ -158,13 +174,38 @@ export default class SellerProduct extends Component {
     });
   }
 
+  upload(productId) {
+    let currentFile = this.state.selectedFiles[0];
+
+    this.setState({
+      currentFile: currentFile,
+    });
+
+    UploadService.upload(currentFile, 'SP_'+productId).then((response) => {
+        this.setState({
+          message: response.data.message,
+        });
+      })
+      .catch(() => {
+        this.setState({
+          message: "Could not upload the file!",
+          currentFile: undefined,
+        });
+      });
+
+    this.setState({
+      selectedFiles: undefined,
+    });
+  }
+
+
   saveTutorial(e) {
 	e.target.disabled=true;
   
     var data = {
       name: this.state.name,
       description: this.state.description,
-      imagepath: this.state.imagepath,
+      imagePath: this.state.imagePath,
       brand: this.state.brand,
       company: this.state.company,
       mrp: this.state.mrp,
@@ -188,7 +229,7 @@ this.setState({submitted: true});
           id: response.data.id,
           name: response.data.name,
           description: response.data.description,
-          imagepath: response.data.imagepath,
+          imagePath: response.data.imagePath,
           brand: response.data.brand,
           company: response.data.company,
           mrp: response.data.mrp,
@@ -205,7 +246,10 @@ this.setState({submitted: true});
          
           submitted: true
         });
-		e.target.disabled=false;
+        if(this.state.selectedFiles){
+          this.upload(response.data.id);
+        }
+		    e.target.disabled=false;
         console.log(response.data);
       })
       .catch(e => {
@@ -218,7 +262,7 @@ this.setState({submitted: true});
       id: null,
       name: "",
       description: "",
-      imagepath: "",
+      imagePath: "",
       brand: "",
       company: "",
       mrp: "",
@@ -254,12 +298,13 @@ this.setState({submitted: true});
   }
 
   render() {
-    const { products } = this.state;
+    const { products, message } = this.state;
     return (
       <div className="submit-form">
         {this.state.submitted ? (
           <div>
             <h4>You submitted successfully!</h4>
+            {message}
             <button className="btn btn-success" onClick={this.newTutorial}>
               Add
             </button>
@@ -271,6 +316,7 @@ this.setState({submitted: true});
                   <div className="select-container">
                     <select className="form-control" value={this.state.productId} 
                     onChange={this.onChangeproduct} ref={this.myRef} name="productId">
+                      <option value="">Select Product</option>
                       {products && products.map((option) => (
                         <option value={option.id}>{option.name}</option>
                       ))}
@@ -290,16 +336,21 @@ this.setState({submitted: true});
               />
             </div>
             <div className="form-group">
-              <label htmlFor="imagepath">Imagepath</label>
+              <label htmlFor="imagePath">Imagepath</label>
               <input
                 type="text"
                 className="form-control"
-                id="imagepath"
+                id="imagePath"
                 required
-                value={this.state.imagepath}
-                onChange={this.onChangeImage}
-                name="imagepath"
+                value={this.state.imagePath}
+                onChange={this.onChangeImagePath}
+                name="imagePath"
               />
+              <img alt="" height={60} width={80} src={this.state.displayImagePath.startsWith('http') ? this.state.displayImagePath
+                            : (baseURL+'static/images/P_'+ this.state.productId + '_' + this.state.displayImagePath)} />
+               <label className="btn btn-default">
+                <input disabled={this.state.uploadDisable} type="file" onChange={this.selectFile} />
+              </label>
             </div>
 
             <div className="form-group">

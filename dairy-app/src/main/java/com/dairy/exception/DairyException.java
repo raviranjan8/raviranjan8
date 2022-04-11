@@ -1,4 +1,4 @@
-package com.dairy.model;
+package com.dairy.exception;
 
 public class DairyException extends Exception {
 

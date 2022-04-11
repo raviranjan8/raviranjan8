@@ -7,6 +7,7 @@ import SellerProductService from "../services/seller.product.service";
 import DropDownEditor, {useRoute} from "./editor/dropdown.component";
 import NumericEditor from "./editor/numericeditor.component";
 import moment from 'moment';
+import {baseURL} from "../http-common";
 
 //const rootClassname = 'rootClassname';
 const filterColumnClassName = 'filter-cell';
@@ -77,7 +78,7 @@ const SellerProductList = props => {
     },
     { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'imagepath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'imagePath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'brand', name: 'Brand' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'company', name: 'Company' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'mrp', name: 'Mrp' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
@@ -88,9 +89,15 @@ const SellerProductList = props => {
     { key: 'rate', name: 'Rate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'discount', name: 'Discount' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'discountType', name: 'DiscountType' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'deliveryCharge', name: 'DeliveryCharge' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true,
-   },
-
+    { key: 'deliveryCharge', name: 'DeliveryCharge' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true,},
+    { key: 'image', name: 'Image' , width: 80 , resizable: true ,
+		formatter(props) {
+              return <>
+                <img src={props.row.imagePath ? ( props.row.imagePath.startsWith('http') ? props.row.imagePath
+                                                    : (baseURL+'static/images/SP_'+ props.row.id + '_' + props.row.imagePath)
+                                                  ) : (baseURL+'static/images/P_'+ props.row.productId + '_' + props.row.productImage)} />
+              </>;
+            }},
   ];
 
     useEffect(() => {
@@ -104,7 +111,7 @@ const SellerProductList = props => {
           initialRows[index]["id"]=sellerproducts.id;
           initialRows[index]["name"]=sellerproducts.name;
           initialRows[index]["description"]=sellerproducts.description;
-          initialRows[index]["imagepath"]=sellerproducts.imagepath;
+          initialRows[index]["imagePath"]=sellerproducts.imagePath;
           initialRows[index]["brand"]=sellerproducts.brand;
           initialRows[index]["company"]=sellerproducts.company;
           initialRows[index]["mrp"]=sellerproducts.mrp;
@@ -116,7 +123,9 @@ const SellerProductList = props => {
           initialRows[index]["discount"]=sellerproducts.discount;
           initialRows[index]["discountType"]=sellerproducts.discountType;
           initialRows[index]["deliveryCharge"]=sellerproducts.deliveryCharge;
-          
+          initialRows[index]["productImage"]=sellerproducts.product.imagePath;
+          initialRows[index]["productId"]=sellerproducts.product.id;
+          initialRows[index]["name"]=sellerproducts.product.name;
         });
         setRows(initialRows);
       })
@@ -140,7 +149,7 @@ const SellerProductList = props => {
         id: row.id,
         name: row.name,
         description: row.description,
-        imagepath: row.imagepath,
+        imagePath: row.imagePath,
         brand: row.brand,
         company: row.company,
         mrp: row.mrp,

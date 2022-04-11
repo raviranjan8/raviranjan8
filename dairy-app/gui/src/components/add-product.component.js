@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import ProductService from "../services/product.service";
+import UploadService from "../services/upload-files.service";
 import moment from "moment";
 
 export default class AddProduct extends Component {
@@ -8,11 +9,14 @@ export default class AddProduct extends Component {
     this.onChangeName = this.onChangeName.bind(this);
     this.onChangeminRate = this.onChangeminRate.bind(this);
     this.onChangemaxRate = this.onChangemaxRate.bind(this);
-    this.onChangeImagepath = this.onChangeImagepath.bind(this);
+    this.onChangeImagePath = this.onChangeImagePath.bind(this);
     this.onChangedescription = this.onChangedescription.bind(this);
   	this.onChangeType = this.onChangeType.bind(this);
     this.saveTutorial = this.saveTutorial.bind(this);
     this.newTutorial = this.newTutorial.bind(this);
+
+    this.selectFile = this.selectFile.bind(this);
+    this.upload = this.upload.bind(this);
     
     const today = moment();
     this.state = {
@@ -20,9 +24,12 @@ export default class AddProduct extends Component {
       name: "",
       minRate: "",
       maxRate: "",
-      imagepath: "",
+      imagePath: "",
       description: "",
-      submitted: false
+      submitted: false,
+      message: "",
+      selectedFiles: undefined,
+      uploadDisable: false
     };
   }
 
@@ -49,11 +56,45 @@ export default class AddProduct extends Component {
   }
   
 
-  onChangeImagepath(e) {
+  onChangeImagePath(e) {
     this.setState({
-      imagepath: e.target.value
+      imagePath: e.target.value,
+      selectedFiles: undefined,
+      uploadDisable: true
     });
   }
+
+  selectFile(event) {
+    this.setState({
+      selectedFiles: event.target.files,
+      imagePath: event.target.files[0].name
+    });
+  }
+
+  upload(productId) {
+    let currentFile = this.state.selectedFiles[0];
+
+    this.setState({
+      currentFile: currentFile,
+    });
+
+    UploadService.upload(currentFile, 'P_'+productId).then((response) => {
+        this.setState({
+          message: response.data.message,
+        });
+      })
+      .catch(() => {
+        this.setState({
+          message: "Could not upload the file!",
+          currentFile: undefined,
+        });
+      });
+
+    this.setState({
+      selectedFiles: undefined,
+    });
+  }
+
 
   onChangedescription(e) {
     this.setState({
@@ -62,17 +103,16 @@ export default class AddProduct extends Component {
   }
 
   saveTutorial(e) {
-	e.target.disabled=true;
+	  e.target.disabled=true;
     var data = {
       name: this.state.name,
       minRate: this.state.minRate,
       maxRate: this.state.maxRate,
-      imagepath: this.state.imagepath,
+      imagePath: this.state.imagePath,
       description: this.state.description,
      
     };
-console.log(data);
-this.setState({submitted: true});
+    this.setState({submitted: true});
     ProductService.create(data)
       .then(response => {
         this.setState({
@@ -80,10 +120,13 @@ this.setState({submitted: true});
           name: response.data.name,
           minRate: response.data.minRate,
           maxRate: response.data.maxRate,
-          imagepath: response.data.imagepath,
+          imagePath: response.data.imagePath,
           description: response.data.description,
           submitted: true
         });
+        if(this.state.selectedFiles){
+          this.upload(response.data.id);
+        }
 		    e.target.disabled=false;
         console.log(response.data);
       })
@@ -98,7 +141,7 @@ this.setState({submitted: true});
       name: "",
       minRate: "",
       maxRate: "",
-      imagepath: "",
+      imagePath: "",
       description: "",
       submitted: false
     });
@@ -109,12 +152,14 @@ this.setState({submitted: true});
   }
   
   render() {
-    const { products } = this.state;
+    const { products,message, selectedFiles } = this.state;
+
     return (
       <div className="submit-form">
         {this.state.submitted ? (
           <div>
             <h4>You submitted successfully!</h4>
+            {message}
             <button className="btn btn-success" onClick={this.newTutorial}>
               Add
             </button>
@@ -161,17 +206,23 @@ this.setState({submitted: true});
             </div>
 
             <div className="form-group">
-              <label htmlFor="imagepath">Imagepath
+              <label htmlFor="imagePath">ImagePath
               </label>
               <input
                 type="text"
                 className="form-control"
-                id="imagepath"
+                id="imagePath"
                 required
-                value={this.state.imagepath}
-                onChange={this.onChangeImagepath}
-                  name="imagepath"
+                value={this.state.imagePath}
+                onChange={this.onChangeImagePath}
+                  name="imagePath"
               />
+
+              <label className="btn btn-default">
+                <input disabled={this.state.uploadDisable} type="file" onChange={this.selectFile} />
+              </label>
+             
+                  
             </div>
 
             <div className="form-group">

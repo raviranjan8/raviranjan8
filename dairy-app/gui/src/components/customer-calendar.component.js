@@ -433,7 +433,7 @@ const CustomerCalendar = props => {
 		setRows(rows);
       })
       .catch((e) => {
-        console.log(e);
+        console.log(e.response);
       });
 	}
 	

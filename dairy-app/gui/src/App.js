@@ -101,14 +101,6 @@ class App extends Component {
                 </Link>
               </li>
 			)}
-     
-      {showAdminBoard && (
-              <li className="nav-item">
-                <Link to={"/gui/sellerProduct"} className="nav-link">
-                  SellerProduct
-                </Link>
-              </li>
-			)}
        {showAdminBoard && (
               <li className="nav-item">
                 <Link to={"/gui/sellerProductlist"} className="nav-link">
