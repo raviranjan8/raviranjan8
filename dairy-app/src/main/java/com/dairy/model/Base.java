@@ -11,12 +11,15 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public class Base implements Serializable{
 	
 	@Column(name = "created_date", updatable = false)
     @CreatedDate
+    @JsonFormat(pattern = "dd-MMM-yyyy HH:mm:ss")
     private LocalDateTime createdDate;
 
     @Column(name = "modified_date")
