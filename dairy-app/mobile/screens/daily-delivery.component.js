@@ -56,17 +56,15 @@ export default class ProjectData extends Component {
   getProjects(id, pending) {
     if(pending){
       const params ={ "routeId" : id, type: "customer", searchFlag: "pending" };
-      CustomerService.getAll(params)
-        .then(response => {
-        console.log(response.data);
+      CustomerService.getAll(params).then(response => {
         this.setState({
           projects: response.data,
           progress:1
         });
-        })
-        .catch(e => {
-        console.log(e);
-        });
+      })
+      .catch(e => {
+      console.log(e);
+      });
     }else{
       const params ={ "routeId" : id, type: "customer" };
       CustomerService.getAll(params).then(response => {
@@ -81,8 +79,7 @@ export default class ProjectData extends Component {
         DeliveryService.getAll(params).then(response => {
           var deliverys = response.data;
           deliverys && deliverys.map((delivery) => {
-            for(var initialRow of projects){
-              initialRow.today = delivery.quantity;        
+            for(var initialRow of projects){                   
               if(initialRow.id == delivery.partyId){
                 initialRow.today = delivery.quantity;                
                 break;
@@ -232,7 +229,7 @@ class Project extends React.Component {
   render() {
     return (
          <Avatar     
-           title={this.props.url ? (this.props.name +'-' + this.props.url) : this.props.name }
+           title={this.props.url ? (this.props.name +'::' + this.props.url) : this.props.name }
            containerStyle={{ backgroundColor: '#1F1A24', margin: 5, }}
            size={94}
            titleStyle={{fontSize:15, color:'grey' }}

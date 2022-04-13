@@ -103,7 +103,7 @@ export default function ProfileScreen({ props, navigation }) {
   
    return (
 <>
-      <ScrollView horizontal>
+      <ScrollView>
         {/* {rows.chunk(3).map((chunk, chunkIndex) => (
           <View
             style={{
