@@ -276,7 +276,7 @@ const EmployeeDaily = props => {
           <Grid container spacing={{ xs: 1}} >
             <Grid item xs={3} sm={1}>
                 &nbsp;
-                <Button variant="warning" className="badge">
+                <Button className="badge bg-secondary bg-warning">
                       <CSVLink data={filteredRows} filename={'dailyIncome.txt'}>Export</CSVLink>
                 </Button>
               </Grid> 

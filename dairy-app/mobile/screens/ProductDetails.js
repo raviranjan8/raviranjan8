@@ -40,13 +40,13 @@ export default function ProductDetails({props, route}) {
                                     ) : (baseURL+'static/images/P_'+ productInfo.id + '_' + productInfo.imagePath)}}
         />
         <View style={styles.infoContainer}>
-          <Text style={styles.name}>{productInfo.name}</Text>
-          <Text style={styles.price}>Rs {product.rate}</Text>
-          <Text style={styles.description}>{product.description}</Text>
-            <Button
-            onPress={onAddToCart}
-            title="Add to cart"
-            / >
+          <Text style={styles.name}>{productInfo.name} - {product.description}</Text>
+          <Text style={styles.price}>{product.weight}{product.unit}  Rs {product.rate}</Text>
+          <Text style={styles.price}>{product.mrp ? 'MRP '+product.mrp : ''} {product.quantity ? 'Quantity'+product.quantity : ''}</Text>
+          <Text style={styles.name}>{product.stockQuantity<1 ? ' Out Of Stock' : ''}</Text>
+            <Button style={styles.button} disabled={product.stockQuantity<1 ? true : false}
+                  onPress={onAddToCart} title="Add to cart" />
+                  
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -88,5 +88,9 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: '#787878',
     marginBottom: 16,
+  },
+  button:{
+    borderRadius: 30,
+    justifyContent: 'space-around',
   },
 });

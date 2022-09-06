@@ -52,14 +52,13 @@ export default class ExpenseBills extends Component {
 					console.log(e);
 				  });
 				  PaymentService.getAll(params).then((response) => {
-					var deliverys = response.data;
-					initialRows[index]["allPayments"] = deliverys;
-					this.setState({
-					  bills: initialRows
-					});
-				  })
-				  .catch((e) => {
-					console.log(e);
+            var deliverys = response.data;
+            initialRows[index]["allPayments"] = deliverys;
+            this.setState({
+              bills: initialRows
+            });
+				  }).catch((e) => {
+					  console.log(e);
 				  });
 	  
 			}

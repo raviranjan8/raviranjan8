@@ -36,7 +36,11 @@ public class SellerProductController {
 			List<SellerProduct> responseList = new ArrayList<SellerProduct>();
 			
 			if(null != param) {
-				repository.findAll(Example.of(param)).forEach(responseList::add);
+				if(null != param.getSearch() && !param.getSearch().equals("")) {
+					repository.searchProduct(param.getSearch()).forEach(responseList::add);
+				}else {
+					repository.findAll(Example.of(param)).forEach(responseList::add);
+				}
 			}else {
 				repository.findAll().forEach(responseList::add);
 			}

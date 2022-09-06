@@ -184,7 +184,9 @@ const CustomerCalendar = props => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
-          initialRows[index]["route"]=customer.route.name;
+          if(customer.route){
+            initialRows[index]["route"]=customer.route.name;
+          }
         });
         billService(calendar, initialRows,barrier);
         getPayment(calendar, initialRows,barrier);
@@ -510,20 +512,19 @@ const CustomerCalendar = props => {
           <Grid item xs={6} sm={3}> 
               <Link
                 to={"/gui/customerCalendar/"+calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY')}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Prev
               </Link>
               {calendar.currentDate.format("DD-MMM-YYYY")}
               <Link
                 to={"/gui/customerCalendar/"+calendar.currentDate.clone().add(1, 'months').format('MMM-YYYY')}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Next
               </Link>
           </Grid>
           <Grid item xs={6} sm={3}> 
-              <Link to="#"
-                onClick={ () => generateBill(calendar.currentDate.format("MMM-YYYY"))}
-                className="badge">
+              <Link to="#" onClick={ () => generateBill(calendar.currentDate.format("MMM-YYYY"))}
+                className="badge bg-secondary">
                  Generate Bill Month - {calendar.currentDate.format("MMM-YYYY")}
               </Link>
                
@@ -536,11 +537,9 @@ const CustomerCalendar = props => {
                 defaultValue={rate.rate}
                 onChange={onChangeRate}
                 name="rate"
-				style={{ width:60, height:20 }}
+				style={{ width:60, height:20, marginRight:5 }}
               />
-              <Link to="#"
-                onClick={saveRate}
-                className="badge">
+              <Link to="#" onClick={saveRate} className="badge bg-secondary">
                  Set Rate
               </Link>
 			  
@@ -548,13 +547,13 @@ const CustomerCalendar = props => {
           <Grid item xs={3} sm={2}> 
               <Link
                 to={"/gui/bills/"+calendar.currentDate.format('MMM-YYYY')}
-                className="badge">
+                className="badge bg-secondary">
                  Print - {calendar.currentDate.format("MMM-YYYY")}
               </Link>
           </Grid> 
 		  <Grid item xs={3} sm={1}>
 					&nbsp;
-					<Button variant="warning" className="badge">
+					<Button  className="badge bg-secondary bg-warning">
 								<CSVLink data={filteredRows} filename={'income.txt'}>Export</CSVLink>
 					</Button>
 				</Grid> 

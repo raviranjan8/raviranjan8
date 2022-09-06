@@ -70,7 +70,7 @@ const CollectionBillsList = props => {
         return <>
           <Link disable="true"
           to={ ("/gui/collectionBills/"+moment(props.row.from,'YYYY-MMM-DD').format("YYYY-MM-DD")+"/"+moment(props.row.to,'YYYY-MMM-DD').format("YYYY-MM-DD")+"/"+(props.row.partyId)) }
-          className="badge badge-warning">
+          className="badge bg-warning">
           Print
           </Link>
         </>;
@@ -339,7 +339,7 @@ const CollectionBillsList = props => {
           <Grid container spacing={{ xs: 1}} >
             <Grid item xs={3} sm={1}>
                 &nbsp;
-                <Button variant="warning" className="badge">
+                <Button className="badge bg-secondary bg-warning">
                       <CSVLink data={filteredRows} filename={'dailyIncome.txt'}>Export</CSVLink>
                 </Button>
               </Grid> 
@@ -347,15 +347,15 @@ const CollectionBillsList = props => {
               <Link
                 to={(from && to) ? ("/gui/collectionBills/"+from+"/"+to) : ""}
                 hidden={(from && to) ? false : true}
-                className="badge">
+                className="badge bg-secondary">
                  Print Collection
               </Link>
           </Grid> 
 
           <Grid item xs={6} sm={3}> 
               <Link to="#"
-                onClick={ (from && to) ? (() => generateBillCollection(calendar.currentDate.format("DD-MM-YYYY"))): ""}
-                className="badge">
+                onClick={ (from && to) ? (() => generateBillCollection(calendar.currentDate.format("DD-MM-YYYY"))): null}
+                className="badge bg-secondary">
                  Generate Collection Bill
               </Link>    
           </Grid> 

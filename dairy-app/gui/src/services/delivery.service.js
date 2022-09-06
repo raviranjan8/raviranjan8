@@ -13,6 +13,11 @@ class DeliveryService {
     return http.post("/dailyBills", data);
   }
 
+  //separate create method for duplicate save case
+  createDelivery(data) {
+    return http.post("/dailyBills/delivery", data);
+  }
+
   update(id, data) {
     return http.put(`/dailyBills/${id}`, data);
   }

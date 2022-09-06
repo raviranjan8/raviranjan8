@@ -234,40 +234,40 @@ const ExpenseList = props => {
 		<div>
 			<Grid container spacing={{ xs: 1}} >
 				<Grid item xs={6} sm={3}> 
-					<Link to={"/gui/addExpense"} className="badge">
+					<Link to={"/gui/addExpense"} className="badge bg-secondary">
 					  Add Expense
 					</Link>
 				</Grid>
 				 <Grid item xs={6} sm={3}> 
 					  <Link to="#"
 						onClick={ () => generateExpenseBill(calendar.currentDate.format("MMM-YYYY"))}
-						className="badge">
+						className="badge bg-secondary">
 						 Generate Expense Bill Month - {calendar.currentDate.format("MMM-YYYY")}
 					  </Link>
 				</Grid>
 				  <Grid item xs={6} sm={3}> 
 					  <Link
 						to={"/gui/expense/"+calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY')}
-						className="badge badge-warning">
+						className="badge bg-warning">
 						Prev
 					  </Link>
 					  {calendar.currentDate.format("DD-MMM-YYYY")}
 					  <Link
 						to={"/gui/expense/"+calendar.currentDate.clone().add(1, 'months').format('MMM-YYYY')}
-						className="badge badge-warning">
+						className="badge bg-warning">
 						Next
 					  </Link>
 				  </Grid>
 				<Grid item xs={3} sm={2}>
 						  <Link
 							to={"/gui/expenseBills/"+calendar.currentDate.format('MMM-YYYY')}
-							className="badge">
+							className="badge bg-secondary">
 							 Print - {calendar.currentDate.format("MMM-YYYY")} 
 						  </Link>
 				</Grid> 
 				<Grid item xs={3} sm={1}>
 					&nbsp;
-					<Button variant="warning" className="badge">
+					<Button className="badge bg-secondary bg-warning">
 								<CSVLink data={sortedRows} filename={'expense.txt'}>Export</CSVLink>
 					</Button>
 				</Grid> 		  

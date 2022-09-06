@@ -1,8 +1,6 @@
 import React, { Component } from "react";
 import RouteService from "../services/route.service";
 import RouteStockService from "../services/route.stock.service";
-import CustomerService from "../services/customer.service";
-import DeliveryService from "../services/delivery.service";
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor} from 'react-data-grid';
 import NumericEditor from "../components/editor/numericeditor.component";
@@ -16,7 +14,7 @@ const columns = [
               return <>
                 <Link disable="true"
                 to={props.row.quantity ? ("/gui/dailyDelivery/" + props.row.id ) : ""}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Start
                 </Link>
               </>;
@@ -27,7 +25,7 @@ const columns = [
               return <>
                 <Link disable="true"
                 to={props.row.quantity ? ("/gui/dailyDelivery/" + props.row.id+"/"+props.row.pending ): ""}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Pending - {props.row.pending}
                 </Link>
               </>;
@@ -88,7 +86,7 @@ export default class RoutesList extends Component {
         this.routeStockService(param, initialRows);
       })
       .catch(e => {
-        console.log(e);
+        console.log(e.response);
       });
   }
 
@@ -179,7 +177,7 @@ export default class RoutesList extends Component {
               </Link>
             </Grid>
             <Grid item xs={6} sm={6}> 
-            <Link className="nav-link">
+            <Link className="nav-link" to="#">
                   {moment().format("DD-MMM-YYYY")}
               </Link>
             </Grid>

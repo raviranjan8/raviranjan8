@@ -1,56 +1,140 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text,TextInput, FlatList, StyleSheet, Modal, Dimensions } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CartContext } from '../components/CartContext';
 import OrderService from "../services/order.service";
 import {  Input, Button } from 'react-native-elements';
+import CustomerService from "../services/customer.service";
+import AuthService from "../services/auth.service";
+import {getData, storeData} from "../components/Storage";
+import moment from "moment";
 
 const { width } = Dimensions.get("window");
 
+
 export function Cart ({props, navigation}) {
 
-  const {items, getItemsCount, getTotalPrice, clearCart} = useContext(CartContext);
-
-  const storeData = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value)
-      await AsyncStorage.setItem('@user_Key', jsonValue)
-    } catch (e) {
-      console.log(e);
-    }
-  }
-
-  const getData = async () => {
-    try {
-      const jsonValue = await AsyncStorage.getItem('@user_Key');
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
-    } catch(e) {
-      console.log(e);
-    }
-  }
-
+  const {items, getItemsCount, getTotalPrice, clearCart, user, setUser} = useContext(CartContext);
 	const [isModalVisible, setModalVisible] = useState(false);
 	const [inputValue, setInputValue] = useState("");
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
   const [message, setMessage] = useState();
+  const [otp, setOtp] = useState();
+  const [otpSent, setOtpSent] = useState(false);
+  const [authorized, setAuthorized] = useState(false);
 
 	const toggleModalVisibility = () => {
 		setModalVisible(!isModalVisible);
 	};
 
-  const onOrder = async () => {
-    if(items.length>0){
-      const user = await getData();
-      
-      if(!user || !user.mobile){
-        toggleModalVisibility();
-      }else{
-        setInputValue(user.mobile)
-        toggleModalVisibility();
+  const getOtp = () => {
+    var loginParam = {
+      username : inputValue
+    };
+    AuthService.register(loginParam).then((response) => {
+      setOtpSent(true);
+      setMessage("Otp sent to your mobile. Kindly check and enter the OTP here.");
+    }).catch((error) => {
+      const resMessage =  (error.response &&  error.response.data &&  error.response.data.message) 
+                                      || error.message ||  error.toString();
+        setMessage(resMessage);
+    });
+  }
+
+  const submitOtp = () =>{
+    var loginParam = {
+      username : inputValue,
+      password : otp
+    };
+    AuthService.login(loginParam).then(
+      (response) => {
+          setAuthorized(true);
+          setUser(response);
+          getCustomerData(response);
+      },
+      (error) => {
+        const resMessage =  (error.response &&  error.response.data &&  error.response.data.message) 
+                                      || error.message ||  error.toString();
+        setMessage(resMessage);
       }
+    );
+  }
+
+  const getCustomerData = (userData) =>{
+    var userTemp = userData;
+    const params ={ "mobNo" : inputValue };
+          CustomerService.getAll(params).then(response => {
+            var savedUser = response.data[0];
+            if(savedUser){
+              setName(savedUser.name);
+              setAddress(savedUser.address);
+              userTemp.name=savedUser.name;
+              userTemp.address = savedUser.address;
+              userTemp.partyId = savedUser.id;
+              setUser(userTemp);
+            }
+          })
+          .catch(e => {
+          console.log(e);
+          });
+  }
+
+  const onOrder =  () => {
+    if(items.length>0){
+      getData().then(userStore => {
+        if(!userStore || !userStore.accessToken){
+          toggleModalVisibility();
+        }else{
+          setUser(userStore);
+          if(!userStore.name){
+            getCustomerData(userStore);
+          }else{
+            setName(userStore.name)
+            setAddress(userStore.address)
+          }
+          setOtpSent(true);
+          setAuthorized(true);
+          setInputValue(userStore.username)
+          toggleModalVisibility();
+        }
+      })
     }
   }
 
-  const finalOrder = () => {
+  const proceedWithOrder = () => {
+		toggleModalVisibility();
+    var userTemp = user;
+    if(userTemp.partyId){
+      userTemp.mobile = inputValue;
+      userTemp.name = name;
+      userTemp.address = address;
+      userTemp.type = user.type;
+      storeData(userTemp) ;
+      finalOrder(userTemp);
+    }else{
+      var data = {
+        name: name,
+        address: address,
+        mobNo: inputValue,
+        startDate: moment().format("DD-MMM-YYYY"),
+        active: true,
+        type: 'customer'
+      };
+      CustomerService.create(data).then(response => {
+            userTemp.mobile = inputValue;
+            userTemp.name = name;
+            userTemp.address = address;
+            userTemp.type = user.type;
+            userTemp.partyId=response.data.id;
+            storeData(userTemp) ;
+            finalOrder(userTemp);
+        }).catch(e => {
+          console.log(e);
+        });
+    } 
+	};
+
+  const finalOrder = (userTemp) => {
     var orderDetails = new Array(items.length);
     items.map((item, index) => {
       orderDetails[index]={};
@@ -63,11 +147,14 @@ export function Cart ({props, navigation}) {
 
     var data = {
       mobile: inputValue,
+      partyId: userTemp.id,
+      name: name,
+      address: address,
       totalPrice: getTotalPrice(),
       totalQuantity: getItemsCount(),
+      status: 'Ordered',
       orderDetails:orderDetails
     };
-
     OrderService.create(data).then(showResponse);
   }
 
@@ -77,15 +164,6 @@ export function Cart ({props, navigation}) {
         clearCart();
       }
   };
-
-  const proceedWithOrder = () => {
-		toggleModalVisibility();
-    var user = {
-      mobile: inputValue
-    }
-    storeData(user) ;
-    finalOrder();
-	};
   
   function Totals() {
     let [total, setTotal] = useState(0);
@@ -149,13 +227,49 @@ export function Cart ({props, navigation}) {
                         onChangeText={(value) => setInputValue(value)}  
                         style={styles.textInput}                    
                       />
+                {authorized ? (
+                  <Input label="Name"
+                        value={name}
+                        placeholder="Please enter Name" 
+                        onChangeText={(value) => setName(value)}  
+                        style={styles.textInput}                    
+                      />
+                ) : null}
+                {authorized ? (
+                  <Input label="Address"
+                        value={address}
+                        placeholder="Please enter Address" 
+                        onChangeText={(value) => setAddress(value)}  
+                        style={styles.textInput}                    
+                      />
+                ) : null}
+                {authorized ? (
                   <View style={styles.cartLine}>
                     <Button title="Order"  onPress={proceedWithOrder} />
                     <Text>{'  '}</Text>
                     <Button title="Cancel"  onPress={toggleModalVisibility} />
                     <Text>{'  '}</Text>
-                    <Button title="Clear"  onPress={clearCart} />
+                    <Button title="Clear"  onPress={()=>{toggleModalVisibility();clearCart();}} />
                   </View>
+                 ) : otpSent ? (
+                        <Input label="OTP"
+                            value={otp}
+                            placeholder="Please enter OTP" 
+                            onChangeText={(value) => setOtp(value)}  
+                            style={styles.textInput}
+                            keyboardType={'numeric'} 
+                          />
+                ) : null}
+                {otpSent && !authorized ? (
+                        <Button title="Submit OTP"  onPress={submitOtp} />
+                ) : null}
+                {!otpSent ? (
+                      <View style={styles.cartLine}>
+                            <Button title="Get OTP"  onPress={getOtp} />
+                            <Text>{'  '}</Text>
+                            <Button title="Cancel"  onPress={toggleModalVisibility} />
+                      </View>
+                ) : null}
               </View>
             </View>
 			</Modal>
@@ -212,7 +326,21 @@ const styles = StyleSheet.create({
 		elevation: 5,
 		transform: [{ translateX: -(width * 0.4) },
 					{ translateY: -90 }],
-		height: 180,
+		
+		width: width * 0.8,
+		backgroundColor: "#fff",
+		borderRadius: 7,
+	},
+  modalViewInside: {
+		alignItems: "center",
+		justifyContent: "center",
+		position: "absolute",
+		top: "160%",
+		left: "50%",
+    elevation: 5,
+		transform: [{ translateX: -(width * 0.4) },
+					{ translateY: -90 }],
+		
 		width: width * 0.8,
 		backgroundColor: "#fff",
 		borderRadius: 7,

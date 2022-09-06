@@ -126,7 +126,9 @@ const CustomerDaily = props => {
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
           initialRows[index]["dailyQuantity"]=customer.defaultQuantity;
-          initialRows[index]["route"]=customer.route.name;
+          if(customer.route){
+            initialRows[index]["route"]=customer.route.name;
+          }
         });
         getPayment(calendar, initialRows);
         deliveryService(calendar, initialRows);
@@ -262,7 +264,7 @@ const CustomerDaily = props => {
               console.log(e);
             });
       } else {
-        DeliveryService.create(data)
+        DeliveryService.createDelivery(data)
             .then(response => {
               rowData["idtoday"]=response.data.id;
               console.log(rowData);
@@ -305,7 +307,7 @@ const CustomerDaily = props => {
           <Grid container spacing={{ xs: 1}} >
             <Grid item xs={3} sm={1}>
                 &nbsp;
-                <Button variant="warning" className="badge">
+                <Button className="badge bg-secondary bg-warning">
                       <CSVLink data={filteredRows} filename={'dailyIncome.txt'}>Export</CSVLink>
                 </Button>
               </Grid> 

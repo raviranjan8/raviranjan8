@@ -28,13 +28,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 public class OrderDetail extends Base {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	@JsonBackReference
-	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@ManyToOne
-	@Fetch(value = FetchMode.JOIN)
 	@JoinColumn(name = "ORDER_ID")
 	private Order orderId;
 	

@@ -62,7 +62,9 @@ export default function ProfileScreen({ props, navigation }) {
             }
           };
         });
-        setRows(initialRows.slice());
+        if(initialRows){
+          setRows(initialRows.slice());
+        }
       })
       .catch((e) => {
         console.log(e);
@@ -130,7 +132,7 @@ export default function ProfileScreen({ props, navigation }) {
 
         <View>
           {
-            rows.map((l, i) => (
+            rows && rows.map((l, i) => (
               <ListItem key={i} bottomDivider>
                 <Avatar
                     size={64}
@@ -143,16 +145,16 @@ export default function ProfileScreen({ props, navigation }) {
                   >
                   </Avatar> 
                 <ListItem.Content>                
-                  <ListItem.Title>{l.extraInfo.payment}</ListItem.Title>
+                  <ListItem.Title>{l.extraInfo ? l.extraInfo.payment: null}</ListItem.Title>
                   <ListItem.Subtitle>{''}</ListItem.Subtitle>
                 </ListItem.Content>                 
                 <ListItem.Content>
-                      <ListItem.Title>{l.extraInfo.customerDeliveredCount}</ListItem.Title>
-                      <ListItem.Subtitle>{l.extraInfo.customerDeliveredQuantity}</ListItem.Subtitle>
+                      <ListItem.Title>{l.extraInfo ? l.extraInfo.customerDeliveredCount: null}</ListItem.Title>
+                      <ListItem.Subtitle>{l.extraInfo ? l.extraInfo.customerDeliveredQuantity: null}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Content>
-                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo.customerPendingCount}</ListItem.Title> 
-                  <ListItem.Subtitle>{l.extraInfo.customerPendingQuantity}</ListItem.Subtitle>                  
+                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo ? l.extraInfo.customerPendingCount: null}</ListItem.Title> 
+                  <ListItem.Subtitle>{l.extraInfo ? l.extraInfo.customerPendingQuantity: null}</ListItem.Subtitle>                  
                 </ListItem.Content>
                 <ListItem.Content>                
                     <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  ></ListItem.Input>                    

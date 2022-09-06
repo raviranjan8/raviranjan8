@@ -19,7 +19,7 @@ public interface RouteRepository extends JpaRepository<Route, Long> {
 			  + "	join Party p on p.routeId=r.id "
 			  + "	left join DailyBill db on db.partyId = p.id and db.date= ?1 and db.month= ?2 "
 			  + "	left join Party pdb on pdb.id=db.partyId "
-			  +" 	left join Payment pt on pt.partyId=p.id and pt.date= ?1 and pt.month= ?2 and pt.type='income'  "
+			  +" 	left join Payment pt on pt.partyId=p.id and pt.date= ?1 and pt.month= ?2 and pt.type='income' and pt.category is null  "
 			  + "	group by r.id ")
 	List<RouteExtraInfo> getRouteExtraInfo(String date, String month);
 }

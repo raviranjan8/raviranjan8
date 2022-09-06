@@ -12,15 +12,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.Formula;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "SELLER_PRODUCT")
+@Table(name = "SELLER_PRODUCT", 
+uniqueConstraints = { 
+  @UniqueConstraint(columnNames = "BARCODE"),
+  @UniqueConstraint(columnNames = "company") 
+})
 @EntityListeners(AuditingEntityListener.class)
 public class SellerProduct extends Base {
 
@@ -70,11 +77,26 @@ public class SellerProduct extends Base {
 	@Column(name = "DELIVERY_CHARGE")
 	private BigDecimal deliveryCharge;
 	
+	@Column(name = "BARCODE")
+	private String barcodeNo;
+	
+	@Column(name = "STATUS")
+	private String status;
+	
+	@Column(name = "active")
+	private Boolean active;
+	
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	@ManyToOne
 	@Fetch(value = FetchMode.JOIN)
 	@JoinColumn(name = "PRODUCT_ID", insertable = false, updatable = false)
 	private Product product;
+	
+	@Formula(value="(SELECT sum(i.stock_quantity) FROM Stock i WHERE i.seller_product_id = id)")
+	private BigDecimal stockQuantity;
+	
+	@Transient
+	private String search;
 
 	public Long getId() {
 		return id;
@@ -196,6 +218,14 @@ public class SellerProduct extends Base {
 		this.productId = productId;
 	}
 	
+	public BigDecimal getStockQuantity() {
+		return stockQuantity;
+	}
+
+	public void setStockQuantity(BigDecimal stockQuantity) {
+		this.stockQuantity = stockQuantity;
+	}
+
 	public Product getProduct() {
 		return product;
 	}
@@ -203,11 +233,43 @@ public class SellerProduct extends Base {
 	public void setProduct(Product product) {
 		this.product = product;
 	}
+	
+	public String getBarcodeNo() {
+		return barcodeNo;
+	}
+
+	public void setBarcodeNo(String barcodeNo) {
+		this.barcodeNo = barcodeNo;
+	}
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	
+	public Boolean getActive() {
+		return active;
+	}
+
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+	
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(brand, company, deliveryCharge, description, discount, discountType, id, measurment, mrp,
-				 imagePath, productId, quantity, rate, unit, weight);
+		return Objects.hash(barcodeNo, brand, company, deliveryCharge, description, discount, discountType, id,
+				imagePath, measurment, mrp, product, productId, quantity, rate, stockQuantity, unit, weight);
 	}
 
 	@Override
@@ -219,24 +281,24 @@ public class SellerProduct extends Base {
 		if (getClass() != obj.getClass())
 			return false;
 		SellerProduct other = (SellerProduct) obj;
-		return Objects.equals(brand, other.brand) && Objects.equals(company, other.company)
-				&& Objects.equals(deliveryCharge, other.deliveryCharge)
+		return Objects.equals(barcodeNo, other.barcodeNo) && Objects.equals(brand, other.brand)
+				&& Objects.equals(company, other.company) && Objects.equals(deliveryCharge, other.deliveryCharge)
 				&& Objects.equals(description, other.description) && Objects.equals(discount, other.discount)
 				&& Objects.equals(discountType, other.discountType) && Objects.equals(id, other.id)
-				&& Objects.equals(measurment, other.measurment) && Objects.equals(mrp, other.mrp)
-				&& Objects.equals(imagePath, other.imagePath)
+				&& Objects.equals(imagePath, other.imagePath) && Objects.equals(measurment, other.measurment)
+				&& Objects.equals(mrp, other.mrp) && Objects.equals(product, other.product)
 				&& Objects.equals(productId, other.productId) && Objects.equals(quantity, other.quantity)
-				&& Objects.equals(rate, other.rate) && Objects.equals(unit, other.unit)
-				&& Objects.equals(weight, other.weight);
+				&& Objects.equals(rate, other.rate) && Objects.equals(stockQuantity, other.stockQuantity)
+				&& Objects.equals(unit, other.unit) && Objects.equals(weight, other.weight);
 	}
 
 	@Override
 	public String toString() {
-		return "SellerProduct [id=" + id + ", description=" + description + ", imagePath=" + imagePath
-				+ ", productId=" + productId + ", brand=" + brand + ", company=" + company + ", mrp=" + mrp + ", unit="
-				+ unit + ", weight=" + weight + ", measurment=" + measurment + ", quantity=" + quantity + ", rate="
-				+ rate + ", discount=" + discount + ", discountType=" + discountType + ", deliveryCharge="
-				+ deliveryCharge + "]";
+		return "SellerProduct [id=" + id + ", description=" + description + ", imagePath=" + imagePath + ", productId="
+				+ productId + ", brand=" + brand + ", company=" + company + ", mrp=" + mrp + ", unit=" + unit
+				+ ", weight=" + weight + ", measurment=" + measurment + ", quantity=" + quantity + ", rate=" + rate
+				+ ", discount=" + discount + ", discountType=" + discountType + ", deliveryCharge=" + deliveryCharge
+				+ ", barcodeNo=" + barcodeNo + ", product=" + product + ", stockQuantity=" + stockQuantity + "]";
 	}
-	
+
 }

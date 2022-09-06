@@ -16,6 +16,7 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.NamedEntityGraphs;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -24,7 +25,11 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "PARTY")
+@Table(name = "PARTY", 
+uniqueConstraints = { 
+  @UniqueConstraint(columnNames = "MOB_NO"),
+  @UniqueConstraint(columnNames = "type") 
+})
 @NamedEntityGraphs({
     @NamedEntityGraph(name="all",includeAllAttributes = true
     ),
@@ -91,6 +96,9 @@ public class Party extends Base {
 	
 	@Column(name = "TYPE")
 	private String type;
+	
+	@Column(name = "USER_TYPE")
+	private String userType;
 	
 	public Long getId() {
 		return id;
@@ -187,6 +195,14 @@ public class Party extends Base {
 
 	public String getType() {
 		return type;
+	}
+	
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 
 	public void setType(String type) {

@@ -21,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dairy.model.Order;
+import com.dairy.model.Stock;
 import com.dairy.repository.OrderRepository;
+import com.dairy.repository.StockRepository;
 
 @CrossOrigin(allowedHeaders = "*")
 @RestController
@@ -29,7 +31,13 @@ import com.dairy.repository.OrderRepository;
 public class OrderController {
 
 	@Autowired
+	PushEventController push;
+		    
+	@Autowired
 	OrderRepository repository;
+	
+	@Autowired
+	StockRepository stockRepo;
 
 	@GetMapping("/orders")
 	public ResponseEntity<List<Order>> getAllorders(@ModelAttribute Order param) {
@@ -65,6 +73,15 @@ public class OrderController {
 	public ResponseEntity<Order> create(@RequestBody Order createData) {
 		try {
 			Order createdData = repository.save(createData);
+			
+			createData.getOrderDetails().stream().forEach(detail -> {
+				Stock stock =new Stock();
+				stock.setSellerProductId(detail.getSellerProduct().getId());
+				stock.setStockQuantity(detail.getQuantity().negate());
+				stockRepo.save(stock);
+			});
+			
+			PushEventController.pushMessages(createData, true);
 			return new ResponseEntity<>(createdData, HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -76,6 +93,16 @@ public class OrderController {
 		try {
 			Order updatedData = repository.save(updateData);
 			return new ResponseEntity<>(updatedData, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@PutMapping("/orders/{id}/{status}")
+	public ResponseEntity<Integer> updateStatus(@PathVariable("id") long id,@PathVariable("status") String status,  @RequestBody Order updateData) {
+		try {
+			repository.updateMobile(status, id);
+			return new ResponseEntity<>(1, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}

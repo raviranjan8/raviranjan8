@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import DeliveryService from "../services/delivery.service";
 import BillService from "../services/bill.service";
 import moment from "moment";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./../App.css";
 
 export default class Bills extends Component {
   constructor(props) {
@@ -76,13 +78,11 @@ export default class Bills extends Component {
   render() {
     const { bills } = this.state;
     return (
-      <div className="container">
-        <table className="table">
+      <div>
           {bills && bills.map((count) => (
-            <tr>
-                <td >
-                      <table className="table noBorder" border="1" >
-                          <tr>
+            <div>
+                      <table className="table" border="1" >
+                          <tr >
                              <th>Name</th>
                              <td><b>{count.name ? count.name : count.id}</b></td>
                            
@@ -99,7 +99,7 @@ export default class Bills extends Component {
                              <td>{count.discount}</td>
                              
                            </tr>
-                           <tr>
+                           <tr >
                              <th >Quantity</th>
                              <td >{count.qty + ' Ltr'}</td>
 
@@ -115,9 +115,9 @@ export default class Bills extends Component {
 							               <th>Total Bill</th>
                              <td>{count.totalBill} </td>
                            </tr>
-                           <tr>
+                           <tr >
                              <td style={{margin:0, padding:0}} colspan={10}>
-                               <table style={{margin:0, padding:0}}>
+                               <table style={{margin:0, padding:0, width:'100%', }}>
                                  <tr>
                                    <td >Day</td>
                                    <td >1</td>
@@ -201,10 +201,9 @@ export default class Bills extends Component {
                              </td>
                            </tr>
                         </table>
-              </td>
-            </tr>
+                </div>
           ))}    
-           </table> 
+           
       </div>
     );
   }

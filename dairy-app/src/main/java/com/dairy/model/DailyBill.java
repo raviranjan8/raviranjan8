@@ -55,9 +55,12 @@ public class DailyBill extends Base {
 	@Column(name = "rate")
 	private BigDecimal rate;
 	
+	//expense or income
 	@Column(name = "TYPE")
 	private String type;
 	
+	//expense is for Petrol or Food etc.
+	//income is from Chicken, Vehicle etc
 	@Column(name = "Category")
 	private String category;
 	

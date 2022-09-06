@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public class Base implements Serializable{
+public abstract class Base implements Serializable{
 	
 	@Column(name = "created_date", updatable = false)
     @CreatedDate
@@ -33,6 +33,8 @@ public class Base implements Serializable{
     String modifiedBy;
     
     transient String searchFlag;
+    
+    public abstract Long getId() ;
 
 	public LocalDateTime getCreatedDate() {
 		return createdDate;

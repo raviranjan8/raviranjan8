@@ -17,6 +17,10 @@ class OrderService {
     return http.put(`/orders/${id}`, data);
   }
 
+  updateStatus(id, status, data) {
+    return http.put(`/orders/${id}/${status}`, data);
+  }
+
   delete(id) {
     return http.delete(`/orders/${id}`);
   }

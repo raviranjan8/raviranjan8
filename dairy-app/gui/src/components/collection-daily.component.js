@@ -89,7 +89,7 @@ const CollectionDaily = props => {
           {props.row.name}
           <Link disable="true" to="#"
           onClick={() => addCollectionForSameFarmer(props.row.id, props.row.index, props.row)}
-          className="badge badge-warning">
+          className="badge bg-warning">
           Add
           </Link>
         </>;
@@ -137,7 +137,7 @@ const CollectionDaily = props => {
       CustomerService.getAll(paramCustomer).then((response) => {
         var customers = response.data;
         initialRows = new Array(customers.length);
-        customers.map((customer, index) => {
+        customers && customers.map((customer, index) => {
           initialRows[index]={};
           initialRows[index]["id"]=customer.id;
           initialRows[index]["name"]=customer.name;
@@ -319,7 +319,7 @@ const CollectionDaily = props => {
               console.log(e);
             });
       } else {
-        DeliveryService.create(data)
+        DeliveryService.createDelivery(data)
             .then(response => {
               rowData["idtoday"]=response.data.id;
               console.log(rowData);
@@ -364,20 +364,20 @@ const CollectionDaily = props => {
           <Grid item xs={6} sm={3}> 
             <Link
                 to={"/gui/collectionDaily/"+calendar.currentDate.clone().subtract(1, 'days').format('DD-MMM-YYYY')}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Prev
               </Link>
               {calendar.currentDate.format("DD-MMM-YYYY")}
               <Link
                 to={"/gui/collectionDaily/"+calendar.currentDate.clone().add(1, 'days').format('DD-MMM-YYYY')}
-                className="badge badge-warning">
+                className="badge bg-warning">
                 Next
               </Link>
             </Grid>
            
             <Grid item xs={3} sm={1}>
                 &nbsp;
-                <Button variant="warning" className="badge">
+                <Button className="badge bg-secondary bg-warning">
                       <CSVLink 
                       data={filteredRows} filename={'dailyCollectionExpense.txt'}>Export
                       </CSVLink>

@@ -118,7 +118,7 @@ export default class Modal extends React.Component {
               console.log(e);
             });
           } else {
-            DeliveryService.create(data).then(response1 => {
+            DeliveryService.createDelivery(data).then(response1 => {
               console.log(response1.data);              
               this.setState({
                 enbale:false

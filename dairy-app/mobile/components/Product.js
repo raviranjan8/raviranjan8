@@ -1,8 +1,9 @@
 import React, {useEffect, useState, useContext} from 'react';
-import {Text, Image, View, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, Image, View, StyleSheet, TouchableOpacity, Dimensions} from 'react-native';
 import {baseURL} from "../http-common";
 import { CartContext } from '../components/CartContext';
 import {  Button} from 'react-native-elements';
+
 export function Product({product,  onPress}) {
 
   const { addItemToCart } = useContext(CartContext);
@@ -13,6 +14,7 @@ export function Product({product,  onPress}) {
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
+      <View style={styles.listItem}>
       <Image
         style={styles.thumb}
         source={{uri: product.imagePath ? ( product.imagePath.startsWith('http') ? product.imagePath
@@ -22,10 +24,10 @@ export function Product({product,  onPress}) {
       <View style={styles.infoContainer} >
         <View  style={styles.lineLeft} >
           <Text style={styles.name}>{product.product.name} - {product.description}</Text>
-          <Text style={styles.price}>Rs {product.rate}</Text>
+          <Text style={styles.price}>{product.mrp ? 'MRP'+product.mrp : ''} {product.weight}{product.unit}  Rs{product.rate} {product.stockQuantity<1 ? ' Out Of Stock' : ''}</Text>
         </View>
         <View style={styles.lineRight}>
-          <Button        
+          <Button        disabled={product.stockQuantity<1 ? true : false}
                           buttonStyle={{
                             backgroundColor: 'rgba(199, 43, 98, 1)',
                             borderColor: 'transparent',
@@ -33,12 +35,13 @@ export function Product({product,  onPress}) {
                             borderRadius: 30,
                           }}
                           containerStyle={{
-                            width: 200,
-                            marginHorizontal: 50,
+                            width: 100,
+                            marginHorizontal: 10,
                           }}
                           title="Add to cart" onPress={onAddToCart}></Button>
         </View>
       </View>
+    </View>
     </TouchableOpacity>
   );
 }
@@ -55,10 +58,10 @@ const styles = StyleSheet.create({
       width: 0,
     },
     elevation: 1,
-    marginVertical: 20,
+    marginVertical: 10,
   },
   thumb: {
-    height: 260,
+    height: 160,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     width: '100%',
@@ -91,4 +94,11 @@ const styles = StyleSheet.create({
     color:'#333333', 
     textAlign:'right',
   },
+  listItem: {
+    maxWidth: Dimensions.get('window').width /2,
+    flex:0.5,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    borderRadius: 16,
+}
 });

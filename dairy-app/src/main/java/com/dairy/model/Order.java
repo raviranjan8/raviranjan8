@@ -28,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 public class Order extends Base {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(name = "NAME")
@@ -39,6 +39,9 @@ public class Order extends Base {
 	
 	@Column(name = "MOBILE")
 	private Long mobile;
+	
+	@Column(name = "PARTY_ID")
+	private Long partyId;
 	
 	@Column(name = "TOTAL_PRICE")
 	private BigDecimal totalPrice;
@@ -55,9 +58,8 @@ public class Order extends Base {
 	private String status;
 	
 	@JsonManagedReference
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL)
 	@Fetch(value = FetchMode.JOIN)
-	@JoinColumn(name = "order_id")
 	private Set<OrderDetail> orderDetails;
 	
 
@@ -131,6 +133,14 @@ public class Order extends Base {
 
 	public void setOrderDetails(Set<OrderDetail> orderDetails) {
 		this.orderDetails = orderDetails;
+	}
+
+	public Long getPartyId() {
+		return partyId;
+	}
+
+	public void setPartyId(Long partyId) {
+		this.partyId = partyId;
 	}
 
 	@Override

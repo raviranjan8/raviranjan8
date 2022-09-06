@@ -277,12 +277,13 @@ this.setState({submitted: true});
                         <option value="vegetable">Vegetable</option>
                         <option value="grains">Grains</option>
                         <option value="fuel">Fuel</option>
+                        <option value="SELLER">Seller</option>
                     </select>
                   </div>
             </div>
-            <div className="form-group">        
-                  <label htmlFor="active">Active</label>
-                  <input type="checkbox" className="form-control"
+            <div className="form-check">        
+                  <label htmlFor="active" className="form-check-label">Active</label>
+                  <input type="checkbox" className="form-check-input"
                   id="active" name="active"
                   onChange={this.onChangeActive} defaultChecked={this.state.active}/>
             </div>

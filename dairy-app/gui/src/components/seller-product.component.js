@@ -9,6 +9,7 @@ export default class SellerProduct extends Component {
   constructor(props) {
     super(props);
     this.onChangeName = this.onChangeName.bind(this);
+    this.onChangeBarcodeNo = this.onChangeBarcodeNo.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
     this.onChangeImagePath = this.onChangeImagePath.bind(this);
     this.onChangeBrand = this.onChangeBrand.bind(this);
@@ -27,12 +28,17 @@ export default class SellerProduct extends Component {
     this.onChangeproduct=this.onChangeproduct.bind(this);
     this.getproduct=this.getproduct.bind(this);
     this.selectFile=this.selectFile.bind(this);
+    this.getSellerProduct=this.getSellerProduct.bind(this);
+    this.processResponse=this.processResponse.bind(this);
+    this.onChangeActive=this.onChangeActive.bind(this);
+
     this.myRef = React.createRef();
     this.myRefUnit = React.createRef();    
     const today = moment();
     this.state = {
       id: null,
       name: "",
+      barcodeNo: "",
       description: "", 
       imagePath: "",
       brand: "",
@@ -49,6 +55,7 @@ export default class SellerProduct extends Component {
       products:[],
       productId: "",
       submitted: false,
+      active: false,
       message: "",
       selectedFiles: undefined,
       uploadDisable: false,
@@ -64,6 +71,12 @@ export default class SellerProduct extends Component {
   onChangeName(e) {
     this.setState({
       name: e.target.value
+    });
+  }
+
+  onChangeBarcodeNo(e) {
+    this.setState({
+      barcodeNo: e.target.value
     });
   }
 
@@ -203,7 +216,9 @@ export default class SellerProduct extends Component {
 	e.target.disabled=true;
   
     var data = {
+      id: this.state.id,
       name: this.state.name,
+      barcodeNo: this.state.barcodeNo,
       description: this.state.description,
       imagePath: this.state.imagePath,
       brand: this.state.brand,
@@ -219,15 +234,97 @@ export default class SellerProduct extends Component {
       deliveryCharge: this.state.deliveryCharge,
       active: this.state.active,
       productId: this.state.productId,
-     
+      active: this.state.active
     };
 console.log(data);
 this.setState({submitted: true});
-    SellerProductService.create(data)
+    if(this.state.id){
+      SellerProductService.update(this.state.id, data)
       .then(response => {
+        this.processResponse(response, e);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    }else{
+      SellerProductService.create(data)
+      .then(response => {
+        this.processResponse(response, e);
+      })
+      .catch(e => {
+        console.log(e);
+      });
+    }
+  }
+
+  processResponse(response, e){
+    this.setState({
+      id: response.data.id,
+      name: response.data.name,
+      barcodeNo: response.data.barcodeNo,
+      description: response.data.description,
+      imagePath: response.data.imagePath,
+      brand: response.data.brand,
+      company: response.data.company,
+      mrp: response.data.mrp,
+      weight: response.data.weight,
+      unit: response.data.unit,
+      measurment: response.data.measurment,
+      quantity: response.data.quantity,
+      rate: response.data.rate,
+      discount: response.data.discount,
+      discountType: response.data.discountType,
+      deliveryCharge: response.data.deliveryCharge,
+      active: response.data.active,
+      productId: response.data.productId,
+     
+      submitted: true
+    });
+    if(this.state.selectedFiles){
+      this.upload(response.data.id);
+    }
+    e.target.disabled=false;
+    console.log(response.data);
+  }
+
+  newTutorial() {
+    this.setState({
+      id: null,
+      name: "",
+      barcodeNo: "",
+      description: "",
+      imagePath: "",
+      brand: "",
+      company: "",
+      mrp: "",
+      weight: "",
+      unit: "",
+      measurment: "",
+      quantity: "",
+      rate: "",
+      discount: "",
+      discountType: "",
+      deliveryCharge: "",
+      productId: "",
+      submitted: false,
+      active: false
+    });
+  }
+
+  //
+  componentDidMount() {
+    this.getproduct();
+    if(this.props.match.params.id){
+      this.getSellerProduct(this.props.match.params.id)
+    };
+  }
+
+  getSellerProduct(id){
+    SellerProductService.get(id).then((response) => {
         this.setState({
           id: response.data.id,
           name: response.data.name,
+          barcodeNo: response.data.barcodeNo,
           description: response.data.description,
           imagePath: response.data.imagePath,
           brand: response.data.brand,
@@ -243,45 +340,13 @@ this.setState({submitted: true});
           deliveryCharge: response.data.deliveryCharge,
           active: response.data.active,
           productId: response.data.productId,
-         
-          submitted: true
+          displayImagePath: (response.data.product ? response.data.product.imagePath: '')
         });
-        if(this.state.selectedFiles){
-          this.upload(response.data.id);
-        }
-		    e.target.disabled=false;
-        console.log(response.data);
+        console.log(this.state);
       })
-      .catch(e => {
+      .catch((e) => {
         console.log(e);
       });
-  }
-
-  newTutorial() {
-    this.setState({
-      id: null,
-      name: "",
-      description: "",
-      imagePath: "",
-      brand: "",
-      company: "",
-      mrp: "",
-      weight: "",
-      unit: "",
-      measurment: "",
-      quantity: "",
-      rate: "",
-      discount: "",
-      discountType: "",
-      deliveryCharge: "",
-      productId: "",
-      submitted: false
-    });
-  }
-
-  //
-  componentDidMount() {
-    this.getproduct();
   }
 
   getproduct(){
@@ -348,9 +413,24 @@ this.setState({submitted: true});
               />
               <img alt="" height={60} width={80} src={this.state.displayImagePath.startsWith('http') ? this.state.displayImagePath
                             : (baseURL+'static/images/P_'+ this.state.productId + '_' + this.state.displayImagePath)} />
+              <img alt="" height={60} width={80} src={this.state.displayImagePath.startsWith('http') ? this.state.displayImagePath
+                            : (baseURL+'static/images/SP_'+ this.state.id + '_' + this.state.imagePath)} />
                <label className="btn btn-default">
                 <input disabled={this.state.uploadDisable} type="file" onChange={this.selectFile} />
               </label>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="barcodeNo">Code</label>
+              <input
+                type="text"
+                className="form-control"
+                id="barcodeNo"
+                required
+                value={this.state.barcodeNo}
+                onChange={this.onChangeBarcodeNo}
+                name="brand"
+              />
             </div>
 
             <div className="form-group">
@@ -488,6 +568,14 @@ this.setState({submitted: true});
                 onChange={this.onChangeDeliveryCharge}
                 name="deliveryCharge"
               />
+            </div>
+            <div className="form-check">        
+              <label className="form-check-label" for="active">
+                Active
+              </label>
+              <input type="checkbox" className="form-check-input"
+                  id="active" name="active"
+                  onChange={this.onChangeActive} checked={this.state.active} />
             </div>
 
             <button onClick={this.saveTutorial} className="btn btn-success">

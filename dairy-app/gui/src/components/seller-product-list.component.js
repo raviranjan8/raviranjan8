@@ -2,11 +2,9 @@ import React, { useState , useEffect, useMemo, useContext, createContext, useRef
 
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
-import DeliveryService from "../services/delivery.service";
 import SellerProductService from "../services/seller.product.service";
-import DropDownEditor, {useRoute} from "./editor/dropdown.component";
+import StockService from "../services/stock.service";
 import NumericEditor from "./editor/numericeditor.component";
-import moment from 'moment';
 import {baseURL} from "../http-common";
 
 //const rootClassname = 'rootClassname';
@@ -56,6 +54,15 @@ const SellerProductList = props => {
 
   const columns = [
     { key: 'id', name: 'ID' , width: 40 , resizable: true,
+        formatter(props) {
+          return <>
+            <Link disable="true"
+            to={"/gui/sellerProduct/" + props.row.id }
+            className="badge bg-warning">
+            {props.row.id}
+            </Link>
+          </>;
+        },
         headerCellClass: filterColumnClassName,
         headerRenderer: (p) => (
           <FilterRenderer {...p}>
@@ -77,6 +84,7 @@ const SellerProductList = props => {
         )
     },
     { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'barcode', name: 'Code' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'imagePath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'brand', name: 'Brand' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
@@ -90,6 +98,8 @@ const SellerProductList = props => {
     { key: 'discount', name: 'Discount' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'discountType', name: 'DiscountType' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'deliveryCharge', name: 'DeliveryCharge' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true,},
+    { key: 'stock', name: 'Stock'  , resizable: true},
+    { key: 'stockQty', name: 'Add Qty' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true,},
     { key: 'image', name: 'Image' , width: 80 , resizable: true ,
 		formatter(props) {
               return <>
@@ -98,6 +108,19 @@ const SellerProductList = props => {
                                                   ) : (baseURL+'static/images/P_'+ props.row.productId + '_' + props.row.productImage)} />
               </>;
             }},
+    { key: 'active', name: 'Active' , width: 40 ,
+            formatter({ row, onRowChange, isCellSelected }) {
+              return (
+                <SelectCellFormatter
+                  value={row.active}
+                  onChange={() => {
+                    onRowChange({ ...row, active: !row.active });
+                  }}
+                  onClick={stopPropagation}
+                  isCellSelected={isCellSelected}
+                />
+              );
+            } },
   ];
 
     useEffect(() => {
@@ -110,6 +133,7 @@ const SellerProductList = props => {
           initialRows[index]={};
           initialRows[index]["id"]=sellerproducts.id;
           initialRows[index]["name"]=sellerproducts.name;
+          initialRows[index]["barcode"]=sellerproducts.barcodeNo;
           initialRows[index]["description"]=sellerproducts.description;
           initialRows[index]["imagePath"]=sellerproducts.imagePath;
           initialRows[index]["brand"]=sellerproducts.brand;
@@ -123,9 +147,13 @@ const SellerProductList = props => {
           initialRows[index]["discount"]=sellerproducts.discount;
           initialRows[index]["discountType"]=sellerproducts.discountType;
           initialRows[index]["deliveryCharge"]=sellerproducts.deliveryCharge;
-          initialRows[index]["productImage"]=sellerproducts.product.imagePath;
-          initialRows[index]["productId"]=sellerproducts.product.id;
-          initialRows[index]["name"]=sellerproducts.product.name;
+          initialRows[index]["active"]=sellerproducts.active;
+          if(sellerproducts.product){
+            initialRows[index]["productImage"]=sellerproducts.product.imagePath;
+            initialRows[index]["productId"]=sellerproducts.product.id;
+            initialRows[index]["name"]=sellerproducts.product.name;
+          }
+          initialRows[index]["stock"]=sellerproducts.stockQuantity;
         });
         setRows(initialRows);
       })
@@ -141,37 +169,52 @@ const SellerProductList = props => {
 
     function constructDeliveryUpdateData(row, col){
       console.log(row[col.indexes].id+ " - "+row[col.indexes][col.column.key]);
-      saveDelivery(row[col.indexes]);
+      saveDelivery(row[col.indexes], col.column.key);
     }
 
-    function saveDelivery (row) {
-      var data = {
-        id: row.id,
-        name: row.name,
-        description: row.description,
-        imagePath: row.imagePath,
-        brand: row.brand,
-        company: row.company,
-        mrp: row.mrp,
-        weight: row.weight,
-        unit: row.unit,
-        measurment: row.measurment,
-        quantity: row.quantity,
-        rate: row.rate,
-        discount: row.discount,
-        discountType: row.discountType,
-        deliveryCharge: row.deliveryCharge,
+    function saveDelivery (row, columnName) {
+      if(columnName == 'stockQty'){
+        var data = {
+          sellerProductId: row.id,
+          stockQuantity: row.stockQty
+        }
+        StockService.create(data).then(response => {
+          row.stock = row.stock + row.stockQty;
+        })
+        .catch(e => {
+          console.log(e);
+        }); 
+      }else {
+        var data = {
+          id: row.id,
+          name: row.name,
+          barcodeNo: row.barcode,
+          description: row.description,
+          imagePath: row.imagePath,
+          brand: row.brand,
+          company: row.company,
+          mrp: row.mrp,
+          weight: row.weight,
+          unit: row.unit,
+          measurment: row.measurment,
+          quantity: row.quantity,
+          rate: row.rate,
+          discount: row.discount,
+          discountType: row.discountType,
+          deliveryCharge: row.deliveryCharge,
+          active: row.active,
+          productId: row.productId
+        };
+        console.log(data);
         
-      };
-      console.log(data);
-      
-           SellerProductService.update(row.id, data)
-            .then(response => {
-              console.log(response.data); 
-            })
-            .catch(e => {
-              console.log(e);
-            }); 
+        SellerProductService.update(row.id, data)
+          .then(response => {
+            console.log(response.data); 
+          })
+          .catch(e => {
+            console.log(e);
+          }); 
+      }
     }
 
 	  const filteredRows = useMemo( () => {

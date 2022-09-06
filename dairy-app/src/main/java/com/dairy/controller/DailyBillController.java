@@ -73,6 +73,28 @@ public class DailyBillController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+	/**
+	 * This method is created to save delivery data, specially for save coming from tabular pages
+	 * tabular page have chance to send two Create request at the same time and they are getting saved with two Id.
+	 * Those should have got as update actually
+	 * @param createData
+	 * @return
+	 */
+	@PostMapping("/dailyBills/delivery")
+	public ResponseEntity<DailyBill> createDailyBill(@RequestBody DailyBill createData) {
+		try {
+			ResponseEntity<List<DailyBill>> savedData = getAllCustomerDeliverys(createData);
+			//if data is already saved, then get the ID and update record
+			if(null != savedData && null != savedData.getBody() && null != savedData.getBody().get(0)) {
+				createData.setId(savedData.getBody().get(0).getId());
+			}
+			DailyBill createdData = repository.save(createData);
+			return new ResponseEntity<>(createdData, HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 
 	@PutMapping("/dailyBills/{id}")
 	public ResponseEntity<DailyBill> update(@PathVariable("id") long id, @RequestBody DailyBill updateData) {
