@@ -14,6 +14,10 @@ import org.hibernate.annotations.Formula;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+//this table contains
+//1 Daily Delivery
+//2 Collection Daily
+//3 Expense daily
 
 @Entity
 @Table(name = "DAILY_BILL")
