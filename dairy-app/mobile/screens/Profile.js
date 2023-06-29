@@ -153,11 +153,15 @@ export default function ProfileScreen({ props, navigation }) {
                       <ListItem.Subtitle>{l.extraInfo ? l.extraInfo.customerDeliveredQuantity: null}</ListItem.Subtitle>
                 </ListItem.Content>
                 <ListItem.Content>
-                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>{l.extraInfo ? l.extraInfo.customerPendingCount: null}</ListItem.Title> 
+                  <ListItem.Title onPress={() => {navigation.navigate('RouteDelivery', { id: l.id, pending:'pending' })}}>
+                    {l.extraInfo ? l.extraInfo.customerPendingCount: null}
+                  </ListItem.Title> 
                   <ListItem.Subtitle>{l.extraInfo ? l.extraInfo.customerPendingQuantity: null}</ListItem.Subtitle>                  
                 </ListItem.Content>
                 <ListItem.Content>                
-                    <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  ></ListItem.Input>                    
+                    <ListItem.Input style={styles.text} keyboardType="numeric" defaultValue={l.quantity} 
+                      onChangeText={value => onChangeQuantity(value, l.id, l.routeStockId, l)}  >
+                    </ListItem.Input>                    
                     <ListItem.Subtitle>{''}</ListItem.Subtitle>
                 </ListItem.Content>
                 
