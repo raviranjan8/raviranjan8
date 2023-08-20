@@ -355,7 +355,7 @@ const CustomerCalendar = props => {
                   console.log(e);
                 });
           } else {
-            DeliveryService.create(data)
+            DeliveryService.createDelivery(data)
                 .then(response => {
                   var idName = "id"+date;
                   rowData[idName]=response.data.id;
@@ -369,26 +369,29 @@ const CustomerCalendar = props => {
         if(date == "discount"){
           data.category="discount";
         }
-        data.payment=columnVal;
-        data.date=moment().format("DD");
-        if(id){
-          PaymentService.update(id, data)
-            .then(response => {
-              console.log(response.data);
-            })
-            .catch(e => {
-              console.log(e);
-            });
-        } else {
-          PaymentService.create(data)
-            .then(response => {
-              var idName = "id"+date;
-              rowData[idName]=response.data.id;
-              console.log(rowData);
-            })
-            .catch(e => {
-              console.log(e);
-            });
+        //null payments are coming so added null check
+        if(columnVal){
+          data.payment=columnVal;
+          data.date=moment().format("DD");
+          if(id){
+            PaymentService.update(id, data)
+              .then(response => {
+                console.log(response.data);
+              })
+              .catch(e => {
+                console.log(e);
+              });
+          } else {
+            PaymentService.create(data)
+              .then(response => {
+                var idName = "id"+date;
+                rowData[idName]=response.data.id;
+                console.log(rowData);
+              })
+              .catch(e => {
+                console.log(e);
+              });
+          }
         }
       }
     }

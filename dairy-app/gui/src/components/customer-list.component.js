@@ -79,6 +79,7 @@ const CustomerList = props => {
     { key: 'startDate', name: 'StartDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'endDate', name: 'EndDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'defaultQuantity', name: 'Quantity' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'rate', name: 'Rate' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'active', name: 'Active' , width: 40 ,
             formatter({ row, onRowChange, isCellSelected }) {
               return (
@@ -120,6 +121,7 @@ const CustomerList = props => {
           initialRows[index]["startDate"]=customer.startDate;
           initialRows[index]["endDate"]=customer.endDate;
           initialRows[index]["defaultQuantity"]=customer.defaultQuantity;
+          initialRows[index]["rate"]=customer.rate;
           initialRows[index]["active"]=customer.active;
           initialRows[index]["routeId"]=customer.routeId;
           initialRows[index]["routeSeq"]=customer.routeSeq;
@@ -156,8 +158,9 @@ const CustomerList = props => {
         active: row.active,
         routeId: row.routeId,
         defaultQuantity: row.defaultQuantity,
+        rate: row.rate,
         routeSeq: row.routeSeq,
-		type: row.type
+		    type: row.type
       };
       console.log(data);
       

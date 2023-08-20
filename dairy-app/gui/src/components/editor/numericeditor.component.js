@@ -1,7 +1,7 @@
 import React from "react";
 import type { EditorProps } from 'react-data-grid';
 
-export const textEditorClassname = `rdg-text-editor textEditor`;
+export const TextEditorClassname = `rdg-text-editor TextEditor`;
 
 function autoFocusAndSelect(input: HTMLInputElement | null) {
   if(input)input.select();
@@ -18,7 +18,7 @@ export default function NumericEditor({
     <input
 		type="number"
 		inputmode="numeric" 
-      className={textEditorClassname}
+      className={TextEditorClassname}
       ref={autoFocusAndSelect}
       value={row[column.key]}
       onChange={(event) => onRowChange({ ...row, [column.key]: event.target.value })}

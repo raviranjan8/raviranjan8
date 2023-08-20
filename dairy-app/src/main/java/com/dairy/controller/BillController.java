@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.dairy.model.Bill;
 import com.dairy.model.DailyBill;
+import com.dairy.model.Party;
 import com.dairy.model.Payment;
 import com.dairy.model.Rate;
 import com.dairy.repository.BillRepository;
@@ -77,7 +78,7 @@ public class BillController {
 		try {
 			param.setActive(true);
 			//get active customer
-			List<Long> customerIdList = customerRepository.findDistinctIdByActive(true);
+			List<Party> customerList = customerRepository.findDistinctIdByActive(true);
 			
 			DailyBill paramDelivery= new DailyBill();
 			paramDelivery.setMonth(param.getMonth());
@@ -114,13 +115,19 @@ public class BillController {
 			List<Bill> billsToBeDeActivated = new ArrayList<Bill>();
 			
 			List<Bill> billsForCreation = new ArrayList<Bill>();	
-			customerIdList.stream().forEach(customerId -> {
+			customerList.stream().forEach(customer -> {
 				Bill customerBill = new Bill();
-				customerBill.setPartyId(customerId);
+				customerBill.setPartyId(customer.getId());
 				customerBill.setMonth(param.getMonth());
 				if(null ==rate || rate.size()==0) {
 					customerBill.setRate(new BigDecimal(1));
 				} else customerBill.setRate(rate.get(0).getRate());
+				
+				//if there is rate set for customer then, it will take customer rate
+				//otherwise it will take Dairy rate
+				if(null != customer.getRate() && customer.getRate().compareTo(zero)>0) {
+					customerBill.setRate(customer.getRate());
+				}
 				
 				customerBill.setActive(true);
 				customerBill.setType(param.getType());
@@ -133,7 +140,7 @@ public class BillController {
 				customerBill.setBill(new BigDecimal(0));
 				customerBill.setLastBillTotal(new BigDecimal(0));
 				customerDeliveryList.stream().
-					filter(c -> c.getPartyId().equals(customerId)).forEach(customerDelivery  ->{
+					filter(c -> c.getPartyId().equals(customer.getId())).forEach(customerDelivery  ->{
 						if(null != customerDelivery.getQuantity()) {
 							customerBill.setQuantity(customerBill.getQuantity().add(customerDelivery.getQuantity()));
 						}
@@ -150,14 +157,14 @@ public class BillController {
 				}
 				
 				existingBills.stream().
-					filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+					filter(c -> c.getPartyId().equals(customer.getId())).forEach(bill ->{
 						//all previous bill be deactivated for the month except payment One
 						bill.setActive(false);
 						billsToBeDeActivated.add(bill);
 					});
 				
 				payments.stream().
-					filter(c -> c.getPartyId().equals(customerId)).forEach(payment ->{
+					filter(c -> c.getPartyId().equals(customer.getId())).forEach(payment ->{
 							//payment with discount category is discount
 							if(null != payment.getCategory() && "discount".equals(payment.getCategory())) {
 								customerBill.setDiscount(customerBill.getDiscount().add(payment.getPayment()));
@@ -169,7 +176,7 @@ public class BillController {
 				});
 				
 				previousBills.stream().
-					filter(c -> c.getPartyId().equals(customerId)).forEach(bill ->{
+					filter(c -> c.getPartyId().equals(customer.getId())).forEach(bill ->{
 						if(param.getType().equals("income")) {
 							//this month bill + last month dues = last  month total bill
 							BigDecimal previousMonthTotal = new BigDecimal(0);

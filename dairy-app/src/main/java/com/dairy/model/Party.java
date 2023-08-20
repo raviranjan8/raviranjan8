@@ -100,6 +100,9 @@ public class Party extends Base {
 	@Column(name = "USER_TYPE")
 	private String userType;
 	
+	@Column(name = "RATE")
+	private BigDecimal rate;
+	
 	public Long getId() {
 		return id;
 	}
@@ -239,6 +242,14 @@ public class Party extends Base {
 
 	public void setPayments(Set<Payment> payments) {
 		this.payments = payments;
+	}
+	
+	public BigDecimal getRate() {
+		return rate;
+	}
+
+	public void setRate(BigDecimal rate) {
+		this.rate = rate;
 	}
 
 	@Override

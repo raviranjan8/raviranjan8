@@ -13,8 +13,8 @@ import com.dairy.model.Party;
 
 public interface PartyRepository extends JpaRepository<Party, Long> {
 	
-	@Query("SELECT p.id FROM Party p where active= ?1 and p.type not in ( 'farmer') ")
-	List<Long> findDistinctIdByActive(boolean active);
+	@Query("SELECT p FROM Party p where active= ?1 and p.type not in ( 'farmer') ")
+	List<Party> findDistinctIdByActive(boolean active);
 	
 	@Query("SELECT p.id FROM Party p where active= ?1 and p.type in ( 'farmer') ")
 	List<Long> findDistinctFarmersIdByActive(boolean active);

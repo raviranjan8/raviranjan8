@@ -9,7 +9,7 @@ export default function DropDownEditor({ row, onRowChange }) {
     
   return (
     <select
-      className={TextEditor.textEditorClassname}
+      className={TextEditor.TextEditorClassname}
       value={row.routeId}
       onChange={(event) => onRowChange({ ...row, routeId: event.target.value }, true)}
       autoFocus

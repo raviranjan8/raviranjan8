@@ -14,6 +14,7 @@ export default class AddCustomer extends Component {
     this.onChangeRoute = this.onChangeRoute.bind(this);
   	this.onChangeType = this.onChangeType.bind(this);
     this.onChangeDefaultQuantity = this.onChangeDefaultQuantity.bind(this);
+    this.onChangeRate = this.onChangeRate.bind(this);
     this.onChangeRouteSeq = this.onChangeRouteSeq.bind(this);
     this.saveTutorial = this.saveTutorial.bind(this);
     this.newTutorial = this.newTutorial.bind(this);
@@ -32,6 +33,7 @@ export default class AddCustomer extends Component {
       startDate: today.format("DD-MMM-YYYY"),
       routeId: "",
       defaultQuantity: 1,
+      rate: null,
       routes:[],
       routeSeq:null,
       submitted: false
@@ -92,6 +94,14 @@ export default class AddCustomer extends Component {
     });
   }
 
+  onChangeRate(e) {
+    this.setState({
+      rate: e.target.value
+    });
+  }
+
+  
+
   saveTutorial(e) {
 	e.target.disabled=true;
     var data = {
@@ -101,8 +111,9 @@ export default class AddCustomer extends Component {
       startDate: this.state.startDate,
       active: this.state.active,
       routeId: this.myRef.current.value,
-	  type: this.myRefType.current.value,
+	    type: this.myRefType.current.value,
       defaultQuantity: this.state.defaultQuantity,
+      rate: this.state.rate,
       routeSeq: this.state.routeSeq
     };
 console.log(data);
@@ -237,6 +248,17 @@ this.setState({submitted: true});
                 value={this.state.defaultQuantity}
                 onChange={this.onChangeDefaultQuantity}
                 name="defaultQuantity"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="routeSeq">Rate</label>
+              <input
+                type="number"
+                className="form-control"
+                id="rate"
+                value={this.state.rate}
+                onChange={this.onChangeRate}
+                name="rate"
               />
             </div>
             <div className="form-group">        

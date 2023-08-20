@@ -1,9 +1,9 @@
 import axios from "axios";
 import {authHeader, updateToken, refresh} from "./services/auth.service";
 
-//export const baseURL = "http://192.168.0.44:8080/";
+//export const baseURL = "http://localhost:8080/";
 //export const baseURL = "http://dairyweb-env.eba-rp2mcr7k.ap-south-1.elasticbeanstalk.com/";
-export const baseURL = "http://192.168.43.50:8080/";
+export const baseURL = "http://dairy.ap-southeast-2.elasticbeanstalk.com/";
 
 const instance = axios.create({
   baseURL: baseURL+'api', headers: {
@@ -12,7 +12,7 @@ const instance = axios.create({
 });
 
 export var header = authHeader() ;
-
+e
 export function setHeader (authHeader) {
   header = authHeader;
 }

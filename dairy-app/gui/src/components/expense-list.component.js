@@ -2,7 +2,7 @@ import React, { Component, useState , useMemo, useEffect } from "react";
 import RouteService from "../services/route.service";
 import { Link } from "react-router-dom";
 import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
-import NumericEditor, { textEditorClassname } from "../components/editor/numericeditor.component";
+import NumericEditor, { TextEditorClassname } from "../components/editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import PaymentService from "../services/payment.service";
 import moment from 'moment';
