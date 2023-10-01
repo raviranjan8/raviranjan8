@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import UserService from "../services/user.service";
 import AuthService from "../services/auth.service";
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor} from 'react-data-grid';
+import DataGrid, {textEditor} from 'react-data-grid';
 import NumericEditor from "../components/editor/numericeditor.component";
 import moment from "moment";
 import Grid from '@mui/material/Grid';
@@ -10,8 +10,8 @@ import Grid from '@mui/material/Grid';
 const columns = [
   { key: 'id', name: 'ID' , width: 40, resizable: true },		
   { key: 'user', name: 'User' , resizable: true },
-  { key: 'email', name: 'Email' , editor: TextEditor, editorOptions: {editOnClick: true} , width: 130 , resizable: true },
-  { key: 'role', name: 'Role' , editor: TextEditor, editorOptions: {editOnClick: true} ,width: 330 , resizable: true }
+  { key: 'email', name: 'Email' , editor: textEditor, editorOptions: {editOnClick: true} , width: 130 , resizable: true },
+  { key: 'role', name: 'Role' , editor: textEditor, editorOptions: {editOnClick: true} ,width: 330 , resizable: true }
 ];
 
 export default class UsersList extends Component {
@@ -85,7 +85,7 @@ export default class UsersList extends Component {
       <div >
         <Grid container spacing={{ xs: 4}} >
             <Grid item xs={6} sm={6}> 
-              <Link to={"#"} className="nav-link">
+              <Link to={"#"} className="badge bg-secondary">
                         Add User
               </Link>
             </Grid>

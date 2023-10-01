@@ -1,6 +1,6 @@
 import React, { useState , useEffect } from "react";
 import RouteService from "../../services/route.service";
-import DataGrid, {TextEditor, EditorProps, Row} from 'react-data-grid';
+import DataGrid, {textEditor, EditorProps, Row} from 'react-data-grid';
 import RoutesList from "../routes-list.component";
 import { useRoutes } from "../hooks/route.hook";
 
@@ -9,7 +9,7 @@ export default function DropDownEditor({ row, onRowChange }) {
     
   return (
     <select
-      className={TextEditor.TextEditorClassname}
+      className={textEditor.textEditorClassname}
       value={row.routeId}
       onChange={(event) => onRowChange({ ...row, routeId: event.target.value }, true)}
       autoFocus

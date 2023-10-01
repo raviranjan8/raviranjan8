@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import RouteService from "../services/route.service";
 import RouteStockService from "../services/route.stock.service";
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor} from 'react-data-grid';
+import DataGrid, {textEditor} from 'react-data-grid';
 import NumericEditor from "../components/editor/numericeditor.component";
 import moment from "moment";
 import Grid from '@mui/material/Grid';
@@ -35,8 +35,8 @@ const columns = [
   { key: 'totalCustomer', name: 'Total Customer' , width: 130 , resizable: true },
   { key: 'customerQuantity', name: 'Required Q' , width: 100 , resizable: true },
   { key: 'id', name: 'Route ID' , width: 80 , resizable: true },
-  { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-  { key: 'address', name: 'Address' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true }
+  { key: 'name', name: 'Name' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+  { key: 'address', name: 'Address' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true }
 ];
 
 export default class RoutesList extends Component {
@@ -172,7 +172,7 @@ export default class RoutesList extends Component {
       <div >
         <Grid container spacing={{ xs: 4}} >
             <Grid item xs={6} sm={6}> 
-              <Link to={"/gui/route"} className="nav-link">
+              <Link to={"/gui/route"} className="badge bg-secondary">
                         Add Route
               </Link>
             </Grid>

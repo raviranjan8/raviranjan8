@@ -1,7 +1,7 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
+import DataGrid, {textEditor, SelectCellFormatter} from 'react-data-grid';
 import DeliveryService from "../services/delivery.service";
 import ProductService from "../services/product.service";
 import DropDownEditor, {useRoute} from "./editor/dropdown.component";
@@ -72,11 +72,11 @@ const ProductList = props => {
           </FilterRenderer>
         )
     },
-    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'name', name: 'Name' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'minRate', name: 'minRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'maxRate', name: 'maxRate' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'imagePath', name: 'ImagePath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'imagePath', name: 'ImagePath' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'description', name: 'Description' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'image', name: 'Image' , width: 80 , resizable: true ,
 		formatter(props) {
               return <>

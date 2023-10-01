@@ -27,8 +27,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @Entity
 @Table(name = "PARTY", 
 uniqueConstraints = { 
-  @UniqueConstraint(columnNames = "MOB_NO"),
-  @UniqueConstraint(columnNames = "type") 
+  @UniqueConstraint(columnNames = {"MOB_NO","type"}),
 })
 @NamedEntityGraphs({
     @NamedEntityGraph(name="all",includeAllAttributes = true

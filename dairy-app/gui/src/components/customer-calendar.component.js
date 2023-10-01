@@ -168,6 +168,7 @@ const CustomerCalendar = props => {
           rate = {
             id: r.id,
             rate: r.rate,
+            message: r.message,
             startDate: r.startDate,
           };
           });
@@ -455,7 +456,8 @@ const CustomerCalendar = props => {
         rate: rate.rate,
 		    active: false,
 	    	startDate: rate.startDate,
-	    	endDate: calendar.currentDate.format("DD-MMM-YYYY")
+	    	endDate: calendar.currentDate.format("DD-MMM-YYYY"),
+        message: rate.message
       };
       if(rate.id){
           RateService.update(data.id, data)
@@ -469,7 +471,8 @@ const CustomerCalendar = props => {
 	  var newRate = {
         rate: rate.rate,
 		    active: true,
-		    startDate: calendar.currentDate.format("DD-MMM-YYYY")
+		    startDate: calendar.currentDate.format("DD-MMM-YYYY"),
+        message: rate.message,
       };
 	  RateService.create(newRate)
 		.then(response => {

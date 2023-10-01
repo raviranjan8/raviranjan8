@@ -12,7 +12,7 @@ const instance = axios.create({
 });
 
 export var header = authHeader() ;
-e
+
 export function setHeader (authHeader) {
   header = authHeader;
 }

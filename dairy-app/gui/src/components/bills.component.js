@@ -1,20 +1,24 @@
 import React, { Component } from "react";
 import DeliveryService from "../services/delivery.service";
 import BillService from "../services/bill.service";
+import RateService from "../services/rate.service";
 import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./../App.css";
+import ContentEditable from 'react-contenteditable'
 
 export default class Bills extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      bills: null
+      bills: null,
+      rate: {}
     }
   }
 
   componentDidMount() {
     this.getBills(this.props.match.params.month);
+    this.getRateAdminData();
   }
 
   getBills(month){
@@ -75,8 +79,22 @@ export default class Bills extends Component {
     
   }
 
+  getRateAdminData(){
+    const param = { active: true}; 
+
+    RateService.getAll(param).then((response) => {
+      var rates = response.data[0];
+      this.setState({
+        rate: rates
+      });
+      console.log(this.state.rate);
+    }).catch((e) => {
+          console.log(e);
+    });
+  }
+
   render() {
-    const { bills } = this.state;
+    const { bills, rate } = this.state;
     return (
       <div>
           {bills && bills.map((count) => (
@@ -179,7 +197,7 @@ export default class Bills extends Component {
                                    <td rowSpan={2}><h3>9860910995</h3></td>
                                  </tr>
                                  <tr>
-                                          <td >quantity</td>
+                                          <td >Quantity</td>
                                           <td  >{count["17"]}</td>
                                           <td  >{count["18"]}</td>
                                           <td  >{count["19"]}</td>
@@ -200,6 +218,13 @@ export default class Bills extends Component {
                                </table>
                              </td>
                            </tr>
+                           {rate.message &&(
+                            <tr >
+                             <td align="center" colspan={10}>
+                                <ContentEditable html={rate.message} />
+                              </td>
+                            </tr>
+                           )}
                         </table>
                 </div>
           ))}    

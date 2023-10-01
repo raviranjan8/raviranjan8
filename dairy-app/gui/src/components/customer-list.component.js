@@ -1,7 +1,7 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 import RouteService from "../services/route.service";
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
+import DataGrid, {textEditor, SelectCellFormatter} from 'react-data-grid';
 import DeliveryService from "../services/delivery.service";
 import CustomerService from "../services/customer.service";
 import DropDownEditor, {useRoute} from "../components/editor/dropdown.component";
@@ -73,11 +73,11 @@ const CustomerList = props => {
           </FilterRenderer>
         )
     },
-    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true ,frozen: true,},
-    { key: 'address', name: 'Address' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'name', name: 'Name' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true ,frozen: true,},
+    { key: 'address', name: 'Address' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'mobNo', name: 'MobNo' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'startDate', name: 'StartDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'endDate', name: 'EndDate' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'startDate', name: 'StartDate' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'endDate', name: 'EndDate' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'defaultQuantity', name: 'Quantity' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'rate', name: 'Rate' , width: 40  , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'active', name: 'Active' , width: 40 ,
@@ -102,7 +102,7 @@ const CustomerList = props => {
                 editOnClick: true
               }},
     { key: 'routeSeq', name: 'Seq' , width: 40 , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'type', name: 'Type' , width: 80 , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true }
+    { key: 'type', name: 'Type' , width: 80 , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true }
   ];
 
     useEffect(() => {
@@ -199,7 +199,7 @@ const CustomerList = props => {
   
     return (
       <div >
-                <Link to={"/gui/addCustomer"} className="nav-link">
+                <Link to={"/gui/addCustomer"} className="badge bg-secondary">
                   Add Customer
                 </Link>
         <div className={rootClassname}>

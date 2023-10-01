@@ -17,17 +17,30 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCq5uVmUssALlni3zuq1vvq3lcL8tjn6NQ"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "sudham.spk"
+      "package": "sudham.spk",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCq5uVmUssALlni3zuq1vvq3lcL8tjn6NQ"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "3eee617f-a00d-4b04-a637-b2a06fbb589c"
+      }
     }
   }
 }

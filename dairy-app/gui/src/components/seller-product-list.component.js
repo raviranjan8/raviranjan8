@@ -1,7 +1,7 @@
 import React, { useState , useEffect, useMemo, useContext, createContext, useRef , useLayoutEffect } from "react";
 
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
+import DataGrid, {textEditor, SelectCellFormatter} from 'react-data-grid';
 import SellerProductService from "../services/seller.product.service";
 import StockService from "../services/stock.service";
 import NumericEditor from "./editor/numericeditor.component";
@@ -83,12 +83,12 @@ const SellerProductList = props => {
           </FilterRenderer>
         )
     },
-    { key: 'name', name: 'Name' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'barcode', name: 'Code' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'description', name: 'Description' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'imagePath', name: 'Imagepath' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'brand', name: 'Brand' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
-    { key: 'company', name: 'Company' , editor: TextEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'name', name: 'Name' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'barcode', name: 'Code' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'description', name: 'Description' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'imagePath', name: 'Imagepath' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'brand', name: 'Brand' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
+    { key: 'company', name: 'Company' , editor: textEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'mrp', name: 'Mrp' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'weight', name: 'Weight' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },
     { key: 'unit', name: 'Unit' , editor: NumericEditor, editorOptions: {editOnClick: true} , resizable: true },

@@ -22,6 +22,9 @@ public class Rate extends Base{
 
 	@Column(name = "RATE")
 	private BigDecimal rate;
+	
+	@Column(name = "message")
+	private String message;
 
 	@JsonFormat(pattern = "dd-MMM-yyyy")
 	@Column(name = "START_DATE")
@@ -72,6 +75,14 @@ public class Rate extends Base{
 
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+	
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
 	}
 
 	@Override

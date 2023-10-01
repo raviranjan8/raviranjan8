@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import 'bootstrap/dist/js/bootstrap.min.js';
 import "./App.css";
 import moment from 'moment';
+import 'react-data-grid/lib/styles.css';
 
 import Profile from "./components/Profile";
 import AddCustomer from "./components/add-customer.component";
@@ -26,6 +27,7 @@ import ExpenseBills from "./components/expense-bills.component";
 import ExpenseList from "./components/expense-list.component";
 import AddExpense from "./components/add-expense.component";
 import UsersList from "./components/user-list.component";
+import Admin from "./components/admin.component";
 import Login from "./components/login.component";
 import AuthService from "./services/auth.service";
 
@@ -141,6 +143,13 @@ class App extends Component {
                                     </Link>
                                   </li>
                           )}
+                          {showAdminBoard && (
+                                  <li className="nav-item">
+                                    <Link to={"/gui/Admin"} className="nav-link">
+                                      Admin
+                                    </Link>
+                                  </li>
+                          )}
 
                           {showModeratorBoard && (
                             <li className="nav-item">
@@ -220,6 +229,7 @@ class App extends Component {
               <Route exact path="/gui/employeeDaily/:date" component={EmployeeDaily} />
               <Route exact path="/gui/Profile" component={Profile} />
               <Route exact path="/gui/Users" component={UsersList} />
+              <Route exact path="/gui/Admin" component={Admin} />
             </Switch>
           </div>
         </div>

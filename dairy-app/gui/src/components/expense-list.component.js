@@ -1,8 +1,8 @@
 import React, { Component, useState , useMemo, useEffect } from "react";
 import RouteService from "../services/route.service";
 import { Link } from "react-router-dom";
-import DataGrid, {TextEditor, SelectCellFormatter} from 'react-data-grid';
-import NumericEditor, { TextEditorClassname } from "../components/editor/numericeditor.component";
+import DataGrid, {textEditor, SelectCellFormatter} from 'react-data-grid';
+import NumericEditor, { textEditorClassname } from "../components/editor/numericeditor.component";
 import DeliveryService from "../services/delivery.service";
 import PaymentService from "../services/payment.service";
 import moment from 'moment';
@@ -41,12 +41,12 @@ function getComparator(sortColumn) {
 const columns = [
   { key: 'id', name: 'ID' , width: 40 , resizable: true },
   { key: 'name', name: 'Name' , width:50, resizable: true },
-  { key: 'date', name: 'Date' , editor: TextEditor ,width: 20 , resizable: true },
-  { key: 'month', name: 'Month' , editor: TextEditor , width: 40 , resizable: true },
+  { key: 'date', name: 'Date' , editor: textEditor ,width: 20 , resizable: true },
+  { key: 'month', name: 'Month' , editor: textEditor , width: 40 , resizable: true },
   { key: 'payment', name: 'Payment Amount' , width: 140  ,editor: NumericEditor , resizable: true },
   { key: 'amount', name: 'Bill Amount' , width: 120  , editor: NumericEditor , resizable: true },
   { key: 'quantity', name: 'Quantity' , width: 80  , editor: NumericEditor , resizable: true },
-  { key: 'category', name: 'Category', editor:  TextEditor , resizable: true}
+  { key: 'category', name: 'Category', editor:  textEditor , resizable: true}
 ];
 
 const ExpenseList = props => {  
