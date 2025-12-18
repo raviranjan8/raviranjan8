@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import DeliveryService from "../services/delivery.service";
 import BillService from "../services/bill.service";
 import RateService from "../services/rate.service";
+import RouteService from "../services/route.service";
+import CustomerService from "../services/customer.service";
 import moment from "moment";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./../App.css";
@@ -12,13 +14,20 @@ export default class Bills extends Component {
     super(props);
     this.state = {
       bills: null,
-      rate: {}
+      allBills: null,
+      rate: {},
+      routes: [],
+      selectedRoute: "",
+      duesFilter: "all" // "all", "withDues", "withoutDues", "paid"
     }
+    this.handleRouteChange = this.handleRouteChange.bind(this);
+    this.handleDuesFilterChange = this.handleDuesFilterChange.bind(this);
   }
 
   componentDidMount() {
     this.getBills(this.props.match.params.month);
     this.getRateAdminData();
+    this.getRoutes();
   }
 
   getBills(month){
@@ -59,17 +68,17 @@ export default class Bills extends Component {
 			}
 		  };
 		});
-		console.log(initialRows);
-		this.setState({
-		  bills: initialRows
-		});
+		
+		// Fetch party information to get route data
+		this.getPartyRouteInfo(initialRows);
 	  })
 	  .catch((e) => {
 		console.log(e);
 	  });
 	  
         this.setState({
-          bills: initialRows
+          bills: initialRows,
+          allBills: initialRows
         });
       })
       .catch((e) => {
@@ -77,6 +86,127 @@ export default class Bills extends Component {
       });
 
     
+  }
+
+  getPartyRouteInfo(initialRows) {
+    const params = { active: true, type: "customer" };
+    CustomerService.getAll(params).then((response) => {
+      var parties = response.data;
+      var partyRouteMap = {};
+      
+      // Create a map of partyId to route
+      parties && parties.map((party) => {
+        if(party.route) {
+          partyRouteMap[party.id] = {
+            routeId: party.routeId,
+            routeName: party.route.name
+          };
+        }
+      });
+      
+      // Add route information to bills
+      initialRows && initialRows.map((row) => {
+        if(row && row.partyId && partyRouteMap[row.partyId]) {
+          row["routeId"] = partyRouteMap[row.partyId].routeId;
+          row["routeName"] = partyRouteMap[row.partyId].routeName;
+        }
+      });
+      
+      this.setState({
+        bills: initialRows,
+        allBills: initialRows
+      }, () => {
+        this.applyFilters();
+      });
+    })
+    .catch((e) => {
+      console.log(e);
+      this.setState({
+        bills: initialRows,
+        allBills: initialRows
+      }, () => {
+        this.applyFilters();
+      });
+    });
+  }
+
+  getRoutes() {
+    RouteService.getAll().then((response) => {
+      this.setState({
+        routes: response.data || []
+      });
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  }
+
+  handleRouteChange(e) {
+    this.setState({
+      selectedRoute: e.target.value
+    }, () => {
+      this.applyFilters();
+    });
+  }
+
+  handleDuesFilterChange(e) {
+    this.setState({
+      duesFilter: e.target.value
+    }, () => {
+      this.applyFilters();
+    });
+  }
+
+  applyFilters() {
+    const { allBills, selectedRoute, duesFilter } = this.state;
+    
+    if (!allBills || allBills.length === 0) {
+      this.setState({
+        bills: allBills || []
+      });
+      return;
+    }
+    
+    let filteredBills = allBills.filter((bill) => {
+      if (!bill) return false;
+      
+      // Filter by route
+      if (selectedRoute && selectedRoute !== "") {
+        const routeId = parseInt(selectedRoute);
+        // If routeId is not set yet, exclude from filtered results when route filter is active
+        if (bill.routeId === undefined || bill.routeId === null) {
+          return false;
+        }
+        if (bill.routeId !== routeId) {
+          return false;
+        }
+      }
+      
+      // Filter by dues/payment
+      if (duesFilter === "withDues") {
+        // Show only bills with dues > 0
+        if (!bill.dues || bill.dues <= 0) {
+          return false;
+        }
+      } else if (duesFilter === "withoutDues") {
+        // Show only bills with dues <= 0 (paid or no dues)
+        if (bill.dues && bill.dues > 0) {
+          return false;
+        }
+      } else if (duesFilter === "paid") {
+        // Show only bills that are fully paid (dues <= 0 and payment > 0)
+        if ((bill.dues && bill.dues > 0) || !bill.paid || bill.paid <= 0) {
+          return false;
+        }
+      }
+      // "all" - no filtering
+      
+      return true;
+    });
+    
+    this.setState({
+      bills: filteredBills
+    });
   }
 
   getRateAdminData(){
@@ -94,11 +224,64 @@ export default class Bills extends Component {
   }
 
   render() {
-    const { bills, rate } = this.state;
+    const { bills, rate, routes, selectedRoute, duesFilter } = this.state;
     return (
       <div>
-          {bills && bills.map((count) => (
-            <div>
+        <div className="mb-3 no-print" style={{ padding: "15px", backgroundColor: "#f8f9fa", marginBottom: "20px" }}>
+          <div className="row">
+            <div className="col-md-4 d-flex align-items-center">
+              <label
+                htmlFor="routeFilter"
+                className="form-label"
+                style={{ marginRight: 8, marginBottom: 0 }}
+              >
+                <strong>Route:</strong>
+              </label>
+              <select
+                className="form-control"
+                id="routeFilter"
+                value={selectedRoute}
+                onChange={this.handleRouteChange}
+                style={{ maxWidth: 180 }}
+              >
+                <option value="">All Routes</option>
+                {routes.map((route) => (
+                  <option key={route.id} value={route.id}>
+                    {route.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="col-md-4 d-flex align-items-center">
+              <label
+                htmlFor="duesFilter"
+                className="form-label"
+                style={{ marginRight: 8, marginBottom: 0 }}
+              >
+                <strong>Payment/Dues:</strong>
+              </label>
+              <select
+                className="form-control"
+                id="duesFilter"
+                value={duesFilter}
+                onChange={this.handleDuesFilterChange}
+                style={{ maxWidth: 220 }}
+              >
+                <option value="all">All Bills</option>
+                <option value="withDues">With Dues</option>
+                <option value="withoutDues">Without Dues (Paid/No Dues)</option>
+                <option value="paid">Fully Paid</option>
+              </select>
+            </div>
+            <div className="col-md-4 d-flex align-items-center justify-content-end">
+              <div>
+                <strong>Total Bills: </strong>{bills ? bills.length : 0}
+              </div>
+            </div>
+          </div>
+        </div>
+          {bills && bills.length > 0 ? bills.map((count, index) => (
+            <div key={count.id || index}>
                       <table className="table" border="1" >
                           <tr >
                              <th>Name</th>
@@ -227,7 +410,11 @@ export default class Bills extends Component {
                            )}
                         </table>
                 </div>
-          ))}    
+          )) : (
+            <div className="alert alert-info" style={{ margin: "20px", padding: "20px", textAlign: "center" }}>
+              <strong>No bills found</strong> matching the selected filters.
+            </div>
+          )}    
            
       </div>
     );

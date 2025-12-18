@@ -31,9 +31,11 @@
     flex-direction: column;
     block-size: 100%;
     gap: 10px;
+    height: 100vh;
 }
 .rootClassname > .rdg {
   flex: 1;
+  min-height: 0
 }
 
 .toolbarClassname {
@@ -63,4 +65,5 @@
 
 @media print {
   table {page-break-inside: avoid;}
+  .no-print {display: none !important;}
 }

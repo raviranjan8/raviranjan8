@@ -20,6 +20,7 @@ import CustomerDaily from "./components/customer-today.component";
 import CollectionBillsList from "./components/collection-bills-list.component";
 import EmployeeDaily from "./components/customer-today.component";
 import CollectionDaily from "./components/collection-daily.component";
+import DuesList from "./components/dues-list.component";
 import CustomerList from "./components/customer-list.component";
 import Bills from "./components/bills.component";
 import CollectionBills from "./components/collection-bills.component";
@@ -153,17 +154,17 @@ class App extends Component {
 
                           {showModeratorBoard && (
                             <li className="nav-item">
-                                    <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
-                                      Collection
-                                    </Link>
-                                  </li>
+                              <Link to={"/gui/collectionDaily/"+moment().format("DD-MMM-YYYY")} className="nav-link">
+                                Collection
+                              </Link>
+                            </li>
                           )}
-                            {showModeratorBoard && (
+                          {showModeratorBoard && (
                             <li className="nav-item">
-                                    <Link to={"/gui/CollectionBillsList/"+moment().format("DD-MMM-YYYY")} className="nav-link">
-                                      CollectionBillsList
-                                    </Link>
-                                  </li>
+                              <Link to={"/gui/CollectionBillsList/"+moment().format("DD-MMM-YYYY")} className="nav-link">
+                                CollectionBillsList
+                              </Link>
+                            </li>
                           )}
 
                     
@@ -216,6 +217,7 @@ class App extends Component {
               <Route exact path="/gui/customerCalendar/:date" component={CustomerCalendar} />
               <Route exact path="/gui/customerDaily/:date" component={CustomerDaily} />
               <Route exact path="/gui/bills/:month" component={Bills} />
+              <Route exact path="/gui/dues/:month" component={DuesList} />
               <Route exact path="/gui/collectionbills/:from/:to" component={CollectionBills} />
               <Route exact path="/gui/collectionbills/:from/:to/:partyId" component={CollectionBills} />
               <Route exact path="/gui/expenseBills/:month" component={ExpenseBills} />

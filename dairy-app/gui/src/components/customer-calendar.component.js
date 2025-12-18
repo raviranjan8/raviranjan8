@@ -515,7 +515,7 @@ const CustomerCalendar = props => {
         {calendar ? (
         <div >
           <Grid container spacing={{ xs: 1}} >
-          <Grid item xs={6} sm={3}> 
+          <Grid item xs={2} sm={2}> 
               <Link
                 to={"/gui/customerCalendar/"+calendar.currentDate.clone().subtract(1, 'months').format('MMM-YYYY')}
                 className="badge bg-warning">
@@ -528,41 +528,47 @@ const CustomerCalendar = props => {
                 Next
               </Link>
           </Grid>
-          <Grid item xs={6} sm={3}> 
+          <Grid item xs={3} sm={3}> 
               <Link to="#" onClick={ () => generateBill(calendar.currentDate.format("MMM-YYYY"))}
                 className="badge bg-secondary">
                  Generate Bill Month - {calendar.currentDate.format("MMM-YYYY")}
               </Link>
                
           </Grid> 
-		  <Grid item xs={6} sm={3}> 
-			<input
-                type="number"
-                id="rate"
-                required
-                defaultValue={rate.rate}
-                onChange={onChangeRate}
-                name="rate"
-				style={{ width:60, height:20, marginRight:5 }}
-              />
-              <Link to="#" onClick={saveRate} className="badge bg-secondary">
-                 Set Rate
-              </Link>
-			  
+          <Grid item xs={2} sm={2}> 
+            <input
+                    type="number"
+                    id="rate"
+                    required
+                    defaultValue={rate.rate}
+                    onChange={onChangeRate}
+                    name="rate"
+                    className="no-print"
+                    style={{ width:60, height:20, marginRight:5 }}
+                  />
+                  <Link to="#" onClick={saveRate} className="badge bg-secondary">
+                    Set Rate
+                  </Link>
           </Grid> 
-          <Grid item xs={3} sm={2}> 
+          <Grid item xs={2} sm={2}> 
               <Link
                 to={"/gui/bills/"+calendar.currentDate.format('MMM-YYYY')}
                 className="badge bg-secondary">
-                 Print - {calendar.currentDate.format("MMM-YYYY")}
+                  Print - {calendar.currentDate.format("MMM-YYYY")}
               </Link>
           </Grid> 
-		  <Grid item xs={3} sm={1}>
-					&nbsp;
-					<Button  className="badge bg-secondary bg-warning">
-								<CSVLink data={filteredRows} filename={'income.txt'}>Export</CSVLink>
-					</Button>
-				</Grid> 
+          <Grid item xs={2} sm={2}> 
+              <Link
+                to={"/gui/dues/"+calendar.currentDate.format('MMM-YYYY')}
+                className="badge bg-secondary">
+                  Dues - {calendar.currentDate.format("MMM-YYYY")}
+              </Link>
+          </Grid> 
+          <Grid item xs={1} sm={1}>
+              <Button  className="badge bg-secondary bg-warning">
+                    <CSVLink data={filteredRows} filename={'income.txt'}>Export</CSVLink>
+              </Button>
+            </Grid> 
         </Grid>
         </div>     
          ) : (
