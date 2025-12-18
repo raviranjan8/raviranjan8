@@ -14,11 +14,13 @@ export default class DuesList extends Component {
       allBills: null,
       routes: [],
       selectedRoute: "",
+      duesFilter: "all",
       sortField: "",
       sortDirection: "asc"
     };
 
     this.handleRouteChange = this.handleRouteChange.bind(this);
+    this.handleDuesFilterChange = this.handleDuesFilterChange.bind(this);
     this.handleSort = this.handleSort.bind(this);
     this.renderSortIndicator = this.renderSortIndicator.bind(this);
   }
@@ -39,7 +41,7 @@ export default class DuesList extends Component {
         bills &&
           bills.map((bill, index) => {
             // Only pick customers having dues
-            if (bill.dues && bill.dues > 0) {
+            if ((bill.dues && bill.dues > 0) || (bill.bill && bill.bill > 0)) {
               const initialRow = {};
               initialRow["id"] = bill.id;
               initialRow["partyId"] = bill.partyId;
@@ -138,8 +140,19 @@ export default class DuesList extends Component {
     );
   }
 
+  handleDuesFilterChange(e) {
+    this.setState(
+      {
+        duesFilter: e.target.value
+      },
+      () => {
+        this.applyFilters();
+      }
+    );
+  }
+
   applyFilters() {
-    const { allBills, selectedRoute } = this.state;
+    const { allBills, selectedRoute, duesFilter } = this.state;
 
     if (!allBills || allBills.length === 0) {
       this.setState({
@@ -161,7 +174,24 @@ export default class DuesList extends Component {
         }
       }
 
-      // we already filtered by dues > 0 when building rows
+      // Filter by dues/payment (same options as bills page)
+      if (duesFilter === "withDues") {
+        // Only with dues > 0
+        if (!bill.dues || bill.dues <= 0) {
+          return false;
+        }
+      } else if (duesFilter === "withoutDues") {
+        // Only with dues <= 0
+        if (bill.dues && bill.dues > 0) {
+          return false;
+        }
+      } else if (duesFilter === "paid") {
+        // Fully paid: dues <= 0 and some payment done
+        if ( bill.totalBill || bill.totalBill != 0) {
+          return false;
+        }
+      }
+
       return true;
     });
 
@@ -220,7 +250,7 @@ export default class DuesList extends Component {
   }
 
   render() {
-    const { bills, routes, selectedRoute } = this.state;
+    const { bills, routes, selectedRoute, duesFilter } = this.state;
     const month = this.props.match.params.month;
 
     return (
@@ -236,7 +266,7 @@ export default class DuesList extends Component {
           }}
         >
           <div className="row">
-            <div className="col-md-6 d-flex align-items-center">
+            <div className="col-md-4 d-flex align-items-center">
               <label
                 htmlFor="routeFilter"
                 className="form-label"
@@ -259,7 +289,28 @@ export default class DuesList extends Component {
                 ))}
               </select>
             </div>
-            <div className="col-md-6 d-flex align-items-center justify-content-end">
+            <div className="col-md-4 d-flex align-items-center">
+              <label
+                htmlFor="duesFilter"
+                className="form-label"
+                style={{ marginRight: 8, marginBottom: 0 }}
+              >
+                <strong>Payment/Dues:</strong>
+              </label>
+              <select
+                className="form-control"
+                id="duesFilter"
+                value={duesFilter}
+                onChange={this.handleDuesFilterChange}
+                style={{ maxWidth: 220 }}
+              >
+                <option value="all">All Bills</option>
+                <option value="withDues">With Dues</option>
+                <option value="withoutDues">Without Dues (Paid/No Dues)</option>
+                <option value="paid">Fully Paid</option>
+              </select>
+            </div>
+            <div className="col-md-4 d-flex align-items-center justify-content-end">
               <div>
                 <strong>Total Customers with Dues: </strong>
                 {bills ? bills.length : 0}

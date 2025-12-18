@@ -194,8 +194,8 @@ export default class Bills extends Component {
           return false;
         }
       } else if (duesFilter === "paid") {
-        // Show only bills that are fully paid (dues <= 0 and payment > 0)
-        if ((bill.dues && bill.dues > 0) || !bill.paid || bill.paid <= 0) {
+        // Show only bills that are fully paid (dues <= 0 and totalBill = 0)
+        if ( bill.totalBill || bill.totalBill != 0) {
           return false;
         }
       }
